@@ -27,13 +27,20 @@
 #include <asm/system.h>
 #include <asm/memmap.h>
 
-#define UARTB_BASE 0x70006040
+#define UARTB_PBASE 0x70006040
+#define UARTB_VBASE 0x70006040
 
 .macro	dputc,val
 mov	r0, \val
-bl	putc
+bl	pputc
 .endm
 
+.macro	dvputc,val
+mov	r0, \val
+bl	vputc
+.endm
+
+	
 	
         .type   text, %function
 ENTRY(text)
@@ -63,9 +70,30 @@ ENTRY(text)
 	mcr	p15, 0, r0, c1, c0, 0
 
 	mcr	p15, 0, r10, c8, c7, 0	@ invalidate I + D TLBs
-
 	dputc #'O'
-	/* clear page table area */
+	
+	@ Relocate to kernel physical address.
+	adr	r0, LC0
+	ldmia 	r0, {r1, r2, r3, r4}            @ r2 - linked _start
+	sub	r1, r1, #0xFE000000
+	sub	r2, r2, #0xFE000000
+	sub	r3, r3, #0xFE000000
+	sub	r4, r4, #0xFE000000
+	subs 	r0, r1, r0 			@ r0 = linked - actual
+	sub	r0, r2, r0			@ r0 = actual _start
+1:	ldr 	r1, [r0], #4
+	str	r1, [r2], #4
+	cmp	r2, r3
+	blo 	1b
+	isb
+	dsb
+	dputc 	#'4'
+	mov 	pc, r4
+reloc_done:
+	dputc 	#'5'
+	
+
+	/* PGD is set up 16K below the load address. */
 pgd_setup:
 	adr     r0, text
 	mov	r1, r0
@@ -115,11 +143,8 @@ dac_setup:
 	mov     r0, r0
 	mov     r0, r0
 
-        mcr	p15, 0, ip, c7, c7, 0	@ Invalidate I, D caches & BTB
-        mcr	p15, 0, ip, c7, c10, 4	@ Drain Write (& Fill) Buffer
-        mcr	p15, 0, ip, c8, c7, 0	@ Invalidate I, D TLBs
-
-	dputc #'O'
+	mcr	p15, 0, r10, c8, c7, 0	@ invalidate I + D TLBs
+	dvputc #'O'
 	b	clear_bss
 
 1:	.word   _sbss
@@ -155,8 +180,15 @@ stack_setup:
 	.long   0
 	.long   start_xen
 
-putc:
-	ldr r1, =UARTB_BASE
+pputc:
+	ldr r1, =UARTB_PBASE
+	cmp	r1, #0
+	beq 	1f
+	strb	r0, [r1]
+1:	mov     pc, lr
+
+vputc:
+	ldr r1, =UARTB_VBASE
 	cmp	r1, #0
 	beq 	1f
 	strb	r0, [r1]
@@ -166,11 +198,34 @@ ENTRY(arch_context_switch)
 	mov	pc, lr
 
 mem_map_table:
-	MAP_ENTRY(0xC0000000, 0xC0000000, 64, PDE_TYPE_HYPERVISOR)
-	MAP_ENTRY(0xFF000000, 0xC0000000, 2, PDE_TYPE_HYPERVISOR)
-	MAP_ENTRY(0xE0000000, 0x10000000, 1, PDE_TYPE_IO)
+
+	/* Identity mapped 1GB. */
+	MAP_ENTRY(0x00000000, 0x00000000, 1024, PDE_TYPE_HYPERVISOR)
+
+	/* Kernel. */
+	MAP_ENTRY(0xFF000000, 0x00100000, 2, PDE_TYPE_HYPERVISOR)
+
+	/* CPU. */
+	MAP_ENTRY(0xFE000000, 0x50040000, 1, PDE_TYPE_IO)
+
+	/* PPSB. */
+	MAP_ENTRY(0xFE200000, 0x60000000, 1, PDE_TYPE_IO)
+
+	/* APB. */
+	MAP_ENTRY(0xFE300000, 0x70000000, 1, PDE_TYPE_IO)
+
+	/* IRAM. */
+	MAP_ENTRY(0xFE400000, 0x40000000, 1, PDE_TYPE_IO)
 	MAP_ENTRY(0,0,0,0)
 
+LC0:
+	.word   LC0                        @ r1
+	.word	text			   @ r2
+	.word	_end			   @ r3
+	.word   reloc_done	 	   @ r4
+	.align
+
+	
 ENTRY(sra_info_ptr)
 __SRA_INFO:
 	.long	0

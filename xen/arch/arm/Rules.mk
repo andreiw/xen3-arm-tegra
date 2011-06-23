@@ -17,7 +17,7 @@ CFLAGS +=-mabi=aapcs-linux -mno-thumb-interwork
 endif
 
 machine-$(CONFIG_MACHINE_IMX21)       := imx21
-machine-$(CONFIG_MACHINE_TEGRA2)       := tegra
+machine-$(CONFIG_MACHINE_TEGRA2)      := tegra
 
 TARGET_MACHINE := $(machine-y)
 
@@ -39,5 +39,4 @@ $(error gcc-3.1.x unsupported - upgrade to at least gcc-3.2.x)
 endif
 endif
 
-
-
+include $(BASEDIR)/arch/$(TARGET_ARCH)/arch-$(TARGET_MACHINE)/Rules.mk

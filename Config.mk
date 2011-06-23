@@ -5,7 +5,7 @@ debug ?= n
 
 XEN_COMPILE_ARCH    ?= $(shell uname -m | sed -e s/i.86/x86_32/)
 XEN_TARGET_ARCH     ?= arm
-XEN_TARGET_SUBARCH  ?= imx21
+XEN_TARGET_SUBARCH  ?= tegra
 XEN_TARGET_X86_PAE  ?= n
 
 LINUX_ROOT=/home/nirvana/cc_root/nirvana_OSV_mirage_linux_int/OSV_Mirage/linux
@@ -48,10 +48,6 @@ CFLAGS    ?= -Os -fomit-frame-pointer
 CFLAGS    += -DNDEBUG
 else
 CFLAGS    += -g -Os -fomit-frame-pointer
-endif
-
-ifeq ($(XEN_TARGET_SUBARCH),ssdtv)
-CFLAGS += -march=armv6k -mtune=arm1136j-s
 endif
 
 ifneq ($(EXTRA_PREFIX),)
