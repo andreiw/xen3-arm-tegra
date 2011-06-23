@@ -1,0 +1,104 @@
+
+#ifndef __ARM_DOMAIN_H__
+#define __ARM_DOMAIN_H__
+
+#include <asm/mm.h>
+#include <asm/page.h>
+#include <asm/current.h>
+#include <xen/cpumask.h>
+#include <xen/cache.h>
+#include <xen/spinlock.h>
+#include <public/arch-arm.h>
+
+#define MAPHASH_ENTRIES		8
+#define MAPHASH_HASHFN(pfn) ((pfn) & (MAPHASH_ENTRIES-1))
+#define MAPHASHENT_NOTINUSE ((u16)~0U)
+
+struct trap_bounce {
+	unsigned long error_code;
+	unsigned long flags; /* TBF_ */
+	unsigned long pc;
+};
+
+struct vcpu_maphash {
+    struct vcpu_maphash_entry {
+        unsigned long pfn;
+        uint16_t      idx;
+        uint16_t      refcnt;
+    } hash[MAPHASH_ENTRIES];
+}__cacheline_aligned;
+
+
+#define MAPCACHE_ORDER   10
+#define MAPCACHE_ENTRIES (1 << MAPCACHE_ORDER)
+
+struct mapcache {
+    /* The PTEs that provide the mappings, and a cursor into the array. */
+    pte_t *l1tab;
+    unsigned int cursor;
+
+    /* Protects map_domain_page(). */
+    spinlock_t lock;
+
+    /* Which mappings are in use, and which are garbage to reap next epoch? */
+    unsigned long inuse[BITS_TO_LONGS(MAPCACHE_ENTRIES)];
+    unsigned long garbage[BITS_TO_LONGS(MAPCACHE_ENTRIES)];
+
+    /* Lock-free per-VCPU hash of recently-used mappings. */
+    struct vcpu_maphash vcpu_maphash[MAX_VIRT_CPUS];
+}__cacheline_aligned;
+
+
+extern void mapcache_init(struct domain *);
+
+/* x86/64: toggle guest between kernel and user modes. */
+extern void toggle_guest_mode(struct vcpu *);
+
+/*
+ * Initialise a hypercall-transfer page. The given pointer must be mapped
+ * in Xen virtual address space (accesses are not validated or checked).
+ */
+extern void hypercall_page_initialise(void *);
+
+
+struct arch_domain
+{
+#if 0
+    pte_t *mm_perdomain_pt;
+    /* map_domain_page() mapping cache. */
+#endif
+    struct mapcache mapcache;
+
+    /* I/O-port admin-specified access capabilities. */
+    struct rangeset *ioport_caps;
+
+} __cacheline_aligned;
+
+
+struct arch_vcpu
+{
+    struct vcpu_guest_context guest_context;
+
+    unsigned long      flags;
+
+    void (*schedule_tail) (struct vcpu *);
+
+    /* I/O-port access bitmap. */
+    u8 *iobmp;        /* Guest kernel virtual address of the bitmap. */
+    int iobmp_limit;  /* Number of ports represented in the bitmap.  */
+    int iopl;         /* Current IOPL for this VCPU. */
+
+	guest_table_t	guest_table;           /* (MA) guest notion of cr3 */
+
+	unsigned long	*guest_vtable;         /* virtual address of pagetable */
+
+    /* xen-arm extention */
+    unsigned long	guest_pstart;		/* guest OS physical start address */
+    unsigned long	guest_vstart;		/* guest OS virtual start address */
+
+} __cacheline_aligned;
+
+void startup_cpu_idle_loop(void);
+
+#endif 
+

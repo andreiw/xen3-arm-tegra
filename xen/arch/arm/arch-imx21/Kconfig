@@ -1,0 +1,5 @@
+config PLATFORM_IMX21ADS
+	bool "Freescale i.MX21ADS board"
+	select MACHINE_IMX21 
+	help
+		Say Y here if you are using the Freescale i.MX21ADS board.

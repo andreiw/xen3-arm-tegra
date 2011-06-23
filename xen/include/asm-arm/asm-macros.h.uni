@@ -1,0 +1,292 @@
+#ifndef __ASM_ARM_ASM_MACROS_H
+#define __ASM_ARM_ASM_MACROS_H
+
+#include <asm/system.h>
+#include <asm/arch/config.h>
+
+#ifdef __ASSEMBLY__
+/*
+ * Endian independent macros for shifting bytes within registers.
+ */
+#ifndef __ARMEB__
+#define pull            lsr
+#define push            lsl
+#define get_byte_0      lsl #0
+#define get_byte_1      lsr #8
+#define get_byte_2      lsr #16
+#define get_byte_3      lsr #24
+#define put_byte_0      lsl #0
+#define put_byte_1      lsl #8
+#define put_byte_2      lsl #16
+#define put_byte_3      lsl #24
+#else
+#define pull            lsl
+#define push            lsr
+#define get_byte_0      lsr #24
+#define get_byte_1      lsr #16
+#define get_byte_2      lsr #8
+#define get_byte_3      lsl #0
+#define put_byte_0      lsl #24
+#define put_byte_1      lsl #16
+#define put_byte_2      lsl #8
+#define put_byte_3      lsl #0
+#endif
+
+/*
+ * Data preload for architectures that support it
+ */
+#define PLD(code...)
+
+/*
+ * LOADREGS - ldm with PC in register list (eg, ldmfd sp!, {pc})
+ */
+#ifdef __STDC__
+#define LOADREGS(cond, base, reglist...)\
+        ldm##cond       base,reglist
+#else
+#define LOADREGS(cond, base, reglist...)\
+        ldm/**/cond     base,reglist
+#endif
+
+/*
+ * Build a return instruction for this processor type.
+ */
+#define RETINSTR(instr, regs...)\
+        instr   regs
+
+@
+@ Stack format (ensured by USER_* and SVC_*)
+@
+#if 0
+#define S_FRAME_SIZE    72
+#define S_CONTEXT		68
+#define S_PSR           64
+#define S_PC            60
+#define S_LR			56
+#define S_SP			52
+#define S_IP            48
+#define S_FP            44
+#define S_R10           40
+#define S_R9            36
+#define S_R8            32
+#define S_R7            28
+#define S_R6            24
+#define S_R5            20
+#define S_R4            16
+#define S_R3            12
+#define S_R2            8
+#define S_R1            4
+#define S_R0            0
+#endif
+
+#define CTXT_R0			0
+#define CTXT_R1			4
+#define CTXT_R2			8
+#define CTXT_R3			12
+#define CTXT_R4			16
+#define CTXT_R5			20
+#define CTXT_R6			24
+#define CTXT_R7			28
+#define CTXT_R8			32
+#define CTXT_R9			36
+#define CTXT_R10		40
+#define CTXT_FP			44
+#define CTXT_IP			48
+#define CTXT_USP		52
+#define CTXT_ULR		56
+#define CTXT_SSP		60
+#define CTXT_SLR		64
+#define CTXT_PC			68
+#define CTXT_SPSR		72
+#define CTXT_EXTRA		76
+#define CTXT_FRAME_SIZE	80
+
+#ifdef CONFIG_EABI_SUPPORT
+#define SPFIX(code...)	code
+#else
+#define SPFIX(code...)
+#endif
+
+#define INSTALL_VECTOR_STUB(name, offset, mode, correction, branch_table)       \
+        vector_##name:                                                  \
+		vector_stub     offset, mode, correction, branch_table
+
+.macro vector_stub      offset, mode, correction, branch_table
+	sub     sp, sp, #16
+	sub     lr, lr, #\correction
+	stmia   sp!, {r0, lr}
+
+	mrs     r0, spsr
+	mov     lr, #\offset
+	stmia   sp!, {r0, lr}
+
+	mrs     lr, cpsr
+	eor	lr, lr, #(\mode ^ PSR_MODE_SVC)
+	msr     spsr_cxsf, lr                   @ switch to SVC_32 mode
+
+	and     r0, r0, #15
+	adr     lr, \branch_table
+	ldr     lr, [lr, r0, lsl #2]
+	sub     r0, sp, #16
+	movs    pc, lr                          @ Changes mode and branches
+.endm
+
+.macro push_cpu_ctxt_in_svc
+	stmdb	sp, {r0-r3}				@ Save 4 registers
+	mov     r0, lr					@ Save xxx32 r14
+	mov     r1, sp					@ Save xxx32 sp
+	mrs     r3, spsr				@ Save xxx32 spsr
+	mrs     r2, cpsr				@ Get the CPSR
+	bic     r2, r2, #(PSR_MODE)		@ Fix for SVC mode
+	orr     r2, r2, #(PSR_SVC32_MODE)
+	msr     cpsr_c, r2				@ Punch into SVC mode
+									
+	mov     r2, sp;					@ Save SVC sp
+	str     r0, [sp, #-4]!			@ Push return address
+	str     lr, [sp, #-4]!			@ Push SVC lr
+	str     r2, [sp, #-4]!			@ Push SVC sp
+	msr     spsr_all, r3			@ Restore correct spsr
+	ldmdb	r1, {r0-r3}				@ Restore 4 regs from xxx mode
+	sub     sp, sp, #(4*15)			@ Adjust the stack pointer
+	stmia	sp, {r0-r12}			@ Push the user mode registers
+	add     r0, sp, #(4*13)			@ Adjust the stack pointer
+	stmia	r0, {r13-r14}^			@ Push the user mode registers
+	mov     r0, r0					@ NOP for previous instruction
+	mrs     r0, spsr_all			@ Put the SPSR on the stack
+	str     r0, [sp, #-4]!
+.endm
+
+.macro restore_cpu_ctxt_from_svc
+	ldr     r0, [sp], #0x0004		@ Get the SPSR from stack
+	msr		spsr_all, r0			@ Restore SPSR
+	ldmia   sp, {r0-r14}^			@ Restore registers (usr mode)
+	mov     r0, r0					@ NOP for previous instruction
+	add     sp, sp, #(4*15)			@ Adjust the stack pointer
+	ldmia	sp, {sp, lr, pc}^		@ Restore lr and exit
+.endm
+
+.macro push_cpu_ctxt
+	str	    lr, [sp, #-4]!			@ Push the return address
+	sub	    sp, sp, #(4*17)			@ Adjust the stack pointer
+	stmia	sp, {r0-r12}			@ Push the user mode registers
+	add	    r0, sp, #(4*13)			@ Adjust the stack pointer
+	stmia	r0, {r13-r14}^			@ Push the user mode registers
+	mov     r0, r0					@ NOP for previous instruction
+	mrs	    r0, spsr_all			@ Put the SPSR on the stack
+.endm
+
+.macro restore_cpu_ctxt
+	ldr		r0, [sp], #0x0004		@ Get the SPSR from stack
+	msr		spsr_all, r0
+	ldmia	sp, {r0-r14}^			@ Restore registers (usr mode)
+	mov		r0, r0					@ NOP for previous instruction
+	add		sp, sp, #(4*17)			@ Adjust the stack pointer
+	ldr		lr, [sp], #0x0004		@ Pull the return address
+.endm
+
+.macro save_usr_context
+	sub     sp, sp, #S_FRAME_SIZE
+	stmib   sp, {r1 - lr}^
+
+	ldmia   r0, {r1 - r4}
+	add     r0, sp, #S_PC
+
+	str     r1, [sp]                        @ Save the "real" r0
+	stmia   r0, {r2 - r4}
+	@stmdb   r0, {sp, lr}^
+.endm
+
+.macro save_svc_context
+	sub     sp, sp, #S_FRAME_SIZE
+SPFIX(  tst	sp, #4                 )
+SPFIX(  bicne	sp, sp, #4             )
+	stmib   sp, {r1 - r12}
+
+	ldmia   r0, {r1 - r4}
+	add     r5, sp, #S_SP
+	add     r0, sp, #S_FRAME_SIZE
+SPFIX(  addne	r0, r0, #4  ) 
+	str     r1, [sp]                @ Save real R0
+
+	mov     r1, lr
+
+	stmia   r5, {r0 - r4}
+.endm
+
+.macro restore_svc_context
+	ldr     r0, [sp, #S_PSR]                @ irqs are already disabled
+	msr     spsr_cxsf, r0
+	ldmia   sp, {r0 - pc}^                  @ load r0 - pc, cpsr
+.endm
+
+.macro  disable_irq, temp
+	msr		cpsr_c, #PSR_STATUS_I | PSR_MODE_SVC
+.endm
+
+.macro  enable_irq, temp
+	msr		cpsr_c, #PSR_MODE_SVC
+.endm 
+
+.macro	cci		rd
+	mov		\rd, #STACK_SIZE
+	sub		\rd, \rd, #1
+	bic		\rd, r13, \rd
+.endm
+
+.macro __local_save_flags  temp_int
+	mrs    \temp_int,  cpsr                @ local_save_flags
+.endm
+
+.macro __local_irq_resotre  temp_int
+	msr    cpsr_c, \temp_int              @ local_irq_restore
+.endm
+
+
+.macro __local_irq_save  flag tmp
+	mrs     \flag, cpsr
+	orr     \tmp, \flag, #128
+	msr     cpsr, \tmp
+.endm
+
+.macro __local_irq_restore  flag 
+	msr     cpsr_c, \flag       
+.endm
+
+/*
+ * Save the current IRQ state and disable IRQs.  Note that this macro
+ * assumes FIQs are enabled, and that the processor is in SVC mode.
+ */
+.macro	save_and_disable_irqs, oldcpsr, temp
+	mrs	\oldcpsr, cpsr
+	mov	\temp, #PSR_STATUS_I | PSR_MODE_SVC
+	msr	cpsr_c, \temp
+.endm
+
+/*
+ * Restore interrupt state previously stored in a register.  We don't
+ * guarantee that this will preserve the flags.
+ */
+.macro	restore_irqs, oldcpsr
+	msr	cpsr_c, \oldcpsr
+.endm
+
+.macro  cpwait, rd
+	mrc     p15, 0, \rd, c2, c0, 0          @ arbitrary read of cp15
+	mov     \rd, \rd                        @ wait for completion
+	sub     pc, pc, #4                      @ flush instruction pipeline
+.endm
+
+.macro  cpwait_ret, lr, rd
+	mrc     p15, 0, \rd, c2, c0, 0          @ arbitrary read of cp15
+	sub     pc, \lr, \rd, LSR #32           @ wait for completion and
+.endm
+
+#define USER(x...)				\
+9999:	x;					\
+	.section __ex_table,"a";		\
+	.align	3;				\
+	.long	9999b,9001f;			\
+	.previous
+
+#endif
+#endif

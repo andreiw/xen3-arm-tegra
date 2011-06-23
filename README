@@ -1,0 +1,10 @@
+Xen3 ARMv7/Tegra2 work.
+=======================
+
+This is a an effort to bring up Samsung's Xen3 tree on
+Tegra2. It's meant as a stepping stone to the Xen4 port.
+
+Contact Info
+============
+
+Andrei Warkentin (andrey.warkentin@gmail.com, andreiw@motorola.com)

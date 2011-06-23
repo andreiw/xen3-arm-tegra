@@ -1,0 +1,19 @@
+CC		= gcc
+OBJS	= main.o common.o gtop.o
+SRCS	= $(OBJS:.o=.c)
+TARGET	= gtop
+CFLAGS	= -Wall -g \
+		  -DG_DISABLE_DEPRECATED \
+		  -DGDK_DISABLE_DEPRECATED \
+		  -DGDK_PIXBUF_DISABLE_DEPRECATED \
+		  -DGTK_DISABLE_DEPRECATED
+
+all: $(OBJS)
+	$(CC) $(OBJS) -o $(TARGET) $(CFLAGS) `pkg-config gtk+-2.0 --cflags --libs gthread-2.0`
+
+clean:
+	rm -f $(OBJS) $(TARGET)
+
+.c.o: 
+	$(CC) -c $< $(CFLAGS) `pkg-config gtk+-2.0 --cflags`
+
