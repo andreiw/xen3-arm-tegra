@@ -303,7 +303,7 @@ int new_guest_ptbase(unsigned long ptr, int need_flush)
 	return 1;
 }
 
-int do_mmuext_op(GUEST_HANDLE(mmuext_op_t) uops, 
+int do_mmuext_op(GUEST_HANDLE(mmuext_op_t) uops,
 				 unsigned int count,
 				 GUEST_HANDLE(uint) pdone,
 				 unsigned int foreigndom)

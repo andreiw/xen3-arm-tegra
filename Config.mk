@@ -17,8 +17,7 @@ HOSTCFLAGS = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
 #
 # Cross Tool chain configuration
 #
-CROSS_COMPILE	= /opt/arm-linux-4.1.1/bin/arm-linux-
-#CROSS_COMPILE	= /opt/arm_v6_vfp_le.chelsea/bin/arm_v6_vfp_le-
+CROSS_COMPILE	?= arm-eabi-
 
 #
 # Target Configuration for Xen-ARM

@@ -1,5 +1,5 @@
-#CC		= gcc
-CC		= /opt/arm-linux-4.1.1/bin/arm-linux-gcc
+CC		= gcc
+#CC		= /opt/arm-linux-4.1.1/bin/arm-linux-gcc
 OBJS	= main.o common.o gtop.o mygen.o 
 SRCS	= $(OBJS:.o=.c)
 TARGET	= libgtop.so

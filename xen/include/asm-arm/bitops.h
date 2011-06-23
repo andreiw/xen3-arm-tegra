@@ -213,13 +213,13 @@ extern int _find_next_bit_be(const unsigned long *p, int size, int offset);
  */
 #define	ATOMIC_BITOP_LE(name,nr,p)		\
 	(__builtin_constant_p(nr) ?		\
-	 ____atomic_##name(nr, p) :		\
-	 _##name##_le(nr,p))
+	 ____atomic_##name(nr, (volatile void *) p) :		\
+	 _##name##_le(nr, (volatile void *) p))
 
 #define	ATOMIC_BITOP_BE(name,nr,p)		\
 	(__builtin_constant_p(nr) ?		\
-	 ____atomic_##name(nr, p) :		\
-	 _##name##_be(nr,p))
+	 ____atomic_##name(nr, (volatile void *) p) :		\
+	 _##name##_be(nr, (volatile void *) p))
 
 #define NONATOMIC_BITOP(name,nr,p)		\
 	(____nonatomic_##name(nr, p))

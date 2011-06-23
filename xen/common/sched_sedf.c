@@ -244,8 +244,6 @@ static inline void extraq_check(struct vcpu *d) {
 #elif (EXTRA == EXTRA_SLICE_WEIGHT || \
           EXTRA == EXTRA_BLOCK_WEIGHT)
             extraq_add_sort_update(d, EXTRA_UTIL_Q, 0);
-#elif
-            ;
 #endif
             PRINT(2,"Added dom %i.%i to L1 extraQ\n",d->domain->domain_id,
                   d->vcpu_id);

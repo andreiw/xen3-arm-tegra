@@ -73,7 +73,7 @@
  */
 typedef struct grant_entry {
     /* GTF_xxx: various type and flag information.  [XEN,GST] */
-    uint16_t flags;
+    uint32_t flags;
     /* The domain being granted foreign privileges. [GST] */
     domid_t  domid;
     /*
