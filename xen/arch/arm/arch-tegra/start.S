@@ -28,7 +28,7 @@
 #include <asm/memmap.h>
 
 #define UARTB_PBASE 0x70006040
-#define UARTB_VBASE 0x70006040
+#define UARTB_VBASE 0xFE306040
 
 .macro	dputc,val
 mov	r0, \val
