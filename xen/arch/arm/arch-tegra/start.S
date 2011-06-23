@@ -1,9 +1,10 @@
 /*
- * start.S 
+ * start.S
  *
- * Copyright (C) 2008 Samsung Electronics 
+ * Copyright (C) 2008 Samsung Electronics
  *          ChanJu Park  <bestworld@samsung.com>
- * 
+ * Copyright (C) 2011 Andrei Warkentin <andreiw@msalumni.com>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public version 2 of License as published by
  * the Free Software Foundation.
@@ -26,17 +27,44 @@
 #include <asm/system.h>
 #include <asm/memmap.h>
 
+#define UARTB_BASE 0x70006040
+
+.macro	dputc,val
+mov	r0, \val
+bl	putc
+.endm
+
+	
         .type   text, %function
 ENTRY(text)
-        msr     cpsr_c, #PSR_F_BIT | PSR_I_BIT | PSR_MODE_SVC
+	.rept	8
+	mov	r0, r0
+	.endr
 
-        adr     r1, __SRA_INFO
-        str     r0, [r1, #0]
+	b	1f
+	.word	0x016f2818		@ Magic numbers to help the loader
+	.word   text
+	.word   0                       @ Technically end of image, but w/e.
+1:
 
-        mcr    p15, 0, ip, c7, c7, 0   @ Invalidate I, D caches & BTB
-        mcr    p15, 0, ip, c7, c10, 4  @ Drain Write Buffer
-        mcr    p15, 0, ip, c8, c7, 0   @ Invalidate I, D TLBs
+	@ Should save ATAG here.
+	dputc #'B'	
+        msr	cpsr_c, #PSR_F_BIT | PSR_I_BIT | PSR_MODE_SVC
 
+        adr	r1, __SRA_INFO
+        str	r0, [r1, #0]
+
+	@ Enable Strict alignment checking & Instruction cache.
+	mrc	p15, 0, r0, c1, c0, 0
+	bic	r0, r0, #0x00002300     @ clear bits 13, 9:8 (--V- --RS)
+	bic	r0, r0, #0x00000005     @ clear bits 0, 2 (---- -C-M)
+	orr	r0, r0, #0x00000002     @ set bit 1 (A) Align
+	orr	r0, r0, #0x00001000     @ set bit 12 (I) enable I-Cache
+	mcr	p15, 0, r0, c1, c0, 0
+
+	mcr	p15, 0, r10, c8, c7, 0	@ invalidate I + D TLBs
+
+	dputc #'O'
 	/* clear page table area */
 pgd_setup:
 	adr     r0, text
@@ -91,6 +119,7 @@ dac_setup:
         mcr	p15, 0, ip, c7, c10, 4	@ Drain Write (& Fill) Buffer
         mcr	p15, 0, ip, c8, c7, 0	@ Invalidate I, D TLBs
 
+	dputc #'O'
 	b	clear_bss
 
 1:	.word   _sbss
@@ -118,12 +147,20 @@ stack_setup:
 	msr	cpsr_c, #PSR_MODE_SVC | PSR_I_BIT | PSR_F_BIT
 	ldr	sp, =(svc_stack + STACK_SIZE)
 
+	dputc   #'T'
 	adr     r12, 1f
 	ldmia   r12, {lr, pc}
-
+	
 1:
 	.long   0
 	.long   start_xen
+
+putc:
+	ldr r1, =UARTB_BASE
+	cmp	r1, #0
+	beq 	1f
+	strb	r0, [r1]
+1:	mov     pc, lr
 
 ENTRY(arch_context_switch)
 	mov	pc, lr
