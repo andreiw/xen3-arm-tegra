@@ -69,14 +69,27 @@ config CPU_ARMV6
 	select CPU_COPYPAGE_V6
 	select CPU_ABRT_EV6
 
+config CPU_ARMV7
+       bool
+       select CPU_ARMV6
+
+config CPU_CORTEX_A9
+       bool
+       select CPU_ARMV7
+
 config MACHINE_IMX21
 	bool
 	select CPU_ARM926T
+
+config MACHINE_TEGRA2
+       bool
+       select CPU_ARM926T
 
 choice
 	prompt "Select target platform"
 
 source "arch/arm/arch-imx21/Kconfig"
+source "arch/arm/arch-tegra/Kconfig"
 endchoice
 
 endmenu

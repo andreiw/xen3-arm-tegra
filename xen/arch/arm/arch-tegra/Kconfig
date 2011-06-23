@@ -1,0 +1,5 @@
+config PLATFORM_XOOM_TEGRA2
+	bool "Xoom Tegra2"
+	select MACHINE_TEGRA2
+	help
+		Say Y here if you are using the Xoom Tegra2

@@ -17,6 +17,7 @@ CFLAGS +=-mabi=aapcs-linux -mno-thumb-interwork
 endif
 
 machine-$(CONFIG_MACHINE_IMX21)       := imx21
+machine-$(CONFIG_MACHINE_TEGRA2)       := tegra
 
 TARGET_MACHINE := $(machine-y)
 
