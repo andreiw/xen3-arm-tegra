@@ -49,8 +49,10 @@
 #define DOM_CREATE_SUCCESS	1
 #define DOM_CREATE_FAIL		0
 
-#define BANNER "\n\rXen/ARM virtual machine monitor for ARM architecture\n\r"		\
-	       "Copyright (C) 2007 Samsung Electronics Co, Ltd. All Rights Reserved.\n" \
+const char BANNER[] =
+	"Xen/ARM virtual machine monitor for ARM architecture\n\r" \
+	"Copyright (C) 2007 Samsung Electronics Co, Ltd. All Rights Reserved.\n" \
+	"Copyright (C) 2011 Andrei Warkentin <andreiw@msalumni.com>\n";
 
 struct vcpu *idle_vcpu[NR_CPUS];
 
@@ -115,12 +117,6 @@ struct domain_addr_set domain_addrs[4]= {
 		0
 	},
 };
-
-
-void console_init(void)
-{
-        init_console();
-}
 
 static void subsystem_init(void)
 {
@@ -276,7 +272,24 @@ static void shared_info_table_init(void)
 
 asmlinkage void start_xen(void *params)
 {
-	console_init();
+	platform_setup();
+
+	init_console();
+	while(1) {
+	printk("A\n");
+	printk("B\n");
+	printk("C\n");
+	printk("D\n");
+	}
+
+	printk(BANNER);
+	printk(" http://www.cl.cam.ac.uk/netos/xen\n");
+	printk(" University of Cambridge Computer Laboratory\n\n");
+	printk(" Xen version %d.%d%s (%s@%s) (%s) %s\n",
+	       XEN_VERSION, XEN_SUBVERSION, XEN_EXTRAVERSION,
+	       XEN_COMPILE_BY, XEN_COMPILE_DOMAIN,
+	       XEN_COMPILER, XEN_COMPILE_DATE);
+	printk(" Latest ChangeSet: %s\n\n", XEN_CHANGESET);
 
 	memory_init();
 
@@ -287,8 +300,6 @@ asmlinkage void start_xen(void *params)
 #if CONFIG_GCOV_XEN
 	gcov_core_init();
 #endif
-
-	printk(BANNER);
 
 #ifdef CONFIG_VMM_SECURITY
 	if ( sra_init() != 0 )

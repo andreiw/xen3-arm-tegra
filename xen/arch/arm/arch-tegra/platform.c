@@ -43,6 +43,15 @@ static void tegra_uart_putc(struct serial_port *port, char c)
 	/* if(c == '\n') { */
 	/* 	tegra_uart_putc(port, '\r'); */
 	/* } */
+	char *d = (char *) IO_TO_VIRT (TEGRA_DEBUG_UART_BASE);
+	*d = c;
+	barrier();
+	asm("dsb");
+
+	if(c == '\n') {
+	 	tegra_uart_putc(port, '\r');
+	}
+
 }
 
 static int tegra_uart_getc(struct serial_port *port, char *pc)
@@ -64,31 +73,7 @@ static struct uart_driver tegra_uart_driver = {
 
 static void tegra_uart_init(void)
 {
-	/* imx21_gpio_mode(GPIO_PORTE + 12, TX_MODE); */
-	/* imx21_gpio_mode(GPIO_PORTE + 13, RX_MODE); */
-
-	/* UCR2(UART_1) = 0; */
-	/* UCR3(UART_1) |= UCR3_RXDMUXSEL; */
-
-	/* while((USR2(UART_1) & USR2_TXFE) == 0); */
-
-	/* UCR1(UART_1) = UCR1_UARTEN; */
-
-	/* /\* */
-	/*  *   (Desired Baud Rate * 16)     NUM */
-	/*  * --------------------------- = ----- */
-	/*  *  Reference Frequency (16Mhz)  DENOM */
-	/*  * */
-	/*  *  UBIR = NUM - 1 */
-	/*  *  IBMR = DENOM - 1 */
-	/*  *\/ */
-	/* UBIR(UART_1) = 1152 - 1; */
-	/* UBMR(UART_1) = 10000 - 1; */
-
-	/* //UFCR(UART_1) = UFCR_TXTL_2; */
-	/* UCR2(UART_1) = UCR2_IRTS | UCR2_WS | UCR2_TXEN | UCR2_SRST;  */
-
-	/* serial_register_uart(0, &tegra_uart_driver, &tegra_uart_params);	 */
+	serial_register_uart(0, &tegra_uart_driver, &tegra_uart_params);
 }
 
 static void tegra_sys_clk_init(void)

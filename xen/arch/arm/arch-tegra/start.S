@@ -204,7 +204,7 @@ stack_setup:
 	adr	r0, str_h
 	bl	printascii
 	b	1f
-str_h:	.asciz	"\r\nHanding off to C..."
+str_h:	.asciz	"\r\nHanding off to C...\r\n"
 	.align
 1:	adr	r12, 1f
 	ldmia	r12, {lr, pc}
