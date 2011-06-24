@@ -27,21 +27,6 @@
 #include <asm/system.h>
 #include <asm/memmap.h>
 
-#define UARTB_PBASE 0x70006040
-#define UARTB_VBASE 0xFE306040
-
-.macro	dputc,val
-mov	r0, \val
-bl	pputc
-.endm
-
-.macro	dvputc,val
-mov	r0, \val
-bl	vputc
-.endm
-
-	
-	
         .type   text, %function
 ENTRY(text)
 	.rept	8
@@ -50,13 +35,42 @@ ENTRY(text)
 
 	b	1f
 	.word	0x016f2818		@ Magic numbers to help the loader
-	.word   text
-	.word   0                       @ Technically end of image, but w/e.
+	.word	text
+	.word	0                       @ Technically end of image, but w/e.
 1:
 
-	@ Should save ATAG here.
-	dputc #'B'	
-        msr	cpsr_c, #PSR_F_BIT | PSR_I_BIT | PSR_MODE_SVC
+	@ Save ATAG and dump some info.
+        adr	r1, __ATAG_INFO
+        str	r2, [r1, #0]
+	mov	ip, r2
+	adr	r0, str_p0
+	bl	printascii
+	mov	r0, ip
+	bl	printhex8
+	adr	r0, str_p1
+	bl	printascii
+	adr	r0, LC0
+	ldmia	r0, {r1, r2, r3, r4}
+	mov	r0, r2
+	bl	printhex8
+	adr	r0, str_p2
+	bl	printascii
+	adr	r0, text
+	bl	printhex8
+	adr	r0, str_p3
+	bl	printascii
+	ldr	r0, =KERNEL_PHYS
+	bl	printhex8
+	adr	r0, str_n
+	bl	printascii
+	b	1f
+str_p0:	.asciz "\r\nATAG    (P): 0x"
+str_p1:	.asciz "\r\nLinked  (V): 0x"
+str_p2:	.asciz "\r\nActual  (P): 0x"
+str_p3:	.asciz "\r\nDesired (P): 0x"
+str_n:	.asciz "\r\n"
+	.align
+1:	msr	cpsr_c, #PSR_F_BIT | PSR_I_BIT | PSR_MODE_SVC
 
         adr	r1, __SRA_INFO
         str	r0, [r1, #0]
@@ -70,27 +84,24 @@ ENTRY(text)
 	mcr	p15, 0, r0, c1, c0, 0
 
 	mcr	p15, 0, r10, c8, c7, 0	@ invalidate I + D TLBs
-	dputc #'O'
 	
-	@ Relocate to kernel physical address.
+	@ Relocate to kernel desired physical address.
 	adr	r0, LC0
-	ldmia 	r0, {r1, r2, r3, r4}            @ r2 - linked _start
+	ldmia	r0, {r1, r2, r3, r4}            @ r2 - linked _start
 	sub	r1, r1, #0xFE000000
 	sub	r2, r2, #0xFE000000
 	sub	r3, r3, #0xFE000000
 	sub	r4, r4, #0xFE000000
-	subs 	r0, r1, r0 			@ r0 = linked - actual
+	subs	r0, r1, r0 			@ r0 = linked - actual
 	sub	r0, r2, r0			@ r0 = actual _start
-1:	ldr 	r1, [r0], #4
+1:	ldr	r1, [r0], #4
 	str	r1, [r2], #4
 	cmp	r2, r3
-	blo 	1b
+	blo	1b
 	isb
 	dsb
-	dputc 	#'4'
-	mov 	pc, r4
+	mov	pc, r4
 reloc_done:
-	dputc 	#'5'
 	
 
 	/* PGD is set up 16K below the load address. */
@@ -144,7 +155,6 @@ dac_setup:
 	mov     r0, r0
 
 	mcr	p15, 0, r10, c8, c7, 0	@ invalidate I + D TLBs
-	dvputc #'O'
 	b	clear_bss
 
 1:	.word   _sbss
@@ -172,27 +182,18 @@ stack_setup:
 	msr	cpsr_c, #PSR_MODE_SVC | PSR_I_BIT | PSR_F_BIT
 	ldr	sp, =(svc_stack + STACK_SIZE)
 
-	dputc   #'T'
+	adr	r0, str_h
+	bl	printascii
+	b	1f
+str_h:	.asciz "\r\nHanding off to C..."
+	.align
+1:	
 	adr     r12, 1f
 	ldmia   r12, {lr, pc}
 	
 1:
 	.long   0
 	.long   start_xen
-
-pputc:
-	ldr r1, =UARTB_PBASE
-	cmp	r1, #0
-	beq 	1f
-	strb	r0, [r1]
-1:	mov     pc, lr
-
-vputc:
-	ldr r1, =UARTB_VBASE
-	cmp	r1, #0
-	beq 	1f
-	strb	r0, [r1]
-1:	mov     pc, lr
 
 ENTRY(arch_context_switch)
 	mov	pc, lr
@@ -229,6 +230,10 @@ LC0:
 ENTRY(sra_info_ptr)
 __SRA_INFO:
 	.long	0
+
+ENTRY(atag_info_ptr)
+__ATAG_INFO:
+	.long  0
 
 	.section .bss.stack_aligned,"w"
 ENTRY(svc_stack)

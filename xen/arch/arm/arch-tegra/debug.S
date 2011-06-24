@@ -2,6 +2,7 @@
  *  linux/arch/arm/kernel/debug-armv.S
  *
  *  Copyright (C) 1994-1999 Russell King
+ *  Copyright (C) 2011 Andrei Warkentin <andreiw@motorola.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -10,34 +11,46 @@
  *  32-bit debugging code
  */
 
-#include <xen/config.h>  // for  CONFIG_ARCH_IMX21
-#include <xen/linkage.h>	// for ENTRY
+#include <xen/config.h>
+#include <asm/arch/tegra-regs.h>
+#include <asm/serial_reg.h>
+#include <xen/linkage.h>
 
+#define UART_SHIFT 2
+	
+	
 		.text
 
                 .macro  addruart,rx
                 mrc     p15, 0, \rx, c1, c0
                 tst     \rx, #1                 @ MMU enabled?
-                moveq   \rx, #0x10000000        @ Physical
-                movne   \rx, #IMX_IO_BASE       @ Virtual
-
-                orr     \rx, \rx, #0xa000
-                orr     \rx, \rx, #0x40
+	        beq     1f @ Physical
+	        ldr     \rx, =TEGRA_APB_VIRT
+	        b       2f
+1:	        ldr     \rx, =TEGRA_APB_PHYS
+2:	        orr     \rx, \rx, #(TEGRA_DEBUG_UART_BASE & 0xFF)
+		orr     \rx, \rx, #(TEGRA_DEBUG_UART_BASE & 0xFF00)
                 .endm
 
                 .macro  senduart,rd,rx
-                str     \rd, [\rx]      @ TXDATA
-                .endm
-
-                .macro  waituart,rd,rx
+                strb    \rd, [\rx, #UART_TX << UART_SHIFT]
                 .endm
 
                 .macro  busyuart,rd,rx
-1002:           ldr    \rd, [\rx, #0x54]
-                and     \rd, \rd, #0x2000
-                cmp     \rd, #0x2000
+1002:           ldrb    \rd, [\rx, #UART_LSR << UART_SHIFT]
+                and     \rd, \rd, #UART_LSR_TEMT | UART_LSR_THRE
+                teq     \rd, #UART_LSR_TEMT | UART_LSR_THRE
                 bne     1002b
                 .endm
+
+                .macro  waituart,rd,rx
+#ifdef FLOW_CONTROL
+1001:           ldrb    \rd, [\rx, #UART_MSR << UART_SHIFT]
+                tst     \rd, #UART_MSR_CTS
+                beq     1001b
+#endif
+                .endm
+
 
 /*
  * Useful debugging routines

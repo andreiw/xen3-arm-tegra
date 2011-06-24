@@ -20,61 +20,51 @@
 #ifndef __ASM_ARCH_HARDWARE_H
 #define __ASM_ARCH_HARDWARE_H
 
-#include "imx-regs.h"
-#include "mx2ads.h"
+#include <asm/sizes.h>
+#include <asm/arch/tegra-regs.h>
 
 #ifndef __ASSEMBLY__
-# define __REG(x)	(*((volatile u32 *)IO_ADDRESS(x))) 
+# define __REG(x)	(*((volatile u32 *)IO_ADDRESS(x)))
 # define __REG16(x)    (*((volatile u16 *)IO_ADDRESS(x)))
 
 // gcc version 4.1.1 error
 #if 0
 # define __REG2(x,y)	\
 	( __builtin_constant_p(y) ? (__REG((x) + (y))) \
-			  : (*(volatile u32 *)((u32)&__REG(x) + (y))) ) 
+			  : (*(volatile u32 *)((u32)&__REG(x) + (y))) )
 #endif
 # define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))
 #endif
 
-#define IMX_IO_PHYS        0x10000000
-#define IMX_IO_SIZE        0x00100000
-#define IMX_IO_BASE        0xe0000000
+#define TEGRA_IRAM_PHYS    0x40000000
+#define TEGRA_IRAM_SIZE    SZ_256K
+#define TEGRA_IRAM_VIRT    0xFE400000
 
-#define IMX_CS0_PHYS       0xc8000000
-#define IMX_CS0_SIZE       0x02000000
-#define IMX_CS0_VIRT       0xe8000000
+#define TEGRA_CPU_PHYS     0x50040000
+#define TEGRA_CPU_SIZE     SZ_16K
+#define TEGRA_CPU_VIRT     0xFE000000
 
-#define IMX_CS1_PHYS       0xcc000000
-#define IMX_CS1_SIZE       0x01000000
-#define IMX_CS1_VIRT       0xec000000
+#define TEGRA_PPSB_PHYS    0x60000000
+#define TEGRA_PPSB_SIZE    SZ_1M
+#define TEGRA_PPSB_VIRT    0xFE200000
 
-#define IMX_EMI_PHYS       0xdf000000
-#define IMX_EMI_SIZE       0x00004000
-#define IMX_EMI_VIRT       0xeb000000
+#define TEGRA_APB_PHYS     0x70000000
+#define TEGRA_APB_SIZE     SZ_1M
+#define TEGRA_APB_VIRT     0xFE300000
 
+#define IO_TO_VIRT_BETWEEN(p, st, sz)	((p) >= (st) && (p) < ((st) + (sz)))
+#define IO_TO_VIRT_XLATE(p, pst, vst)	(((p) - (pst) + (vst)))
 
-#define IMX_FB_VIRT        0xF1000000
-#define IMX_FB_SIZE        (256*1024)
-
-/* macro to get at IO space when running virtually */
-#define IO_ADDRESS(x) ((x) | IMX_IO_BASE)
-
-#ifndef __ASSEMBLY__
-/*
- * Handy routine to set GPIO functions
- */
-extern void imx_gpio_mode( int gpio_mode );
-
-/* get frequencies in Hz */
-extern unsigned int imx21_get_system_clk(void);
-extern unsigned int imx21_get_mcu_clk(void);
-extern unsigned int imx21_get_perclk1(void); /* UART[12], Timer[12], PWM */
-extern unsigned int imx21_get_perclk2(void); /* LCD, SD, SPI[12]         */
-extern unsigned int imx21_get_perclk3(void); /* SSI                      */
-extern unsigned int imx21_get_hclk(void);    /* SDRAM, CSI, Memory Stick,*/
-/* I2C, DMA                 */
-#endif
-
+#define IO_TO_VIRT(n) ( \
+	IO_TO_VIRT_BETWEEN((n), IO_PPSB_PHYS, IO_PPSB_SIZE) ?		\
+		IO_TO_VIRT_XLATE((n), IO_PPSB_PHYS, IO_PPSB_VIRT) :	\
+	IO_TO_VIRT_BETWEEN((n), IO_APB_PHYS, IO_APB_SIZE) ?		\
+		IO_TO_VIRT_XLATE((n), IO_APB_PHYS, IO_APB_VIRT) :	\
+	IO_TO_VIRT_BETWEEN((n), IO_CPU_PHYS, IO_CPU_SIZE) ?		\
+		IO_TO_VIRT_XLATE((n), IO_CPU_PHYS, IO_CPU_VIRT) :	\
+	IO_TO_VIRT_BETWEEN((n), IO_IRAM_PHYS, IO_IRAM_SIZE) ?		\
+		IO_TO_VIRT_XLATE((n), IO_IRAM_PHYS, IO_IRAM_VIRT) :	\
+	0)
 
 #define MAXIRQNUM                       62
 #define MAXFIQNUM                       62

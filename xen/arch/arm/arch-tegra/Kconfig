@@ -1,5 +1,29 @@
 config PLATFORM_XOOM_TEGRA2
-	bool "Xoom Tegra2"
+	bool
 	select MACHINE_TEGRA2
-	help
-		Say Y here if you are using the Xoom Tegra2
+	select TEGRA_DEBUG_UARTB
+
+choice
+	depends on MACHINE_TEGRA2
+        prompt "Low-level debug console UART"
+        default TEGRA_DEBUG_UART_NONE
+
+config TEGRA_DEBUG_UART_NONE
+        bool "None"
+
+config TEGRA_DEBUG_UARTA
+        bool "UART-A"
+
+config TEGRA_DEBUG_UARTB
+        bool "UART-B"
+
+config TEGRA_DEBUG_UARTC
+        bool "UART-C"
+
+config TEGRA_DEBUG_UARTD
+        bool "UART-D"
+
+config TEGRA_DEBUG_UARTE
+        bool "UART-E"
+
+endchoice

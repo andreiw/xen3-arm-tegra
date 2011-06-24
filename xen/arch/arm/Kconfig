@@ -85,13 +85,22 @@ config MACHINE_TEGRA2
        bool
        select CPU_ARM926T
 
-choice
-	prompt "Select target platform"
-
 source "arch/arm/arch-imx21/Kconfig"
 source "arch/arm/arch-tegra/Kconfig"
-endchoice
 
+choice
+	prompt "ARM platform"
+config SELECT_PLATFORM_XOOM_TEGRA2
+	bool "Tegra2"
+	select PLATFORM_XOOM_TEGRA2
+	help
+		Say Y here if you are using the Tegra2 Xoom
+config SELECT_PLATFORM_IMX21ADS
+	bool "Freescale i.MX21ADS board"
+	select PLATFORM_IMX21ADS
+	help
+		Say Y here if you are using the Freescale i.MX21ADS board.
+endchoice
 endmenu
 
 menu "Customize Memory Map"
