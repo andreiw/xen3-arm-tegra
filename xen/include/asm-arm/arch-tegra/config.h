@@ -4,8 +4,10 @@
 #define HZ			100
 #define PHYS_OFFSET   		(0x00000000UL)
 
-/* PGD at 1MB, kernel at 1MB + sizeof(PGD). */
-#define KERNEL_PHYS             (0x104000)
+#define KERNEL_PHYS_BASE        (0x100000)
+
+/* This needs to match asm/config.h, xen.lds.S */
+#define KERNEL_VIRT_BASE        (0xff000000)
 
 #define IDLE_PG_TABLE_ADDR	(0xC0004000UL)
 #define __PAGE_OFFSET           (0x3F000000UL)

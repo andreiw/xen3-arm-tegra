@@ -39,7 +39,6 @@
 #define MACHPHYS_MBYTES			4
 #define FRAMETABLE_MBYTES		24
 
-
 #define IOREMAP_VIRT_END			0UL
 #define IOREMAP_VIRT_START			(IOREMAP_VIRT_END - (IOREMAP_MBYTES << 20))
 #define DIRECTMAP_VIRT_END			(IOREMAP_VIRT_START)
@@ -52,10 +51,12 @@
 
 #define MAX_DMADOM_PFN 				0xFFFFFUL /* 32 addressable bits */
 
-
 #ifndef HYPERVISOR_VIRT_START
 # define HYPERVISOR_VIRT_START   mk_unsigned_long(0xFC000000)
 #endif
+
+/* Must match xen.lds.S */
+#define KERNEL_LINK_OFFSET  0x8000
 
 #ifndef __ASSEMBLY__
 extern unsigned long _end; /* standard ELF symbol */

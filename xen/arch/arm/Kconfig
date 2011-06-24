@@ -104,9 +104,6 @@ endchoice
 endmenu
 
 menu "Customize Memory Map"
-config HYPERVISOR_BASE
-	hex "Hypervisor virtual address"
-	default 0xFF000000
 
         menu "Domain Memory Size"
         config MEMMAP_GUEST_0_SIZE

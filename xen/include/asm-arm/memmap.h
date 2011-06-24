@@ -1,5 +1,5 @@
 /***************************************************************************
- * include/xen-arm/memmap.h 
+ * include/xen-arm/memmap.h
  *
  * system memory map (replacement of e820.h)
  *

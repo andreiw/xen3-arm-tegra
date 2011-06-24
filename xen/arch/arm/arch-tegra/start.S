@@ -26,6 +26,7 @@
 #include <asm/page.h>
 #include <asm/system.h>
 #include <asm/memmap.h>
+#include <asm/arch/hardware.h>
 
         .type   text, %function
 ENTRY(text)
@@ -36,11 +37,10 @@ ENTRY(text)
 	b	1f
 	.word	0x016f2818		@ Magic numbers to help the loader
 	.word	text
-	.word	0                       @ Technically end of image, but w/e.
-1:
+	.word	_end
 
 	@ Save ATAG and dump some info.
-        adr	r1, __ATAG_INFO
+1:	adr	r1, __ATAG_INFO
         str	r2, [r1, #0]
 	mov	ip, r2
 	adr	r0, str_p0
@@ -59,46 +59,66 @@ ENTRY(text)
 	bl	printhex8
 	adr	r0, str_p3
 	bl	printascii
-	ldr	r0, =KERNEL_PHYS
+	ldr	r0, =(KERNEL_PHYS_BASE + KERNEL_LINK_OFFSET)
 	bl	printhex8
 	adr	r0, str_n
 	bl	printascii
 	b	1f
-str_p0:	.asciz "\r\nATAG    (P): 0x"
-str_p1:	.asciz "\r\nLinked  (V): 0x"
-str_p2:	.asciz "\r\nActual  (P): 0x"
-str_p3:	.asciz "\r\nDesired (P): 0x"
-str_n:	.asciz "\r\n"
+str_p0:	.asciz	"\r\nATAG    (P): 0x"
+str_p1:	.asciz	"\r\nLinked  (V): 0x"
+str_p2:	.asciz	"\r\nActual  (P): 0x"
+str_p3:	.asciz	"\r\nDesired (P): 0x"
+str_n:	.asciz	"\r\n"
 	.align
 1:	msr	cpsr_c, #PSR_F_BIT | PSR_I_BIT | PSR_MODE_SVC
 
-        adr	r1, __SRA_INFO
-        str	r0, [r1, #0]
+	adr	r1, __SRA_INFO
+	str	r0, [r1, #0]
 
 	@ Enable Strict alignment checking & Instruction cache.
 	mrc	p15, 0, r0, c1, c0, 0
-	bic	r0, r0, #0x00002300     @ clear bits 13, 9:8 (--V- --RS)
-	bic	r0, r0, #0x00000005     @ clear bits 0, 2 (---- -C-M)
-	orr	r0, r0, #0x00000002     @ set bit 1 (A) Align
-	orr	r0, r0, #0x00001000     @ set bit 12 (I) enable I-Cache
+	bic	r0, r0, #0x00002300	@ clear bits 13, 9:8 (--V- --RS)
+	bic	r0, r0, #0x00000005	@ clear bits 0, 2 (---- -C-M)
+	orr	r0, r0, #0x00000002	@ set bit 1 (A) Align
+	orr	r0, r0, #0x00001000	@ set bit 12 (I) enable I-Cache
 	mcr	p15, 0, r0, c1, c0, 0
 
 	mcr	p15, 0, r10, c8, c7, 0	@ invalidate I + D TLBs
 	
 	@ Relocate to kernel desired physical address.
 	adr	r0, LC0
-	ldmia	r0, {r1, r2, r3, r4}            @ r2 - linked _start
-	sub	r1, r1, #0xFE000000
-	sub	r2, r2, #0xFE000000
-	sub	r3, r3, #0xFE000000
-	sub	r4, r4, #0xFE000000
-	subs	r0, r1, r0 			@ r0 = linked - actual
+	ldmia	r0, {r1, r2, r3, r4}		@ r2 - linked _start
+	sub	r1, r1, #KERNEL_VIRT_BASE
+	add	r1, r1, #KERNEL_PHYS_BASE
+	sub	r2, r2, #KERNEL_VIRT_BASE
+	add	r2, r2, #KERNEL_PHYS_BASE
+	sub	r3, r3, #KERNEL_VIRT_BASE
+	add	r3, r3, #KERNEL_PHYS_BASE
+	sub	r4, r4, #KERNEL_VIRT_BASE
+	add	r4, r4, #KERNEL_PHYS_BASE
+	cmp	r0, r1
+	beq	3f	@ source == destination
+	bhs	2f	@ source > destination
+
+	@ source < destination
+	sub	r0, r1, r0			@ r0 = desired - actual
+	sub	r0, r3, r0			@ r0 = actual _end
+	sub 	r0, r0, #4
+	sub 	r3, r3, #4
+1:	ldr	r1, [r0], #-4
+	str	r1, [r3], #-4
+	cmp	r3, r2
+	blo	1b
+	b 	3f
+
+	@ source > destination
+2:	sub	r0, r1, r0			@ r0 = desired - actual
 	sub	r0, r2, r0			@ r0 = actual _start
-1:	ldr	r1, [r0], #4
+2:	ldr	r1, [r0], #4
 	str	r1, [r2], #4
 	cmp	r2, r3
-	blo	1b
-	isb
+	blo	2b
+3:	isb
 	dsb
 	mov	pc, r4
 reloc_done:
@@ -106,68 +126,67 @@ reloc_done:
 
 	/* PGD is set up 16K below the load address. */
 pgd_setup:
-	adr     r0, text
+	adr	r0, text
 	mov	r1, r0
-	sub     r0, r0, #0x4000
-	mov     r2, #0
-1:      str     r2, [r1, #-4]!
-	str     r2, [r1, #-4]!
-	str     r2, [r1, #-4]!
-	str     r2, [r1, #-4]!
-	cmp     r0, r1
-	bne     1b
+	sub	r0, r0, #0x4000
+	mov	r2, #0
+1:      str	r2, [r1, #-4]!
+	str	r2, [r1, #-4]!
+	str	r2, [r1, #-4]!
+	str	r2, [r1, #-4]!
+	cmp	r0, r1
+	bne	1b
 
 	adr	r4, mem_map_table
 	b	2f
 
-1:
-	str	r3, [r0, r2]
+1:	str	r3, [r0, r2]
 	add	r2, r2, #4
 	add	r3, r3, #0x100000
 	adds	r1, r1, #-1
 	bhi	1b
-2:
-	ldmia	r4!, {r1, r2, r3}
+
+2:	ldmia	r4!, {r1, r2, r3}
 	cmp	r1, #0
 	bne	1b
 
 dac_setup:
-	mov     r5, #(DOMAIN_VALUE(DOMAIN_SUPERVISOR, DOMAIN_MANAGER)	| \
-		      DOMAIN_VALUE(DOMAIN_HYPERVISOR, DOMAIN_MANAGER)	| \
-		      DOMAIN_VALUE(DOMAIN_USER, DOMAIN_MANAGER)		| \
-		      DOMAIN_VALUE(DOMAIN_IO, DOMAIN_CLIENT))
+	mov	r5, #(DOMAIN_VALUE(DOMAIN_SUPERVISOR, DOMAIN_MANAGER)	| \
+		DOMAIN_VALUE(DOMAIN_HYPERVISOR, DOMAIN_MANAGER)	| \
+		DOMAIN_VALUE(DOMAIN_USER, DOMAIN_MANAGER)		| \
+		DOMAIN_VALUE(DOMAIN_IO, DOMAIN_CLIENT))
 
-	mcr     p15, 0, r5, c3, c0, 0	@ Load DAC
+	mcr	p15, 0, r5, c3, c0, 0	@ Load DAC
 
-	mcr     p15, 0, r0, c2, c0, 0	@ Load page table pointer
-	mrc     p15, 0, r6, c1, c0, 0
+	mcr	p15, 0, r0, c2, c0, 0	@ Load page table pointer
+	mrc	p15, 0, r6, c1, c0, 0
 
-	orr     r6, r6, #CR_M           @ Enable Memory Management Unit
-	orr     r6, r6, #CR_C           @ Enable Data Cache
-	orr     r6, r6, #CR_W           @ Enable Write Buffer
-	orr     r6, r6, #CR_I           @ Enable Instruction Cache
-	orr     r6, r6, #CR_V           @ Use High Vector Table
+	orr	r6, r6, #CR_M           @ Enable Memory Management Unit
+	orr	r6, r6, #CR_C           @ Enable Data Cache
+	orr	r6, r6, #CR_W           @ Enable Write Buffer
+	orr	r6, r6, #CR_I           @ Enable Instruction Cache
+	orr	r6, r6, #CR_V           @ Use High Vector Table
 
-	mcr     p15, 0, r6, c1, c0, 0   @ Turn on MMU
-	mrc     p15, 0, r3, c0, c0, 0
-	mov     r0, r0
-	mov     r0, r0
-	mov     r0, r0
+	mcr	p15, 0, r6, c1, c0, 0   @ Turn on MMU
+	mrc	p15, 0, r3, c0, c0, 0
+	mov	r0, r0
+	mov	r0, r0
+	mov	r0, r0
 
 	mcr	p15, 0, r10, c8, c7, 0	@ invalidate I + D TLBs
 	b	clear_bss
 
-1:	.word   _sbss
-	.word   _ebss
+1:	.word	_sbss
+	.word	_ebss
 
 clear_bss:
-	adr     r0, 1b
-	ldmia   r0, {r1, r2}
-	mov     r0, #0
+	adr	r0, 1b
+	ldmia	r0, {r1, r2}
+	mov	r0, #0
 1:
-	str     r0, [r1], #4
-	cmp     r1, r2
-	blo     1b
+	str	r0, [r1], #4
+	cmp	r1, r2
+	blo	1b
 
 stack_setup:
 	msr	cpsr_c, #PSR_MODE_IRQ | PSR_I_BIT | PSR_F_BIT
@@ -185,15 +204,12 @@ stack_setup:
 	adr	r0, str_h
 	bl	printascii
 	b	1f
-str_h:	.asciz "\r\nHanding off to C..."
+str_h:	.asciz	"\r\nHanding off to C..."
 	.align
-1:	
-	adr     r12, 1f
-	ldmia   r12, {lr, pc}
-	
-1:
-	.long   0
-	.long   start_xen
+1:	adr	r12, 1f
+	ldmia	r12, {lr, pc}
+1:	.long	0
+	.long	start_xen
 
 ENTRY(arch_context_switch)
 	mov	pc, lr
@@ -201,41 +217,40 @@ ENTRY(arch_context_switch)
 mem_map_table:
 
 	/* Identity mapped 1GB. */
-	MAP_ENTRY(0x00000000, 0x00000000, 1024, PDE_TYPE_HYPERVISOR)
+	MAP_ENTRY(TEGRA_RAM_PHYS, TEGRA_RAM_VIRT, 1024, PDE_TYPE_HYPERVISOR)
 
 	/* Kernel. */
-	MAP_ENTRY(0xFF000000, 0x00100000, 2, PDE_TYPE_HYPERVISOR)
+	MAP_ENTRY(KERNEL_VIRT_BASE, KERNEL_PHYS_BASE, 2, PDE_TYPE_HYPERVISOR)
 
 	/* CPU. */
-	MAP_ENTRY(0xFE000000, 0x50040000, 1, PDE_TYPE_IO)
+	MAP_ENTRY(TEGRA_CPU_VIRT, TEGRA_CPU_PHYS, 1, PDE_TYPE_IO)
 
 	/* PPSB. */
-	MAP_ENTRY(0xFE200000, 0x60000000, 1, PDE_TYPE_IO)
+	MAP_ENTRY(TEGRA_PPSB_VIRT, TEGRA_PPSB_PHYS, 1, PDE_TYPE_IO)
 
 	/* APB. */
-	MAP_ENTRY(0xFE300000, 0x70000000, 1, PDE_TYPE_IO)
+	MAP_ENTRY(TEGRA_APB_VIRT, TEGRA_APB_PHYS, 1, PDE_TYPE_IO)
 
 	/* IRAM. */
-	MAP_ENTRY(0xFE400000, 0x40000000, 1, PDE_TYPE_IO)
+	MAP_ENTRY(TEGRA_IRAM_VIRT, TEGRA_IRAM_PHYS, 1, PDE_TYPE_IO)
 	MAP_ENTRY(0,0,0,0)
 
 LC0:
-	.word   LC0                        @ r1
-	.word	text			   @ r2
-	.word	_end			   @ r3
-	.word   reloc_done	 	   @ r4
+	.word	LC0			@ r1
+	.word	text			@ r2
+	.word	_end			@ r3
+	.word	reloc_done		@ r4
 	.align
 
-	
 ENTRY(sra_info_ptr)
 __SRA_INFO:
 	.long	0
 
 ENTRY(atag_info_ptr)
 __ATAG_INFO:
-	.long  0
+	.long	0
 
-	.section .bss.stack_aligned,"w"
+	.section	.bss.stack_aligned,"w"
 ENTRY(svc_stack)
 	.fill STACK_SIZE,1,0
 ENTRY(irq_stack)

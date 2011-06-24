@@ -36,6 +36,10 @@
 # define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))
 #endif
 
+#define TEGRA_RAM_PHYS     0x0
+#define TEGRA_RAM_VIRT     0
+#define TEGRA_RAM_SIZE     SZ_1G
+
 #define TEGRA_IRAM_PHYS    0x40000000
 #define TEGRA_IRAM_SIZE    SZ_256K
 #define TEGRA_IRAM_VIRT    0xFE400000
