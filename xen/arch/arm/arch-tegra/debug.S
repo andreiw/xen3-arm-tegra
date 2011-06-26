@@ -24,11 +24,9 @@
                 .macro  addruart,rx
                 mrc     p15, 0, \rx, c1, c0
                 tst     \rx, #1                 @ MMU enabled?
-	        beq     1f @ Physical
-	        ldr     \rx, =TEGRA_APB_VIRT
-	        b       2f
-1:	        ldr     \rx, =TEGRA_APB_PHYS
-2:	        orr     \rx, \rx, #(TEGRA_DEBUG_UART_BASE & 0xFF)
+	        ldrne   \rx, =TEGRA_APB_VIRT
+	        ldreq   \rx, =TEGRA_APB_PHYS
+	        orr     \rx, \rx, #(TEGRA_DEBUG_UART_BASE & 0xFF)
 		orr     \rx, \rx, #(TEGRA_DEBUG_UART_BASE & 0xFF00)
                 .endm
 

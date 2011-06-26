@@ -1,7 +1,7 @@
 # -*- mode: Makefile; -*-
 
 # A debug build of Xen and tools?
-debug ?= n
+debug ?= y
 
 XEN_COMPILE_ARCH    ?= $(shell uname -m | sed -e s/i.86/x86_32/)
 XEN_TARGET_ARCH     ?= arm
@@ -47,7 +47,7 @@ ifneq ($(debug),y)
 CFLAGS    ?= -Os -fomit-frame-pointer
 CFLAGS    += -DNDEBUG
 else
-CFLAGS    += -g -Os -fomit-frame-pointer
+CFLAGS    += -g
 endif
 
 ifneq ($(EXTRA_PREFIX),)

@@ -38,11 +38,13 @@ ENTRY(text)
 	.word	0x016f2818		@ Magic numbers to help the loader
 	.word	text
 	.word	_end
-
+	
 	@ Save ATAG and dump some info.
 1:	adr	r1, __ATAG_INFO
         str	r2, [r1, #0]
 	mov	ip, r2
+	mov	r0, #'Y'
+	bl	printch
 	adr	r0, str_p0
 	bl	printascii
 	mov	r0, ip
@@ -82,7 +84,6 @@ str_n:	.asciz	"\r\n"
 	orr	r0, r0, #0x00000002	@ set bit 1 (A) Align
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) enable I-Cache
 	mcr	p15, 0, r0, c1, c0, 0
-
 	mcr	p15, 0, r10, c8, c7, 0	@ invalidate I + D TLBs
 	
 	@ Relocate to kernel desired physical address.
@@ -157,7 +158,6 @@ dac_setup:
 		DOMAIN_VALUE(DOMAIN_IO, DOMAIN_CLIENT))
 
 	mcr	p15, 0, r5, c3, c0, 0	@ Load DAC
-
 	mcr	p15, 0, r0, c2, c0, 0	@ Load page table pointer
 	mrc	p15, 0, r6, c1, c0, 0
 
@@ -165,7 +165,6 @@ dac_setup:
 	orr	r6, r6, #CR_C           @ Enable Data Cache
 	orr	r6, r6, #CR_W           @ Enable Write Buffer
 	orr	r6, r6, #CR_I           @ Enable Instruction Cache
-	orr	r6, r6, #CR_V           @ Use High Vector Table
 
 	mcr	p15, 0, r6, c1, c0, 0   @ Turn on MMU
 	mrc	p15, 0, r3, c0, c0, 0
@@ -200,6 +199,10 @@ stack_setup:
 
 	msr	cpsr_c, #PSR_MODE_SVC | PSR_I_BIT | PSR_F_BIT
 	ldr	sp, =(svc_stack + STACK_SIZE)
+
+	adr	r0, vectors_loc
+	ldr	r0, [r0]
+	mcr	p15, 0, r0, c12, c0, 0
 
 	adr	r0, str_h
 	bl	printascii
@@ -250,6 +253,60 @@ ENTRY(atag_info_ptr)
 __ATAG_INFO:
 	.long	0
 
+vectors_loc:
+	.long vectors
+vectors:
+	b dead_loop   @ RESET, never taken since it always goes to 0x0
+	b und_vector  @ UND
+	b swi_vector  @ SWI
+	b pabt_vector @ PABT
+	b dabt_vector @ DABT
+	b unk_vector  @ ?
+	b irq_vector  @ IRQ
+	b fiq_vector  @ FIQ
+und_vector:
+	adr	r0, str_und
+	b	dead_loop
+str_und:	.asciz	"\r\Undefined Exception!\r\n"
+	.align
+swi_vector:
+	adr	r0, str_swi
+	b	dead_loop
+str_swi:	.asciz	"\r\SWI Exception!\r\n"
+	.align
+pabt_vector:
+	adr	r0, str_pabt
+	b	dead_loop
+str_pabt:	.asciz	"\r\PABT Exception!\r\n"
+	.align
+dabt_vector:
+	adr	r0, str_dabt
+	b	dead_loop
+str_dabt:	.asciz	"\r\DABT Exception!\r\n"
+	.align
+unk_vector:
+	adr	r0, str_unk
+	b	dead_loop
+str_unk:	.asciz	"\r\Unknown Exception!\r\n"
+	.align
+irq_vector:
+	adr	r0, str_irq
+	b	dead_loop
+str_irq:	.asciz	"\r\IRQ Exception!\r\n"
+	.align
+fiq_vector:
+	adr	r0, str_fiq
+	b	dead_loop
+str_fiq:	.asciz	"\r\FIQ Exception!\r\n"
+	.align
+dead_loop:
+@	bl	printascii
+	mov	r0, lr
+	bl	printhex8
+	MRC p15, 0, r0, c6, c0, 0
+	bl	printhex8
+1:	b	1b
+	
 	.section	.bss.stack_aligned,"w"
 ENTRY(svc_stack)
 	.fill STACK_SIZE,1,0

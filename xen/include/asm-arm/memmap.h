@@ -64,7 +64,7 @@ extern struct system_memmap memmap;
 
 
 /*
- *  Physical memory map 
+ *  Physical memory map
  */
 
 #define MEMMAP_XEN_START_PADDR				MEMMAP_DRAM_ADDR

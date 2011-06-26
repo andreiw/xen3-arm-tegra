@@ -65,7 +65,7 @@ void show_registers(struct cpu_context *ctx)
 	unsigned long flags = condition_codes(ctx);
 
 	printk("CPU: %d\n", smp_processor_id());
-    printk("pc : [<%08lx>] \n", ctx->pc);
+	printk("pc : [<%08lx>] \n", ctx->pc);
 	printk("slr: %08lx  ssp: %08lx\n", ctx->slr, ctx->ssp);
 	printk("ulr: %08lx  usp: %08lx\n", ctx->ulr, ctx->usp);
 	printk("ip : %08lx  fp : %08lx\n", ctx->r12, ctx->r11);
@@ -118,8 +118,8 @@ static void backtrace(struct cpu_context *ctx)
 #endif
 	printk("\n");
 
-	if (ok)
-		c_backtrace(fp, ctx->spsr);
+	/* if (ok) */
+	/* 	c_backtrace(fp, ctx->spsr); */
 }
 
 static void unrecoverable_fault(const char *str, int err, struct domain *d, struct cpu_context *ctx)

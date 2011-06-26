@@ -18,25 +18,13 @@ menu "System Type"
 config NOT_USE_WFI
 	bool
 
-config CPU_ISA_32V5
-	bool
-
-config CPU_ISA_32V6
-	bool
-
-config CPU_ABRT_EV6
-	bool
-
-config CPU_CACHE_V6
-	bool
-
-config CPU_CACHE_VIPT
-	bool
-
 config CPU_TLB_V4WBI
 	bool
 
 config CPU_TLB_V6
+	bool
+
+config CPU_TLB_V7
 	bool
 
 config CPU_COPYPAGE_V4WB
@@ -50,28 +38,25 @@ config CPU_COPYPAGE_XSC3
 
 config CPU_ARM926T
 	bool
-	select CPU_ISA_32V5
 	select CPU_TLB_V4WBI
 	select CPU_COPYPAGE_V4WB
 
 config CPU_XSCALE
 	bool
-	select CPU_ISA_32V5
 	select CPU_TLB_V4WBI
 	select CPU_COPYPAGE_XSC3
 
 config CPU_ARMV6
 	bool
-	select CPU_ISA_32V6
 	select CPU_TLB_V6
 	select CPU_CACHE_V6
-	select CPU_CACHE_VIPT
 	select CPU_COPYPAGE_V6
-	select CPU_ABRT_EV6
 
 config CPU_ARMV7
-       bool
-       select CPU_ARMV6
+	bool
+	select CPU_TLB_V7
+	select CPU_CACHE_V7
+	select CPU_COPYPAGE_V6
 
 config CPU_CORTEX_A9
        bool
@@ -83,7 +68,7 @@ config MACHINE_IMX21
 
 config MACHINE_TEGRA2
        bool
-       select CPU_ARM926T
+       select CPU_CORTEX_A9
 
 source "arch/arm/arch-imx21/Kconfig"
 source "arch/arm/arch-tegra/Kconfig"
