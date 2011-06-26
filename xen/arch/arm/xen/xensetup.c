@@ -275,12 +275,14 @@ asmlinkage void start_xen(void *params)
 	platform_setup();
 
 	init_console();
-	while(1) {
 	printk("A\n");
 	printk("B\n");
 	printk("C\n");
 	printk("D\n");
-	}
+	printk("E\n");
+	printk("F\n");
+	printk("G\n");
+	printk("H\n");
 
 	printk(BANNER);
 	printk(" http://www.cl.cam.ac.uk/netos/xen\n");
@@ -291,6 +293,7 @@ asmlinkage void start_xen(void *params)
 	       XEN_COMPILER, XEN_COMPILE_DATE);
 	printk(" Latest ChangeSet: %s\n\n", XEN_CHANGESET);
 
+	while (1);
 	memory_init();
 
 	sort_extables();

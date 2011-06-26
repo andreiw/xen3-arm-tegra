@@ -106,7 +106,7 @@ void printf(const char *fmt, ...)
 
     va_start(args, fmt);
     (void)vsnprintf(buf, sizeof(buf), fmt, args);
-    va_end(args);        
+    va_end(args);
 
     p = buf;
     while ( (q = strchr(p, '\n')) != NULL )
@@ -139,7 +139,7 @@ void set_printk_prefix(const char *prefix)
 
 void init_console(void)
 {
-	sercon_handle = 0; // com 1
+    sercon_handle = 0; // com 1
 
     set_printk_prefix("[XEN] ");
 }

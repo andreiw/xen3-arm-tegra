@@ -22,6 +22,7 @@
 #include <xen/serial.h>
 #include <asm/platform.h>
 #include <asm/irq.h>
+#include <asm/serial_reg.h>
 
 static void tegra_platform_halt(int mode)
 {
@@ -34,24 +35,30 @@ static void tegra_memory_init(void)
 	register_memory_bank(0x00000000, 1 * 1024 * 1024 * 1024);
 }
 
+unsigned long uart_base = IO_TO_VIRT (TEGRA_DEBUG_UART_BASE);
+unsigned long uart_shift = 2;
+
+static inline unsigned char uart_read(int offset)
+{
+	return readb(uart_base + (offset << uart_shift));
+}
+
+static inline void uart_write(unsigned char val, int offset)
+{
+	writeb(val, uart_base + (offset << uart_shift));
+}
+
 static void tegra_uart_putc(struct serial_port *port, char c)
 {
-	/* while(UTS(UART_1) & UTS_TXFULL); */
-
-	/* UTXD(UART_1) = c; */
-
-	/* if(c == '\n') { */
-	/* 	tegra_uart_putc(port, '\r'); */
-	/* } */
-	char *d = (char *) IO_TO_VIRT (TEGRA_DEBUG_UART_BASE);
-	*d = c;
-	barrier();
-	asm("dsb");
+	unsigned long lsr;
+	do {
+		lsr = uart_read (UART_LSR);
+	} 	while (lsr & (UART_LSR_TEMT | UART_LSR_THRE) == 0);
+	uart_write (c, UART_TX);
 
 	if(c == '\n') {
 	 	tegra_uart_putc(port, '\r');
 	}
-
 }
 
 static int tegra_uart_getc(struct serial_port *port, char *pc)
