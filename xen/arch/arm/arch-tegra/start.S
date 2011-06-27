@@ -43,8 +43,6 @@ ENTRY(text)
 1:	adr	r1, __ATAG_INFO
         str	r2, [r1, #0]
 	mov	ip, r2
-	mov	r0, #'Y'
-	bl	printch
 	adr	r0, str_p0
 	bl	printascii
 	mov	r0, ip

@@ -9,12 +9,8 @@
 supervisor_mode_kernel ?= n
 
 CFLAGS  += -nostdinc -fno-builtin -fno-common -fno-strict-aliasing -fno-short-enums -fsigned-char -fshort-wchar -fno-strict-aliasing
-CFLAGS  += -iwithprefix include -Wno-pointer-arith -pipe
+CFLAGS  += -iwithprefix include -Wno-pointer-arith -pipe -mabi=aapcs -mapcs
 CFLAGS  += -I$(BASEDIR)/include -I$(BASEDIR)/include/security -I$(BASEDIR)/include/security/crypto
-
-ifeq ($(CONFIG_EABI_SUPPORT),y)
-CFLAGS +=-mabi=aapcs -mapcs
-endif
 
 ifeq ($(CONFIG_CPU_ARMV7),y)
 CFLAGS += -march=armv7-a
