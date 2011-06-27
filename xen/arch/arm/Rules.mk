@@ -25,6 +25,9 @@ machine-$(CONFIG_MACHINE_TEGRA2)      := tegra
 
 TARGET_MACHINE := $(machine-y)
 
+# Pick any for the no .config menuconfig case.
+TARGET_MACHINE ?= tegra
+
 # Test for at least GCC v3.2.x.
 gcc-ver = $(shell $(CC) -dumpversion | sed -e 's/^\(.\)\.\(.\)\.\(.\)/\$(1)/')
 
