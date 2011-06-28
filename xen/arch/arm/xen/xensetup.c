@@ -181,6 +181,8 @@ static void memory_init()
 
 	/* set page table base */
 	idle_pgd = (pde_t *) (ma_to_va(cpu_get_ttb()));
+	printk("TTB PA 0x%x\n", cpu_get_ttb());
+	printk("idle_pgd VA 0x%x\n", idle_pgd);
 
 	/*
 	 * Memory holes will be reserved during
@@ -191,8 +193,13 @@ static void memory_init()
 
 	xen_pstart = min_page << PAGE_SHIFT;
 	xen_pend = max_page << PAGE_SHIFT;
+	printk("xen_pstart 0x%x\n", xen_pstart);
+	printk("xen_pend 0x%x\n", xen_pend);
+
 
 	/* Initialise boot-time allocator with all RAM situated after modules. */
+	printk("_end 0x%x\n", &_end);
+	printk("_end VA 0x%X\n", ma_to_va(&_end));
 	frame_table = (struct page_info *)(round_pgup(((unsigned long)(&_end))));
 	nr_pages = PFN_UP((max_page - min_page) * sizeof(struct page_info));
 
