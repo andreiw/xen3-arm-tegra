@@ -44,6 +44,10 @@ typedef unsigned long long u64;
 typedef unsigned long paddr_t;
 typedef unsigned long vaddr_t;
 
+typedef u8 bool;
+#define true (1)
+#define false (0)
+
 #endif /* __ASSEMBLY__ */
 
 #endif

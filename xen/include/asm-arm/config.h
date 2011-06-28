@@ -13,7 +13,7 @@
 
 #define ARCH_HAS_IRQ_CONTROL	1
 
-#ifndef STACK_ORDER               
+#ifndef STACK_ORDER
 # define STACK_ORDER				0
 #endif
 
@@ -67,7 +67,7 @@ extern void not_yet(void);      // for just debugging
 
 #define ELFSIZE	32
 
-#endif  
+#endif
 
 
 

@@ -34,8 +34,8 @@
 #include <xen/bitmap.h>
 #include <xen/sched.h>
 #include <xen/event.h>
-#include <asm/linkage.h>	
-#include <asm/hardirq.h> 
+#include <asm/linkage.h>
+#include <asm/hardirq.h>
 #include <security/acm/acm_hooks.h>
 #include <xen/config.h>
 
@@ -53,7 +53,7 @@ int pirq_guest_eoi(struct domain *d, unsigned int irq)
 {
 	struct irqdesc *desc;
 
-	desc = get_irq_descriptor(irq);
+	desc = irq_to_desc(irq);
 
 	spin_lock_irq(&desc->lock);
 	if ( test_and_clear_bit(irq, &d->pirq_mask) && (--((irq_guest_action_t *)desc->action)->in_flight == 0)) {
@@ -98,13 +98,13 @@ int do_set_irq_type(unsigned int irq, unsigned int type)
 static int pirq_ack_type(int irq)
 {
 	struct irqdesc *desc;
-	
-	desc = get_irq_descriptor(irq);
 
-        if (!strcmp(desc->chip->trigger_type, "level"))
+	desc = irq_to_desc(irq);
+
+        if (desc->type & IRQ_TYPE_LEVEL_BOTH)
 	        return ACK_TYPE_UNMASK;
 
-	if (!strcmp(desc->chip->trigger_type, "edge"))
+	if (desc->type & IRQ_TYPE_EDGE_BOTH)
 		return ACK_TYPE_NONE;
 
 	return ACK_TYPE_NONE;
@@ -118,7 +118,7 @@ static void handle_guest_bound_irq(unsigned int irq)
 	irq_guest_action_t      *action;
 	unsigned long flags;
 
-	desc = get_irq_descriptor(irq);
+	desc = irq_to_desc(irq);
 
 	spin_lock_irqsave(&desc->lock, flags);
 	action = (irq_guest_action_t *)desc->action;
@@ -130,7 +130,7 @@ static void handle_guest_bound_irq(unsigned int irq)
 		if (desc->isHIDirq && d->domain_id != (domid_t)foreground_domain) {
 			continue;
 		}
-		
+
 		if(acm_send_guest_pirq(d, irq)){
 			if(action->ack_type == ACK_TYPE_UNMASK) {
 				if(!test_and_set_bit(irq, (volatile unsigned long *)&d->pirq_mask)) {
@@ -158,7 +158,7 @@ int pirq_guest_unmask(struct domain *d)
 			m &= ~(1 << j);
 			pirq = (i << 5) + j;
 
-			desc = get_irq_descriptor(pirq);
+			desc = irq_to_desc(pirq);
 
 			spin_lock_irq(&desc->lock);
 
@@ -185,7 +185,7 @@ int pirq_guest_bind(struct vcpu *v, int irq, int will_share)
 	if ( (irq < 0) || (irq >= NR_IRQS) )
 		return -EINVAL;
 
-	desc = get_irq_descriptor(irq);
+	desc = irq_to_desc(irq);
 
 	spin_lock_irqsave(&desc->lock, flags);
 
@@ -245,14 +245,14 @@ int pirq_guest_unbind(struct domain *d, int irq)
 	unsigned long		flags;
 	int			i;
 
-	desc = get_irq_descriptor(irq);
+	desc = irq_to_desc(irq);
 
 	spin_lock_irqsave(&desc->lock, flags); 
 
 	action = (irq_guest_action_t *)desc->action;
 
 	if ( action->ack_type == ACK_TYPE_UNMASK ) {
-		if ( test_and_clear_bit(irq,(volatile unsigned long *)&d->pirq_mask) && 
+		if ( test_and_clear_bit(irq,(volatile unsigned long *)&d->pirq_mask) &&
 		   (--action->in_flight == 0) ) {
 			desc->chip->unmask(irq);
 		}
@@ -261,7 +261,7 @@ int pirq_guest_unbind(struct domain *d, int irq)
 	if ( action->nr_guests == 1 ) {
 		desc->action = NULL;
 		xfree(action);
-		desc->disable_depth = 1; 
+		desc->disable_depth = 1;
 
 		desc->flags &= ~IRQF_GUEST_BOUND;
 	} else {
@@ -272,7 +272,7 @@ int pirq_guest_unbind(struct domain *d, int irq)
 		action->nr_guests--;
 	}
 
-	spin_unlock_irqrestore(&desc->lock, flags);    
+	spin_unlock_irqrestore(&desc->lock, flags);
 
 	return 0;
 }
@@ -289,7 +289,7 @@ int setup_irq(unsigned int irq, struct irqaction *new)
 		printk("BAD IRQ = %d\n", irq);
 	}
 
-        desc = get_irq_descriptor(irq);
+        desc = irq_to_desc(irq);
 
         spin_lock_irqsave(&desc->lock, flags);
 
@@ -351,23 +351,48 @@ void set_irq_chip(unsigned int irq, struct irqchip *chip)
 	struct irqdesc *desc;
 	unsigned long flags;
 
-	if (irq >= NR_IRQS) {
-		printk("Trying to install chip for IRQ%d\n", irq);
-		return;
-	}
+	BUG_ON (irq >= NR_IRQS);
+	BUG_ON (!chip);
 
-	if (chip == NULL) {
-		printk("BAD CHIP BUG!!!\n");
-		while(1);
-	}
-
-	desc = get_irq_descriptor(irq);
-
+	desc = irq_to_desc(irq);
 	spin_lock_irqsave(&desc->lock, flags);
-
 	desc->chip = chip;
 
 	spin_unlock_irqrestore(&desc->lock, flags);
+}
+
+void *set_irq_data(unsigned int irq, void *data)
+{
+	void *old;
+	struct irqdesc *desc;
+	unsigned long flags;
+
+	BUG_ON (irq >= NR_IRQS);
+
+	desc = irq_to_desc(irq);
+	spin_lock_irqsave(&desc->lock, flags);
+	old = desc->data;
+	desc->data = data;
+
+	spin_unlock_irqrestore(&desc->lock, flags);
+	return old;
+}
+
+void *set_irq_chip_data(unsigned int irq, void *data)
+{
+	void *old;
+	struct irqdesc *desc;
+	unsigned long flags;
+
+	BUG_ON (irq >= NR_IRQS);
+
+	desc = irq_to_desc(irq);
+	spin_lock_irqsave(&desc->lock, flags);
+	old = desc->chipdata;
+	desc->chipdata = data;
+
+	spin_unlock_irqrestore(&desc->lock, flags);
+	return old;
 }
 
 void set_irq_handler(unsigned int irq, irq_handler_t handler)
@@ -385,7 +410,7 @@ void set_irq_handler(unsigned int irq, irq_handler_t handler)
 		while(1);
 	}
 
-	desc = get_irq_descriptor(irq);
+	desc = irq_to_desc(irq);
 
 	spin_lock_irqsave(&desc->lock, flags);
 
@@ -408,7 +433,7 @@ void set_irq_chained_handler(unsigned int irq, irq_handler_t handler)
 		printk("Handler is not specificed\n");
 	}
 
-	desc = get_irq_descriptor(irq);
+	desc = irq_to_desc(irq);
 
 	spin_lock_irqsave(&desc->lock, flags);
 
@@ -428,7 +453,7 @@ void set_irq_flags(unsigned int irq, unsigned int iflags)
 		while(1);
 	}
 
-	desc = get_irq_descriptor(irq);
+	desc = irq_to_desc(irq);
 
 	spin_lock_irqsave(&desc->lock, flags);
 
@@ -448,12 +473,12 @@ asmlinkage int set_irq_type(unsigned int irq, unsigned int type)
 		return -1;
 	}
 
-	desc = get_irq_descriptor(irq);
+	desc = irq_to_desc(irq);
 
 	if (type & PIRQT_HID) {
 		desc->isHIDirq = 1;
 	}
-		
+
 	if(desc->chip->set_type) {
 		spin_lock_irqsave(&desc->lock, flags);
 
@@ -600,8 +625,6 @@ asmlinkage void asm_do_IRQ(unsigned int irq, struct cpu_user_regs *regs)
 		printk("Bad IRQ = %d\n", irq);
         }
 
-	desc = get_irq_descriptor(irq);
-
+	desc = irq_to_desc(irq);
 	desc->handle(irq, desc, regs);
-
 }

@@ -1,5 +1,5 @@
-#include <xen/config.h>
 #include <asm/io.h>
+#include <asm/arch/tegra-regs.h>
 #include <xen/init.h>
 #include <xen/types.h>
 #include <asm/irq.h>
@@ -19,7 +19,7 @@ static void tegra_unmask_irq(unsigned int irq)
 }
 
 static struct irqchip tegra_internal_chip = {
-	.trigger_type = "level",
+	.name = "Tegra",
 	.ack = tegra_mask_irq,
 	.mask = tegra_mask_irq,
 	.unmask = tegra_unmask_irq,
@@ -27,5 +27,7 @@ static struct irqchip tegra_internal_chip = {
 
 void tegra_irq_init(void)
 {
+        /* gic_dist_init(0, IO_ADDRESS(TEGRA_ARM_INT_DIST_BASE), 29); */
+	/* gic_cpu_init(0, IO_ADDRESS(TEGRA_ARM_PERIF_BASE + 0x100)); */
 }
 

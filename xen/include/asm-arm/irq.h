@@ -8,16 +8,24 @@
 #include <public/event_channel.h>
 #include <asm/arch/irqs.h>
 
+#define IRQ_TYPE_NONE           0x00000000      /* Default, unspecified type */
+#define IRQ_TYPE_EDGE_RISING    0x00000001      /* Edge rising type */
+#define IRQ_TYPE_EDGE_FALLING   0x00000002      /* Edge falling type */
+#define IRQ_TYPE_EDGE_BOTH (IRQ_TYPE_EDGE_FALLING | IRQ_TYPE_EDGE_RISING)
+#define IRQ_TYPE_LEVEL_HIGH     0x00000004      /* Level high type */
+#define IRQ_TYPE_LEVEL_LOW      0x00000008      /* Level low type */
+#define IRQ_TYPE_LEVEL_BOTH     0x00000010
+#define IRQ_TYPE_SENSE_MASK     0x0000001f      /* Mask of the above */
+
 #define IRQ_MAX_GUESTS		7
 
-
-#define IRQF_TRIGGER_NONE			(0x00000000)
+#define IRQF_TRIGGER_NONE		(0x00000000)
 #define IRQF_TRIGGER_RISING_EDGE	(0x00000001)
 #define IRQF_TRIGGER_FALLING_EDGE	(0x00000002)
 #define IRQF_TRIGGER_BOTH_EDGE		(0x00000003)
 #define IRQF_TRIGGER_HIGH_LEVEL		(0x00000004)
 #define IRQF_TRIGGER_LOW_LEVEL		(0x00000008)
-#define IRQF_TRIGGER_PROBE			(0x00000010)
+#define IRQF_TRIGGER_PROBE		(0x00000010)
 #define IRQF_TRIGGER_NO_AUTO_ENABLE	PIRQF_TRIGGER_NO_AUTO_ENABLE
 
 #define IRQF_TRIGGER_MASK		(IRQF_TRIGGER_HIGH_LEVEL	| \
@@ -30,7 +38,7 @@
 #define IRQF_SHARABLE			0x00000040
 #define IRQF_GUEST_BOUND		0x00000080
 
-#define IRQ_IN_PROGRESS			0x00000100			
+#define IRQ_IN_PROGRESS			0x00000100
 #define IRQ_DISABLED			0x00000200
 #define IRQ_PENDING			0x00000400
 #define IRQ_REPLAY			0x00000800
@@ -56,7 +64,6 @@ struct irqdesc;
 struct seq_file;
 struct cpu_user_regs;
 
-
 typedef int irqreturn_t;
 typedef void (*irq_control_t)(unsigned int);
 typedef void (*irq_handler_t)(unsigned int, struct irqdesc *, struct cpu_user_regs *);
@@ -79,7 +86,7 @@ typedef struct irq_guest_action {
 } irq_guest_action_t __cacheline_aligned;
 
 typedef struct irqchip {
-	char	*trigger_type;
+	char	*name;
 	/*
 	 * Acknowledge the IRQ.
 	 * If this is a level-based IRQ, then it is expected to mask the IRQ
@@ -112,7 +119,7 @@ typedef struct irqchip {
 }irqchip_t __cacheline_aligned;
 
 typedef struct irqdesc {
-	char			*type;
+	unsigned int            type;
 	irq_handler_t		handle;
 	struct irqchip		*chip;
 	struct irqaction 	*action;
@@ -124,12 +131,43 @@ typedef struct irqdesc {
 	unsigned int		disable_depth;
 	/* Is this one of HID interrupts? */
 	unsigned int		isHIDirq;
+#ifdef CONFIG_SMP
+	unsigned int            node;
+#endif
 }irqdesc_t __cacheline_aligned;
 
 extern struct irqdesc irq_desc[NR_IRQS];
+static inline struct irqdesc *irq_to_desc(unsigned int irq)
+{
+	return &irq_desc[irq];
+}
+
+static inline void *get_irq_chip_data(unsigned int irq)
+{
+	return irq_to_desc(irq)->chipdata;
+}
+
+static inline void *get_irq_data(unsigned int irq)
+{
+	return irq_to_desc(irq)->data;
+}
+
+static inline struct irqchip *get_irq_chip(unsigned int irq)
+{
+	return irq_to_desc(irq)->chip;
+}
+
+static inline void do_bad_IRQ(unsigned int irq, struct irqdesc *desc)
+{
+	_raw_spin_lock(&desc->lock);
+	printk("do_bad_IRQ 0x%x\n", irq);
+	_raw_spin_unlock(&desc->lock);
+}
 
 extern int setup_irq(unsigned int irq, struct irqaction * new);
 void set_irq_chip(unsigned int irq, struct irqchip *);
+void *set_irq_chip_data(unsigned int irq, void *);
+void *set_irq_data(unsigned int irq, void *);
 void set_irq_flags(unsigned int irq, unsigned int flags);
 void set_irq_handler(unsigned int irq, irq_handler_t handler);
 void set_irq_chained_handler(unsigned int irq, irq_handler_t handler);
@@ -143,5 +181,4 @@ int setup_irq(unsigned int, struct irqaction *);
 void level_irq_handler(unsigned int irq, struct irqdesc *desc, struct cpu_user_regs *regs);
 void edge_irq_handler(unsigned int irq, struct irqdesc *desc, struct cpu_user_regs *regs);
 int pirq_guest_eoi(struct domain *d, unsigned int irq);
-#define get_irq_descriptor(irq) (irq_desc + irq)
 #endif

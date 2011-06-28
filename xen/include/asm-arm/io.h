@@ -32,8 +32,8 @@ extern void __raw_readsl(void __iomem *addr, void *data, int longlen);
 #include <asm/arch/io.h>
 
 #define readb(c) 		({ unsigned int __v = __raw_readb(c); __v; })
-#define readw(c) 		({ unsigned int __v = le16_to_cpu(__raw_readw(c)); __v; })
-#define readl(c)		({ unsigned int __v = le32_to_cpu(__raw_readl(c)); __v; })
+#define readw(c) 		({ unsigned int __v = __raw_readw(c); __v; })
+#define readl(c)		({ unsigned int __v = __raw_readl(c); __v; })
 #define readb_relaxed(addr) readb(addr)
 #define readw_relaxed(addr) readw(addr)
 #define readl_relaxed(addr) readl(addr)
@@ -43,8 +43,8 @@ extern void __raw_readsl(void __iomem *addr, void *data, int longlen);
 #define readsl(p,d,l)		__raw_readsl(p,d,l)
 
 #define writeb(v,c)		__raw_writeb(v,c)
-#define writew(v,c)		__raw_writew(cpu_to_le16(v),c)
-#define writel(v,c)		__raw_writel(cpu_to_le32(v),c)
+#define writew(v,c)		__raw_writew(v,c)
+#define writel(v,c)		__raw_writel(v,c)
 
 #define writesb(p,d,l)		__raw_writesb(p,d,l)
 #define writesw(p,d,l)		__raw_writesw(p,d,l)

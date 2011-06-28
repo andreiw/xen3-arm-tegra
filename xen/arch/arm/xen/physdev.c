@@ -34,7 +34,7 @@
 #include <xen/config.h>
 #include <public/arch-arm.h>
 #include <public/physdev.h>
-#include <asm/linkage.h>	
+#include <asm/linkage.h>
 #include <asm/config.h>
 #include <asm/current.h>
 #include <asm/uaccess.h>
@@ -76,16 +76,8 @@ asmlinkage long do_physdev_op(struct physdev_op *uop)
 			}
 
 			op.u.irq_status_query.flags = 0;
-#if 0
-			/* Edge-triggered interrupts don't need an explicit unmask downcall. */
-			if (interrupt_descriptors[irq].flags & IRQT_LEVEL) 
+			if (irq_desc[irq].type & IRQ_TYPE_EDGE_BOTH)
 				op.u.irq_status_query.flags |= PHYSDEVOP_IRQ_NEEDS_UNMASK_NOTIFY;
-#else
-            if (!strstr(irq_desc[irq].chip->trigger_type, "edge") )
-			                op.u.irq_status_query.flags |= PHYSDEVOP_IRQ_NEEDS_UNMASK_NOTIFY;
-
-#endif
-
 			ret = 0;
 			break;
 		default:
