@@ -50,7 +50,7 @@
 #define DOM_CREATE_FAIL		0
 
 const char BANNER[] =
-	"Xen/ARM virtual machine monitor for ARM architecture\n\r" \
+	"Xen/ARM virtual machine monitor for ARM architecture\n" \
 	"Copyright (C) 2007 Samsung Electronics Co, Ltd. All Rights Reserved.\n" \
 	"Copyright (C) 2011 Andrei Warkentin <andreiw@msalumni.com>\n";
 
@@ -189,7 +189,7 @@ static void memory_init()
 	min_page = find_lowest_pfn(&system_memory);
 	max_page = find_highest_pfn(&system_memory);
 
-	xen_pstart = min_page << PAGE_SHIFT; 
+	xen_pstart = min_page << PAGE_SHIFT;
 	xen_pend = max_page << PAGE_SHIFT;
 
 	/* Initialise boot-time allocator with all RAM situated after modules. */
@@ -200,7 +200,7 @@ static void memory_init()
 
 	xenheap_phys_start = init_boot_allocator(va_to_ma(frame_table) + (nr_pages << PAGE_SHIFT));
 	xenheap_phys_end   = xen_pstart + MEMMAP_XEN_SIZE;
-	
+
 	/* Initialise the DOM heap, skipping RAM holes. */
 	nr_pages = 0;
 	for ( i = 0; i < system_memory.nr_banks; i++ ) {
@@ -209,7 +209,7 @@ static void memory_init()
 		/* Initialise boot heap, skipping Xen heap and dom0 modules. */
 		s = system_memory.banks[i].base;
 		e = s + system_memory.banks[i].size;
-		
+
 		if ( s < xenheap_phys_end )
 			s = xenheap_phys_end;
 		if( e > xen_pend )
@@ -275,15 +275,8 @@ asmlinkage void start_xen(void *params)
 	platform_setup();
 
 	init_console();
-	printk("A\n");
-	printk("B\n");
-	printk("C\n");
-	printk("D\n");
-	printk("E\n");
-	printk("F\n");
-	printk("G\n");
-	printk("H\n");
 
+	printk(XEN_BANNER);
 	printk(BANNER);
 	printk(" http://www.cl.cam.ac.uk/netos/xen\n");
 	printk(" University of Cambridge Computer Laboratory\n\n");
@@ -293,7 +286,6 @@ asmlinkage void start_xen(void *params)
 	       XEN_COMPILER, XEN_COMPILE_DATE);
 	printk(" Latest ChangeSet: %s\n\n", XEN_CHANGESET);
 
-	while (1);
 	memory_init();
 
 	sort_extables();
