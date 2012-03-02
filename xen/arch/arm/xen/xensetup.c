@@ -196,14 +196,18 @@ static void memory_init()
 	printk("xen_pstart 0x%x\n", xen_pstart);
 	printk("xen_pend 0x%x\n", xen_pend);
 
-
 	/* Initialise boot-time allocator with all RAM situated after modules. */
 	printk("_end 0x%x\n", &_end);
-	printk("_end VA 0x%X\n", ma_to_va(&_end));
+	printk("_end VA 0x%X\n", va_to_ma(&_end));
 	frame_table = (struct page_info *)(round_pgup(((unsigned long)(&_end))));
 	nr_pages = PFN_UP((max_page - min_page) * sizeof(struct page_info));
+	printk("nr_pages needed for all page_infos = 0x%x\n", nr_pages);
+	printk("frame table is at 0x%x-0x%x\n",
+	       frame_table,
+	       (unsigned) frame_table + (nr_pages << PAGE_SHIFT));
 
 	memset(frame_table, 0, nr_pages << PAGE_SHIFT);
+	printk("memset succeeded\n");
 
 	xenheap_phys_start = init_boot_allocator(va_to_ma(frame_table) + (nr_pages << PAGE_SHIFT));
 	xenheap_phys_end   = xen_pstart + MEMMAP_XEN_SIZE;

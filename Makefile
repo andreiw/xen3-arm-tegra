@@ -21,7 +21,8 @@ export XEN_TARGET_ARCH SUBARCH XEN_SYSTYPE
 endif
 
 # Default target must appear before any include lines
-all: dist
+# all: dist
+all: xen
 
 XEN_ROOT=$(CURDIR)
 export XEN_ROOT

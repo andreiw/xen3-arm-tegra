@@ -9,8 +9,7 @@
 /* This needs to match asm/config.h, xen.lds.S */
 #define KERNEL_VIRT_BASE        (0xff000000)
 
-#define IDLE_PG_TABLE_ADDR	(0xC0004000UL)
-#define __PAGE_OFFSET           (0x3F000000UL)
+#define __PAGE_OFFSET           (KERNEL_VIRT_BASE - KERNEL_PHYS_BASE)
 
 #define MEMMAP_DRAM_ADDR	PHYS_OFFSET
 #define MEMMAP_DRAM_SIZE	0x04000000
