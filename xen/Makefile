@@ -92,8 +92,9 @@ include/xen/compile.h: include/xen/compile.h.in include/xen/banner.h
 	    -e 's|@@compiler@@|$(shell $(CC) $(CFLAGS) -v 2>&1 | tail -n 1 | sed -e "s;|;/;")|g' \
 	    -e 's/@@version@@/$(XEN_VERSION)/g' \
 	    -e 's/@@subversion@@/$(XEN_SUBVERSION)/g' \
+	    -e 's/@@platform@@/$(XEN_TARGET_ARCH)-$(XEN_TARGET_SUBARCH)/g' \
 	    -e 's/@@extraversion@@/$(XEN_EXTRAVERSION)/g' \
-	    -e 's!@@changeset@@!$(shell ((hg parents || head -n 7 ../ChangeLog || echo date: unavailable) | awk '{FS="changeset:[ ]+"}/^changeset/{CS=$$2};{FS="date:[ ]+"}/^date/{D=$$2}; END {print D, CS}') 2>/dev/null)!g' \
+	    -e 's!@@changeset@@!$(shell git rev-parse HEAD)!g' \
 	    < include/xen/compile.h.in > $@.new
 	@cat include/xen/banner.h >> $@.new
 	@mv -f $@.new $@
@@ -149,7 +150,7 @@ include/xen/autoconf.h: $(XEN_ROOT)/.config
 	  echo "#ifndef __XEN_AUTOCONF_H__"; \
 	  echo "#define __XEN_AUTOCONF_H__"; \
 	  echo ""; \
-  	  sed -ne "/^CONFIG_/{s:^\(CONFIG_[^ ]*\)\(=\)\(.*\):#define \1 \3:; s:y$$::;p;}";\
+	  sed -ne "/^CONFIG_/{s:^\(CONFIG_[^ ]*\)\(=\)\(.*\):#define \1 \3:; s:y$$::;p;}";\
 	  echo "";\
 	  echo "#endif") <$< >$@
 

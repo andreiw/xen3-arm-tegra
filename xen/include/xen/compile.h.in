@@ -10,4 +10,5 @@
 #define XEN_EXTRAVERSION	"@@extraversion@@"
 
 #define XEN_CHANGESET		"@@changeset@@"
+#define XEN_PLATFORM		"@@platform@@"
 #define XEN_BANNER		\
