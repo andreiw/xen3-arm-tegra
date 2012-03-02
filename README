@@ -3,6 +3,70 @@ Xen3 ARMv7/Tegra2 work.
 
 This is a an effort to bring up Samsung's Xen3 tree on
 Tegra2. It's meant as a stepping stone to the Xen4 port.
+Or maybe not. We'll see.
+
+Building
+========
+
+$ make menuconfig
+$ make
+
+Running
+=======
+
+Assuming you have a Xoom with the serial port through the headphone h^Hjack.
+
+$ sudo fastboot boot  /home/andreiw/src/xen3-arm-tegra/dist/install/boot/xen-bin-3.0.2-2 
+
+This is the current output:
+ATAG    (P): 0x00000100
+Linked  (V): 0xff008000
+Actual  (P): 0x00a00800
+Desired (P): 0x00108000
+
+Handing off to C...
+[XEN]  __  __            _____  ___   ____    ____  
+[XEN]  \ \/ /___ _ __   |___ / / _ \ |___ \  |___ \ 
+[XEN]   \  // _ \ '_ \    |_ \| | | |  __) |__ __) |
+[XEN]   /  \  __/ | | |  ___) | |_| | / __/|__/ __/ 
+[XEN]  /_/\_\___|_| |_| |____(_)___(_)_____| |_____|
+[XEN]                                               
+[XEN] Xen/ARMv7 virtual machine monitor for ARM architecture
+[XEN] Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
+[XEN] Copyright (C) 2007 Samsung Electronics Co, Ltd. All Rights Reserved.
+[XEN]  http://www.cl.cam.ac.uk/netos/xen
+[XEN]  University of Cambridge Computer Laboratory
+[XEN] 
+[XEN]  Xen version 3.0.2-2 (andreiw@(none)) (gcc version 4.4.3 (GCC) ) Fri Mar  2 01:59:34 EST 2012
+[XEN]  Platform: arm-tegra
+[XEN]  GIT SHA: ffd558debcf08dcf59a0c38115906030bf6f261c
+[XEN] 
+[XEN] TTB PA 0x104000
+[XEN] idle_pgd VA 0xff004000
+[XEN] xen_pstart 0x0
+[XEN] xen_pend 0x40000000
+[XEN] _end 0xff03e708
+[XEN] _end VA 0x13E708
+[XEN] nr_pages needed for all page_infos = 0x500
+[XEN] frame table is at 0xff03f000-0xff53f000
+[XEN] xenheap_phys_start = 0x648000 (VA 0xff548000)
+[XEN] xenheap_phys_end = 0x848000 (VA 0xff748000)
+[XEN] looking at bank 0
+[XEN]         base - 0x0
+[XEN]         end  - 0x40000000
+[XEN] calling init_boot_pages on 0x648000-0x40000000
+[XEN] Using scheduler: Simple EDF Scheduler (sedf)
+[XEN] Initializing ARM FCSE Unit
+[XEN] *** LOADING DOMAIN : 0 ***
+[XEN] DOM0 image is not a Xen-compatible Elf image.
+[XEN] Could not set up DOM0 guest OS
+[XEN] 
+[XEN] VMM Panic at xensetup.c:357
+
+Changelog
+=========
+Mar-02-2012: First work since summer, fixed mm bugs.
+Jun-23-2011: Initial commit.
 
 Contact Info
 ============
