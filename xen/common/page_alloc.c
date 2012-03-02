@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <xen/config.h>
-#include <xen/lib.h>		
+#include <xen/lib.h>
 #include <xen/spinlock.h>
 #include <asm/io.h>
 #include <xen/list.h>
@@ -89,9 +89,9 @@ static void map_alloc(unsigned long first_page, unsigned long nr_pages)
     unsigned long i;
     /* Check that the block isn't already allocated. */
     for ( i = 0; i < nr_pages; i++ ) {
-        ASSERT(!allocated_in_map(first_page + i));
-        //printf("0x%x\n", allocated_status_in_map(first_page + i));
-	}
+      if(allocated_in_map(first_page + i))
+      ASSERT(!allocated_in_map(first_page + i));
+    }
 #endif
 
     curr_idx  = (first_page-min_page) / PAGES_PER_MAPWORD;
@@ -119,8 +119,12 @@ static void map_free(unsigned long first_page, unsigned long nr_pages)
 #ifndef NDEBUG
     unsigned long i;
     /* Check that the block isn't already freed. */
-    for ( i = 0; i < nr_pages; i++ )
+    for ( i = 0; i < nr_pages; i++ ) {
+      if (!allocated_in_map(first_page + i)) {
+        printk("gay 0x%x\n", first_page + i);
+      }
         ASSERT(allocated_in_map(first_page + i));
+    }
 #endif
 
     curr_idx  = (first_page-min_page) / PAGES_PER_MAPWORD;
@@ -266,13 +270,14 @@ void end_boot_allocator(void)
             INIT_LIST_HEAD(&heap[i][j]);
 
     /* Pages that are free now go to the domain sub-allocator. */
+    next_free = !allocated_in_map(min_page);
     for ( i = min_page; i < max_page; i++ )
     {
         curr_free = next_free;
         next_free = !allocated_in_map(i+1);
         if ( next_free )
-            map_alloc(i+1, 1); /* prevent merging in free_heap_pages() */
-		/* "pfn_dom_zone_type" checkes whether this page belongs to MEMZONE_DMADOM zone or MEMZONE_DOM zone. */
+          map_alloc(i+1, 1); /* prevent merging in free_heap_pages() */
+        /* "pfn_dom_zone_type" checkes whether this page belongs to MEMZONE_DMADOM zone or MEMZONE_DOM zone. */
         if ( curr_free )
             free_heap_pages(pfn_dom_zone_type(i), mfn_to_page(i), 0);
 
@@ -590,14 +595,23 @@ void init_xenheap_pages(physaddr_t ps, physaddr_t pe)
     /*
      * Yuk! Ensure there is a one-page buffer between Xen and Dom zones, to
      * prevent merging of power-of-two blocks across the zone boundary.
+     *
+     * AndreiW: Needs to be rewritten. *sigh*.
      */
     if ( !IS_XEN_HEAP_FRAME(phys_to_page(pe)) )
         pe -= PAGE_SIZE;
 
     local_irq_save(flags);
-	/* Guard Page - To prevent */
-	map_alloc(pe >> PAGE_SHIFT, 1);
 
+    /* This is the guard page. */
+    map_alloc(pe >> PAGE_SHIFT, 1);
+
+    /*
+     * AndreiW:
+     * map_free will complain these pages aren't allocated,
+     * so do it. How did this shit ever run anywhere?
+     */
+    map_alloc(ps >> PAGE_SHIFT, (pe - ps) >> PAGE_SHIFT);
     init_heap_pages(MEMZONE_XEN, phys_to_page(ps), (pe - ps) >> PAGE_SHIFT);
     local_irq_restore(flags);
 }
@@ -1000,16 +1014,3 @@ static __init int page_scrub_init(void)
     return 0;
 }
 __initcall(page_scrub_init);
-
-
-/*
- * Local variables:
- * mode: C
- * c-set-style: "BSD"
- * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: nil
- * End:
- */
-
-

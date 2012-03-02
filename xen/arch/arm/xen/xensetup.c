@@ -3,11 +3,9 @@
  *
  * Copyright (C) 2008 Samsung Electronics
  *          JooYoung Hwang <jooyoung.hwang@samsung.com>
- * 	    Jaemin Ryu <jm77.ryu@samsung.com>
+ *          Jaemin Ryu <jm77.ryu@samsung.com>
  *
- * Secure Xen on ARM architecture designed by Sang-bum Suh consists of
- * Xen on ARM and the associated access control.
- *
+ * Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public version 2 of License as published by
  * the Free Software Foundation.
@@ -50,9 +48,9 @@
 #define DOM_CREATE_FAIL		0
 
 const char BANNER[] =
-	"Xen/ARM virtual machine monitor for ARM architecture\n" \
-	"Copyright (C) 2007 Samsung Electronics Co, Ltd. All Rights Reserved.\n" \
-	"Copyright (C) 2011 Andrei Warkentin <andreiw@msalumni.com>\n";
+	"Xen/ARMv7 virtual machine monitor for ARM architecture\n" \
+	"Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>\n" \
+	"Copyright (C) 2007 Samsung Electronics Co, Ltd. All Rights Reserved.\n";
 
 struct vcpu *idle_vcpu[NR_CPUS];
 
@@ -62,7 +60,7 @@ struct meminfo system_memory = {0,};
 unsigned long xenheap_phys_start;
 unsigned long xenheap_phys_end;
 
-cpumask_t cpu_online_map; 
+cpumask_t cpu_online_map;
 
 struct domain_addr_set {
         unsigned long   guest_memory_start;
@@ -207,10 +205,11 @@ static void memory_init()
 	       (unsigned) frame_table + (nr_pages << PAGE_SHIFT));
 
 	memset(frame_table, 0, nr_pages << PAGE_SHIFT);
-	printk("memset succeeded\n");
 
 	xenheap_phys_start = init_boot_allocator(va_to_ma(frame_table) + (nr_pages << PAGE_SHIFT));
-	xenheap_phys_end   = xen_pstart + MEMMAP_XEN_SIZE;
+	xenheap_phys_end   = xenheap_phys_start + MEMMAP_XEN_SIZE;
+	printk("xenheap_phys_start = 0x%x (VA 0x%x)\n", xenheap_phys_start, ma_to_va(xenheap_phys_start));
+	printk("xenheap_phys_end = 0x%x (VA 0x%x)\n", xenheap_phys_end, ma_to_va(xenheap_phys_end));
 
 	/* Initialise the DOM heap, skipping RAM holes. */
 	nr_pages = 0;
@@ -220,16 +219,19 @@ static void memory_init()
 		/* Initialise boot heap, skipping Xen heap and dom0 modules. */
 		s = system_memory.banks[i].base;
 		e = s + system_memory.banks[i].size;
+		printk("looking at bank %d\n", i);
+		printk("        base - 0x%x\n", s);
+		printk("        end  - 0x%x\n", e);
 
-		if ( s < xenheap_phys_end )
-			s = xenheap_phys_end;
+		if ( s < xenheap_phys_start )
+			s = xenheap_phys_start;
 		if( e > xen_pend )
 			e = xen_pend;
+		printk("calling init_boot_pages on 0x%x-0x%x\n", s, e);
 		init_boot_pages(s, e);
 	}
 
 	total_pages = nr_pages;
-
 	end_boot_allocator();
 
 	/* Initialise the Xen heap, skipping RAM holes. */
@@ -246,7 +248,6 @@ static void memory_init()
 			init_xenheap_pages(s, e);
 		}
 	}
-
 }
 
 void trap_init(void)
@@ -295,7 +296,8 @@ asmlinkage void start_xen(void *params)
 	       XEN_VERSION, XEN_SUBVERSION, XEN_EXTRAVERSION,
 	       XEN_COMPILE_BY, XEN_COMPILE_DOMAIN,
 	       XEN_COMPILER, XEN_COMPILE_DATE);
-	printk(" Latest ChangeSet: %s\n\n", XEN_CHANGESET);
+	printk(" Platform: %s\n", XEN_PLATFORM);
+	printk(" GIT SHA: %s\n\n", XEN_CHANGESET);
 
 	memory_init();
 
