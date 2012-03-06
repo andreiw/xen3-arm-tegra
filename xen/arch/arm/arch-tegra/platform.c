@@ -24,6 +24,7 @@
 #include <asm/irq.h>
 #include <asm/io.h>
 #include <asm/serial_reg.h>
+#include <asm/arch/hardware.h>
 
 static void tegra_platform_halt(int mode)
 {
@@ -36,7 +37,7 @@ static void tegra_memory_init(void)
 	register_memory_bank(0x00000000, 1 * 1024 * 1024 * 1024);
 }
 
-unsigned long uart_base = IO_TO_VIRT (TEGRA_DEBUG_UART_BASE);
+unsigned long uart_base = IO_TO_VIRT(TEGRA_DEBUG_UART_BASE);
 unsigned long uart_shift = 2;
 
 static inline unsigned char uart_read(int offset)

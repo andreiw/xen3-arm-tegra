@@ -76,7 +76,6 @@ static __inline__ int generic_fls(int x)
  */
 #include <asm/bitops.h>
 
-
 static inline int generic_fls64(__u64 x)
 {
     __u32 h = x >> 32;
@@ -174,5 +173,7 @@ static inline __u32 ror32(__u32 word, unsigned int shift)
 {
     return (word >> shift) | (word << (32 - shift));
 }
+
+#define BIT(nr) (1UL << (nr))
 
 #endif

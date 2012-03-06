@@ -1,6 +1,7 @@
 /*
- *  linux/arch/arm/common/gic.c
+ *  xen/arch/arm/mach-tegra/gic.c
  *
+ *  Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
  *  Copyright (C) 2002 ARM Limited, All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,6 +22,7 @@
  * Note that IRQs 0-31 are special - they are local to each CPU.
  * As such, the enable set/clear, pending set/clear and active bit
  * registers are banked per-cpu for these sources.
+ *
  */
 
 #include <asm/io.h>
@@ -32,6 +34,19 @@
 #include <xen/spinlock.h>
 #include <xen/errno.h>
 #include <asm/arch/gic.h>
+
+/*
+ * Supported arch specific GIC irq extension.
+ * Default make them NULL.
+ */
+struct irqchip gic_arch_extn = {
+	.ack		= NULL,
+	.mask		= NULL,
+	.unmask		= NULL,
+	.retrigger	= NULL,
+	.set_type	= NULL,
+	.wake		= NULL,
+};
 
 static DEFINE_SPINLOCK(irq_controller_lock);
 
@@ -81,35 +96,49 @@ static inline unsigned int gic_irq(unsigned int irq)
  * our "acknowledge" routine disable the interrupt, then mark it as
  * complete.
  */
-void gic_ack_irq(unsigned int irq)
+static void gic_ack_irq(unsigned int irq)
 {
 	u32 mask = 1 << (irq % 32);
 
 	spin_lock(&irq_controller_lock);
+	if (gic_arch_extn.ack)
+		gic_arch_extn.ack(irq);
 	writel(mask, gic_dist_base(irq) + GIC_DIST_ENABLE_CLEAR + (gic_irq(irq) / 32) * 4);
 	writel(gic_irq(irq), gic_cpu_base(irq) + GIC_CPU_EOI);
 	spin_unlock(&irq_controller_lock);
 }
 
-void gic_mask_irq(unsigned int irq)
+static void gic_mask_irq(unsigned int irq)
 {
 	u32 mask = 1 << (irq % 32);
 
 	spin_lock(&irq_controller_lock);
 	writel(mask, gic_dist_base(irq) + GIC_DIST_ENABLE_CLEAR + (gic_irq(irq) / 32) * 4);
+	if (gic_arch_extn.mask)
+		gic_arch_extn.mask(irq);
 	spin_unlock(&irq_controller_lock);
 }
 
-void gic_unmask_irq(unsigned int irq)
+static void gic_unmask_irq(unsigned int irq)
 {
 	u32 mask = 1 << (irq % 32);
 
 	spin_lock(&irq_controller_lock);
+	if (gic_arch_extn.unmask)
+		gic_arch_extn.unmask(irq);
 	writel(mask, gic_dist_base(irq) + GIC_DIST_ENABLE_SET + (gic_irq(irq) / 32) * 4);
 	spin_unlock(&irq_controller_lock);
 }
 
-int gic_set_type(unsigned int irq, unsigned int type)
+static int gic_retrigger(unsigned int irq)
+{
+	if (gic_arch_extn.retrigger)
+		return gic_arch_extn.retrigger(irq);
+
+	return -ENXIO;
+}
+
+static int gic_set_type(unsigned int irq, unsigned int type)
 {
 	void *base = gic_dist_base(irq);
 	unsigned int gicirq = gic_irq(irq);
@@ -128,6 +157,9 @@ int gic_set_type(unsigned int irq, unsigned int type)
 		return -EINVAL;
 
 	spin_lock(&irq_controller_lock);
+
+	if (gic_arch_extn.set_type)
+		gic_arch_extn.set_type(irq, type);
 
 	val = readl(base + GIC_DIST_CONFIG + confoff);
 	if (type == IRQ_TYPE_LEVEL_HIGH)
@@ -150,7 +182,6 @@ int gic_set_type(unsigned int irq, unsigned int type)
 		writel(enablemask, base + GIC_DIST_ENABLE_SET + enableoff);
 
 	spin_unlock(&irq_controller_lock);
-
 	return 0;
 }
 
@@ -198,9 +229,17 @@ static void gic_handle_cascade_irq(unsigned int irq, struct irqdesc *desc,
 	else
 		desc->handle(cascade_irq, desc, regs);
 
- out:
+out:
 	/* primary controller unmasking */
 	chip->unmask(irq);
+}
+
+static int gic_wake(unsigned int irq, unsigned int on)
+{
+	if (gic_arch_extn.wake)
+		return gic_arch_extn.wake(irq, on);
+
+	return -ENXIO;
 }
 
 static struct irqchip gic_chip = {
@@ -212,16 +251,8 @@ static struct irqchip gic_chip = {
 #ifdef CONFIG_SMP
 	.set_affinity	= gic_set_cpu,
 #endif
+	.wake		= gic_wake,
 };
-
-void __init gic_cascade_irq(unsigned int gic_nr, unsigned int irq)
-{
-	if (gic_nr >= MAX_GIC_NR)
-		BUG();
-	if (set_irq_data(irq, &gic_data[gic_nr]) != 0)
-		BUG();
-	set_irq_chained_handler(irq, gic_handle_cascade_irq);
-}
 
 static unsigned int _gic_dist_init(unsigned int gic_nr)
 {
@@ -389,7 +420,6 @@ void __init gic_cpu_init(unsigned int gic_nr, void *base)
 		BUG();
 
 	gic_data[gic_nr].cpu_base = base;
-
 	writel(0xf0, base + GIC_CPU_PRIMASK);
 	writel(1, base + GIC_CPU_CTRL);
 }

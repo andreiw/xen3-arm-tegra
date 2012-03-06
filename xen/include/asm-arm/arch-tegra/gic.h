@@ -11,7 +11,11 @@
 #define __ASM_ARM_HARDWARE_GIC_H
 
 #include <xen/compiler.h>
+#ifndef __ASSEMBLY__
 #include <xen/cpumask.h>
+#endif
+
+#define MAX_GIC_INTERRUPTS		1024
 
 #define GIC_CPU_CTRL			0x00
 #define GIC_CPU_PRIMASK			0x04
@@ -40,16 +44,6 @@ void gic_dist_restore(unsigned int gic_nr);
 void gic_dist_exit(unsigned int gic_nr);
 void gic_cpu_init(unsigned int gic_nr, void __iomem *base);
 void gic_cpu_exit(unsigned int gic_nr);
-void gic_cascade_irq(unsigned int gic_nr, unsigned int irq);
 void gic_raise_softirq(const cpumask_t *mask, unsigned int irq);
-
-void gic_ack_irq(unsigned int irq);
-void gic_mask_irq(unsigned int irq);
-void gic_unmask_irq(unsigned int irq);
-int gic_set_type(unsigned int irq, unsigned int type);
-#ifdef CONFIG_SMP
-int gic_set_cpu(unsigned int irq, const cpumask_t *mask_val);
 #endif
-#endif
-
 #endif

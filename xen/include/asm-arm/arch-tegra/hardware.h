@@ -1,6 +1,7 @@
 /*
- *  linux/include/asm-arm/arch-imx/hardware.h
+ *  linux/include/asm-arm/arch-tegra/hardware.h
  *
+ *  Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
  *  Copyright (C) 1999 ARM Limited.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,19 +23,6 @@
 
 #include <asm/sizes.h>
 #include <asm/arch/tegra-regs.h>
-
-#ifndef __ASSEMBLY__
-# define __REG(x)	(*((volatile u32 *)IO_ADDRESS(x)))
-# define __REG16(x)    (*((volatile u16 *)IO_ADDRESS(x)))
-
-// gcc version 4.1.1 error
-#if 0
-# define __REG2(x,y)	\
-	( __builtin_constant_p(y) ? (__REG((x) + (y))) \
-			  : (*(volatile u32 *)((u32)&__REG(x) + (y))) )
-#endif
-# define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))
-#endif
 
 #define TEGRA_RAM_PHYS     0x0
 #define TEGRA_RAM_VIRT     0
@@ -69,14 +57,5 @@
 	IO_TO_VIRT_BETWEEN((n), TEGRA_IRAM_PHYS, TEGRA_IRAM_SIZE) ?		\
 		IO_TO_VIRT_XLATE((n), TEGRA_IRAM_PHYS, TEGRA_IRAM_VIRT) :	\
 	0)
-
-#define MAXIRQNUM                       62
-#define MAXFIQNUM                       62
-#define MAXSWINUM                       62
-
-/*
- * Use SDRAM for memory
- */
-#define MEM_SIZE		0x01000000
 
 #endif

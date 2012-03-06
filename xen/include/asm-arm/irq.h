@@ -119,7 +119,7 @@ typedef struct irqchip {
 }irqchip_t __cacheline_aligned;
 
 typedef struct irqdesc {
-	unsigned int            type;
+	unsigned int		type;
 	irq_handler_t		handle;
 	struct irqchip		*chip;
 	struct irqaction 	*action;
