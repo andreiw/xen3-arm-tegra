@@ -1,8 +1,9 @@
 /*
  * cpu-ops.h
  *
+ * Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
  * Copyright (C) 2008 Samsung Electronics
- *          JaeMin Ryu  <jm77.ryu@samsung.com>
+ * Copyright (C) 2008 JaeMin Ryu  <jm77.ryu@samsung.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public version 2 of License as published by
@@ -32,7 +33,6 @@ void cpu_idle(void);
 /*
  * MMU Operations
  */
-void cpu_set_pte(unsigned long pte, unsigned long page);
 void cpu_switch_ttb(unsigned long, int);
 unsigned long cpu_get_ttb(void);
 
@@ -65,6 +65,12 @@ void cpu_flush_tlb_range(unsigned long start, unsigned long end);
 
 void cpu_copy_page(void *dst, void *src, unsigned long size);
 void cpu_clear_page(void *dst, unsigned long size);
+
+/*
+ * Miscellaneous.
+ */
+void cpu_trap_init(void);
+
 #endif
 
 #ifdef __ASSEMBLY__

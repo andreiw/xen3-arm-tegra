@@ -198,7 +198,7 @@ stack_setup:
 	msr	cpsr_c, #PSR_MODE_SVC | PSR_I_BIT | PSR_F_BIT
 	ldr	sp, =(svc_stack + STACK_SIZE)
 
-	adr	r0, vectors_loc
+	adr	r0, boot_vectors_loc
 	ldr	r0, [r0]
 	mcr	p15, 0, r0, c12, c0, 0
 
@@ -251,58 +251,54 @@ ENTRY(atag_info_ptr)
 __ATAG_INFO:
 	.long	0
 
-vectors_loc:
-	.long vectors
-vectors:
-	b dead_loop   @ RESET, never taken since it always goes to 0x0
-	b und_vector  @ UND
-	b swi_vector  @ SWI
-	b pabt_vector @ PABT
-	b dabt_vector @ DABT
-	b unk_vector  @ ?
-	b irq_vector  @ IRQ
-	b fiq_vector  @ FIQ
-und_vector:
+boot_vectors_loc:
+	.long boot_vectors
+boot_vectors:
+	b dead_loop        @ RESET, never taken since it always goes to 0x0
+	b boot_und_vector  @ UND
+	b boot_swi_vector  @ SWI
+	b boot_pabt_vector @ PABT
+	b boot_dabt_vector @ DABT
+	b boot_unk_vector  @ ?
+	b boot_irq_vector  @ IRQ
+	b boot_fiq_vector  @ FIQ
+boot_und_vector:
 	adr	r0, str_und
 	b	dead_loop
 str_und:	.asciz	"\r\Undefined Exception!\r\n"
 	.align
-swi_vector:
+boot_swi_vector:
 	adr	r0, str_swi
 	b	dead_loop
 str_swi:	.asciz	"\r\SWI Exception!\r\n"
 	.align
-pabt_vector:
+boot_pabt_vector:
 	adr	r0, str_pabt
 	b	dead_loop
 str_pabt:	.asciz	"\r\PABT Exception!\r\n"
 	.align
-dabt_vector:
+boot_dabt_vector:
 	adr	r0, str_dabt
 	b	dead_loop
 str_dabt:	.asciz	"\r\DABT Exception!\r\n"
 	.align
-unk_vector:
+boot_unk_vector:
 	adr	r0, str_unk
 	b	dead_loop
 str_unk:	.asciz	"\r\Unknown Exception!\r\n"
 	.align
-irq_vector:
+boot_irq_vector:
 	adr	r0, str_irq
 	b	dead_loop
 str_irq:	.asciz	"\r\IRQ Exception!\r\n"
 	.align
-fiq_vector:
+boot_fiq_vector:
 	adr	r0, str_fiq
 	b	dead_loop
 str_fiq:	.asciz	"\r\FIQ Exception!\r\n"
 	.align
 dead_loop:
-@	bl	printascii
-	mov	r0, lr
-	bl	printhex8
-	MRC p15, 0, r0, c6, c0, 0
-	bl	printhex8
+	bl	printascii
 1:	b	1b
 	
 	.section	.bss.stack_aligned,"w"

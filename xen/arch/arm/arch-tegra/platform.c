@@ -59,9 +59,8 @@ static void tegra_uart_putc(struct serial_port *port, char c)
 	} 	while ((lsr & (UART_LSR_TEMT | UART_LSR_THRE)) == 0);
 	uart_write (c, UART_TX);
 
-	if(c == '\n') {
-	 	tegra_uart_putc(port, '\r');
-	}
+	if(c == '\n')
+		tegra_uart_putc(port, '\r');
 }
 
 static int tegra_uart_getc(struct serial_port *port, char *pc)

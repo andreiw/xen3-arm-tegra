@@ -15,8 +15,6 @@
 #include <xen/cpumask.h>
 #endif
 
-#define MAX_GIC_INTERRUPTS		1024
-
 #define GIC_CPU_CTRL			0x00
 #define GIC_CPU_PRIMASK			0x04
 #define GIC_CPU_BINPOINT		0x08

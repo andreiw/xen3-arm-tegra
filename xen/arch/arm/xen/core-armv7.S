@@ -16,6 +16,7 @@
 #include <asm/system.h>
 #include <asm/asm-offsets.h>
 #include <asm/arch/entry-macro.S>
+#include <xen/autoconf.h>
 
 .text
 
@@ -272,3 +273,16 @@ PRIVATE(v7_coherent_range)
 	isb
 	mov	pc, lr
 DECLARE_CPU_OP (cpu_coherent_range, v7_coherent_range)
+
+PRIVATE(v7_trap_init)
+#ifdef CONFIG_USE_HIGH_VECTORS
+	mrc	p15, 0, r0, c1, c0, 0
+	orr	r0, r0, #0x00002000
+	mcr	p15, 0, r0, c1, c0, 0
+#else
+	mov	r0, #0
+	mcr	p15, 0, r0, c12, c0, 0
+#endif
+	dsb
+	mov	pc, lr
+DECLARE_CPU_OP (cpu_trap_init, v7_trap_init)

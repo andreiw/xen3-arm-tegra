@@ -1,11 +1,11 @@
 /*
  * xensetup.c
  *
- * Copyright (C) 2008 Samsung Electronics
- *          JooYoung Hwang <jooyoung.hwang@samsung.com>
- *          Jaemin Ryu <jm77.ryu@samsung.com>
- *
  * Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
+ * Copyright (C) 2008 Samsung Electronics
+ * Copyright (C) 2008 JooYoung Hwang <jooyoung.hwang@samsung.com>
+ * Copyright (C) 2008 Jaemin Ryu <jm77.ryu@samsung.com>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public version 2 of License as published by
  * the Free Software Foundation.
@@ -253,21 +253,24 @@ static void memory_init()
 void trap_init(void)
 {
 	extern char exception_vectors_table[];
-	pte_t   *table;
+	pte_t *table;
+	void *vectors;
 
 	/* Create Mapping for Exception vector table */
 	table = alloc_xenheap_page();
 	clear_page(table);
+	vectors = alloc_xenheap_page();
+	clear_page(vectors);
 
-	cpu_flush_cache_range((unsigned long)table, (unsigned long)table + PAGE_SIZE);
+	cpu_flush_cache_range((unsigned long)table, (unsigned long) table + PAGE_SIZE);
 
-	consistent_write((void *)&table[PGT_IDX(VECTORS_BASE)], pte_val(MK_PTE(PHYS_OFFSET, PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)));
+	consistent_write((void *)&table[PGT_IDX(VECTORS_BASE)], pte_val(MK_PTE(va_to_ma(vectors), PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)));
 	consistent_write((void *)&idle_pgd[PGD_IDX(VECTORS_BASE)], pde_val(MK_PDE(va_to_ma(table), PDE_TYPE_COARSE | PDE_DOMAIN_HYPERVISOR)));
 
-	memcpy((void *)VECTORS_BASE, exception_vectors_table, sizeof(unsigned long) * 16); 
+	memcpy((void *)VECTORS_BASE, exception_vectors_table, sizeof(unsigned long) * 16);
 
 	cpu_flush_cache_range(VECTORS_BASE, VECTORS_BASE + PAGE_SIZE);
-
+	cpu_trap_init();
 }
 
 pte_t *shared_info_table;

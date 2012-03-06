@@ -1,5 +1,6 @@
 config PLATFORM_XOOM_TEGRA2
 	bool
+	select USE_HIGH_VECTORS
 	select MACHINE_TEGRA2
 	select TEGRA_DEBUG_UARTB
 
