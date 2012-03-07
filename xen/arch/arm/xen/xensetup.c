@@ -40,6 +40,8 @@
 #include <asm/cpu-ops.h>
 #include <asm/platform.h>
 
+#include <asm/arch/irqs.h>
+
 #ifdef CONFIG_GCOV_XEN
 #include <xen/gcov.h>
 #endif
@@ -289,8 +291,6 @@ asmlinkage void start_xen(void *params)
 {
 	platform_setup();
 
-	init_console();
-
 	printk(XEN_BANNER);
 	printk(BANNER);
 	printk(" http://www.cl.cam.ac.uk/netos/xen\n");
@@ -347,6 +347,11 @@ asmlinkage void start_xen(void *params)
 	dom0 = domain_create(0, 0);
 
 	BUG_ON(dom0 == NULL);
+
+	/* { */
+	/* 	local_irq_enable(); */
+	/* 	while(1); */
+	/* } */
 
 	if ( construct_dom0(dom0,
 			domain_addrs[0].guest_memory_start,

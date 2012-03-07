@@ -5,6 +5,12 @@ This is a an effort to bring up Samsung's Xen3 tree on
 Tegra2. It's meant as a stepping stone to the Xen4 port.
 Or maybe not. We'll see.
 
+Status
+======
+
+Interrupts mostly working, and timer code mostly in. Nothing
+to see here yet.
+
 Building
 ========
 
@@ -65,8 +71,29 @@ Handing off to C...
 
 Changelog
 =========
+Mar-06-2012: GIC/legacy IC stuff in (except for IRQ path),
+             timer work - unfinished. Fix HIGH_VECTORS
+             and NR_IRQs. Remove unmaintained crud.
+Mar-05-2012: Wire GIC and legacy IC stuff.
 Mar-02-2012: First work since summer, fixed mm bugs.
 Jun-23-2011: Initial commit.
+
+TODO
+====
+
+Here goes various stuff that consitutes braindead design
+that came from Samsung's EmbeddedXen, and various odds and
+ends and which need some lovin', but not immediately.
+1) Instead of placing pgd 16K below load address, put it
+   after the loaded image.
+2) EmbeddedXen put the IVT at PHYS_OFFSET (another 16k
+   below pgd, really). I fixed that nonsense by using
+   a heap page, but that seems wasteful - just use
+   an existing kernel page and map it again.
+3) Think about frame table location. Currently after
+   kernel image.
+4) Fix the link address being 0x8000 - with pgd moved
+   should have no reason for this nonsense.
 
 Contact Info
 ============

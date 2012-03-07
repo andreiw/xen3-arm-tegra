@@ -91,9 +91,11 @@ static void tegra_sys_clk_init(void)
 
 static void tegra_platform_setup(void)
 {
+	tegra_uart_init();
+	init_console();
+
 	tegra_memory_init();
 	tegra_sys_clk_init();
-	tegra_uart_init();
 	tegra_irq_init();
 	tegra_timer_init();
 }
