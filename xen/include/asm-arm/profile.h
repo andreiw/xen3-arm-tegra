@@ -2,7 +2,6 @@
 #define __PROFILER_H__
 
 #include <asm/types.h>
-#include <asm/arch/regs.h>
 
 #define MAX_LOG_ENTRIES				8192
 

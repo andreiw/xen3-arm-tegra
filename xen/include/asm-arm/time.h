@@ -7,20 +7,11 @@
 #include <asm/page.h>
 #include <asm/current.h>
 #include <asm/arch/config.h>
-#include <asm/arch/timex.h>
 
 #ifndef HZ
 #warning "HZ is not defined. Use default value 100"
 #define HZ		100
 #endif
-
-#ifndef ARCH_CLOCK_TICK_RATE
-#error "ARCH_CLOCK_TICK_RATE not defined"
-#endif
-
-#define CLOCK_TICK_RATE		ARCH_CLOCK_TICK_RATE
-
-#define LATCH  ((CLOCK_TICK_RATE + HZ/2) / HZ)
 
 #define watchdog_disable() ((void)0)
 #define watchdog_enable()  ((void)0)

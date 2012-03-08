@@ -35,9 +35,6 @@ arch_idle(void)
 static inline void
 arch_reset(char mode)
 {
-	/* Enable watchdog and assert reset */
-	PCCR1 |= PCCR1_WDT_EN;
-	WCR = WCR_WDE;
+	/* TODO. */
 }
-
 #endif

@@ -4,7 +4,6 @@
 #include <xen/config.h>
 #include <xen/cpumask.h>
 #include <xen/spinlock.h>
-#include <asm/regs.h>
 #include <asm/hardirq.h>
 
 #ifndef ARCH_HAS_IRQ_CONTROL

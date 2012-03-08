@@ -9,7 +9,6 @@
 #include <xen/softirq.h>
 #include <xen/timer.h>
 #include <asm/system.h>
-#include <asm/arch/regs.h>
 
 #define TIMER_SLOP (50 * 1000)
 
