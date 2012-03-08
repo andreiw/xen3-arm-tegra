@@ -101,9 +101,10 @@ vector_reset:
 vector_irq:
 		SAVE_CONTEXT	0x18, 4
 
-1: 
+		get_irqnr_preamble r5, lr
+1:
 		get_irqnr_and_base r0, r6, r5, lr
-    	movne   r1, sp
+		movne   r1, sp
 
 		adrne   lr, 1b
 		bne		asm_do_IRQ
