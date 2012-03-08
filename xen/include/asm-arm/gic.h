@@ -1,6 +1,7 @@
 /*
- *  arch/arm/include/asm/hardware/gic.h
+ *  xen/include/asm-arm/gic.h
  *
+ *  Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com
  *  Copyright (C) 2002 ARM Limited, All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,5 +44,7 @@ void gic_dist_exit(unsigned int gic_nr);
 void gic_cpu_init(unsigned int gic_nr, void __iomem *base);
 void gic_cpu_exit(unsigned int gic_nr);
 void gic_raise_softirq(const cpumask_t *mask, unsigned int irq);
+
+extern struct irqchip gic_arch_extn;
 #endif
 #endif

@@ -16,11 +16,12 @@
  */
 
 #include <asm/io.h>
-#include <asm/arch/tegra-regs.h>
 #include <xen/init.h>
 #include <xen/types.h>
 #include <xen/bitops.h>
 #include <asm/irq.h>
+#include <asm/gic.h>
+#include <asm/arch/tegra-regs.h>
 
 #define ICTLR_CPU_IEP_VFIQ	0x08
 #define ICTLR_CPU_IEP_FIR	0x14
@@ -39,8 +40,6 @@
 
 #define NUM_ICTLRS 4
 #define FIRST_LEGACY_IRQ 32
-
-extern struct irqchip gic_arch_extn;
 
 static void __iomem *ictlr_reg_base[] = {
 	(void*) IO_TO_VIRT(TEGRA_PRIMARY_ICTLR_BASE),

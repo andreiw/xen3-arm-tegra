@@ -1,3 +1,8 @@
+config MACHINE_TEGRA2
+	bool
+	select CPU_CORTEX_A9
+	select PIC_GIC
+
 config PLATFORM_XOOM_TEGRA2
 	bool
 	select USE_HIGH_VECTORS

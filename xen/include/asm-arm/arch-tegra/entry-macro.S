@@ -11,7 +11,7 @@
  * warranty of any kind, whether express or implied.
  */
 
-#include <asm/arch/gic.h>
+#include <asm/gic.h>
 #include <asm/arch/hardware.h>
 
 	/* Uses the GIC interrupt controller built into the cpu */

@@ -33,7 +33,7 @@
 #include <xen/cpumask.h>
 #include <xen/spinlock.h>
 #include <xen/errno.h>
-#include <asm/arch/gic.h>
+#include <asm/gic.h>
 
 /*
  * Supported arch specific GIC irq extension.

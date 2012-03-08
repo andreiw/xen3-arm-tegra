@@ -13,31 +13,27 @@ endmenu
 
 menu "System Type"
 
-config NOT_USE_WFI
-	bool
-
 config CPU_TLB_V7
 	bool
 
-config CPU_CACHE_V6
+config CPU_CACHE_V7
 	bool
 
-config CPU_COPYPAGE_V6
+config CPU_COPYPAGE_V7
+	bool
+
+config PIC_GIC
 	bool
 
 config CPU_ARMV7
 	bool
 	select CPU_TLB_V7
 	select CPU_CACHE_V7
-	select CPU_COPYPAGE_V6
+	select CPU_COPYPAGE_V7
 
 config CPU_CORTEX_A9
-       bool
-       select CPU_ARMV7
-
-config MACHINE_TEGRA2
-       bool
-       select CPU_CORTEX_A9
+	bool
+	select CPU_ARMV7
 
 source "arch/arm/arch-tegra/Kconfig"
 
