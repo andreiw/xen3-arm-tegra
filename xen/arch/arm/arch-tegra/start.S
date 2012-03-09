@@ -72,9 +72,6 @@ str_n:	.asciz	"\r\n"
 	.align
 1:	msr	cpsr_c, #PSR_F_BIT | PSR_I_BIT | PSR_MODE_SVC
 
-	adr	r1, __SRA_INFO
-	str	r0, [r1, #0]
-
 	@ Enable Strict alignment checking & Instruction cache.
 	mrc	p15, 0, r0, c1, c0, 0
 	bic	r0, r0, #0x00002300	@ clear bits 13, 9:8 (--V- --RS)
@@ -242,10 +239,6 @@ LC0:
 	.word	_end			@ r3
 	.word	reloc_done		@ r4
 	.align
-
-ENTRY(sra_info_ptr)
-__SRA_INFO:
-	.long	0
 
 ENTRY(atag_info_ptr)
 __ATAG_INFO:
