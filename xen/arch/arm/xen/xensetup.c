@@ -39,6 +39,7 @@
 #include <asm/uaccess.h>
 #include <asm/cpu-ops.h>
 #include <asm/platform.h>
+#include <asm/atag.h>
 
 #include <asm/arch/irqs.h>
 
@@ -287,8 +288,15 @@ static void shared_info_table_init(void)
 	consistent_write((void *)&idle_pgd[PGD_IDX(SHARED_INFO_BASE)], pde_val(MK_PDE(va_to_ma(shared_info_table), PDE_TYPE_COARSE | PDE_DOMAIN_SUPERVISOR)));
 }
 
-asmlinkage void start_xen(void *params)
+asmlinkage void start_xen(void *unused)
 {
+
+	/*
+	 * Command line arguments may override
+	 * platform initialization, so this
+	 * must be the first thing done.
+	 */
+	cmdline_parse(atag_cmdline());
 	platform_setup();
 
 	printk(XEN_BANNER);

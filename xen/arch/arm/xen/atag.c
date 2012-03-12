@@ -22,25 +22,31 @@
 #include <xen/errno.h>
 #include <asm/atag.h>
 
-#define ATAG_TYPE_CORE    (0x54410001)
-#define ATAG_TYPE_MEM     (0x54410002)
-#define ATAG_TYPE_INITRD2 (0x54420005)
-#define ATAG_TYPE_CMDLINE (0x54410009)
-#define ATAG_TYPE_NONE    (0x0)
-
 #define ATAG_NEXT(header) ((struct atag_header *) \
 	((vaddr_t) headers + \
 	 headers->size * sizeof(u32)))
 
-int atags_valid(struct atag_header *headers)
+static int atags_check(struct atag_header *headers)
 {
 	if (headers->tag == ATAG_TYPE_CORE)
 		return 0;
 	return -EINVAL;
 }
 
+/*
+ * Returns a pointer to a tag of desired tag. If headers == NULL,
+ * the list of bootloader-passed tags is searched from the start,
+ * otherwise the search starts at the tag following the one
+ * passed in headers.
+ */
 struct atag_header *atag_next(struct atag_header *headers, u32 tag)
 {
+	if (!headers) {
+		headers = atag_info_ptr;
+		if (atags_check(headers))
+			return NULL;
+	}
+
 	if (headers->tag == ATAG_TYPE_NONE)
 		return NULL;
 
@@ -58,3 +64,13 @@ struct atag_header *atag_next(struct atag_header *headers, u32 tag)
 	return headers->tag == ATAG_TYPE_NONE ? NULL : headers;
 }
 
+/*
+ * Returns the bootloader-passed command line.
+ */
+char *atag_cmdline(void)
+{
+	struct atag_cmdline *ac;
+
+	ac = atag_next(NULL, ATAG_TYPE_CMDLINE);
+	return ac ? &ac->cmdline : NULL;
+}

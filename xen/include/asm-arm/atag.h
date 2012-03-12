@@ -21,6 +21,12 @@
 #ifndef ARM_ATAG_H
 #define ARM_ATAG_H
 
+#define ATAG_TYPE_CORE    (0x54410001)
+#define ATAG_TYPE_MEM     (0x54410002)
+#define ATAG_TYPE_INITRD2 (0x54420005)
+#define ATAG_TYPE_CMDLINE (0x54410009)
+#define ATAG_TYPE_NONE    (0x0)
+
 struct atag_header
 {
 	u32 size;
@@ -47,7 +53,7 @@ struct atag_cmdline
 	char cmdline[0];
 };
 
-int atags_valid(struct atag_header *headers);
+char *atag_cmdline(void);
 struct atag_header *atag_next(struct atag_header *headers, u32 tag);
 
 extern struct atag_header *atag_info_ptr;
