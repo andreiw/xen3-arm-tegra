@@ -8,8 +8,11 @@ Or maybe not. We'll see.
 Status
 ======
 
-Interrupts mostly working, and timer code mostly in. Nothing
-to see here yet.
+Interrupts and timer working. Next up:
+1) Slashing and burning existing dom0 loading code.
+2) Using an initrd cpio archive to store dom0/u kernels.
+3) Attempting to load some dummy kernels and seeing the existing
+   switching code work or not.
 
 Building
 ========
@@ -43,34 +46,35 @@ Handing off to C...
 [XEN]  http://www.cl.cam.ac.uk/netos/xen
 [XEN]  University of Cambridge Computer Laboratory
 [XEN] 
-[XEN]  Xen version 3.0.2-2 (andreiw@(none)) (gcc version 4.4.3 (GCC) ) Fri Mar  2 01:59:34 EST 2012
+[XEN]  Xen version 3.0.2-2 (andreiw@(none)) (gcc version 4.4.3 (GCC) ) Wed Mar 14 00:41:11 EDT 2012
 [XEN]  Platform: arm-tegra
-[XEN]  GIT SHA: ffd558debcf08dcf59a0c38115906030bf6f261c
-[XEN] 
+[XEN]  GIT SHA: 23345fafccb4030f242850e3a0637f388fbdff29
+[XEN]  Kernel command line: <NULL>
 [XEN] TTB PA 0x104000
 [XEN] idle_pgd VA 0xff004000
 [XEN] xen_pstart 0x0
 [XEN] xen_pend 0x40000000
-[XEN] _end 0xff03e708
-[XEN] _end VA 0x13E708
+[XEN] _end 0xff03fff8
+[XEN] _end VA 0x13FFF8
 [XEN] nr_pages needed for all page_infos = 0x500
-[XEN] frame table is at 0xff03f000-0xff53f000
-[XEN] xenheap_phys_start = 0x648000 (VA 0xff548000)
-[XEN] xenheap_phys_end = 0x848000 (VA 0xff748000)
+[XEN] frame table is at 0xff040000-0xff540000
+[XEN] xenheap_phys_start = 0x649000 (VA 0xff549000)
+[XEN] xenheap_phys_end = 0x849000 (VA 0xff749000)
 [XEN] looking at bank 0
 [XEN]         base - 0x0
 [XEN]         end  - 0x40000000
-[XEN] calling init_boot_pages on 0x648000-0x40000000
+[XEN] calling init_boot_pages on 0x649000-0x40000000
 [XEN] Using scheduler: Simple EDF Scheduler (sedf)
 [XEN] Initializing ARM FCSE Unit
 [XEN] *** LOADING DOMAIN : 0 ***
 [XEN] DOM0 image is not a Xen-compatible Elf image.
 [XEN] Could not set up DOM0 guest OS
 [XEN] 
-[XEN] VMM Panic at xensetup.c:357
+[XEN] VMM Panic at xensetup.c:377
 
-Changelog
-=========
+Changelog (more or less)
+========================
+Mar-14-2012: Timer and delay working.
 Mar-06-2012: GIC/legacy IC stuff in (except for IRQ path),
              timer work - unfinished. Fix HIGH_VECTORS
              and NR_IRQs. Remove unmaintained crud.
@@ -94,6 +98,11 @@ ends and which need some lovin', but not immediately.
    kernel image.
 4) Fix the link address being 0x8000 - with pgd moved
    should have no reason for this nonsense.
+
+Nice to have:
+1) tegrafb for debugging
+2) GDB stubs
+3) FIQ debugger
 
 Contact Info
 ============
