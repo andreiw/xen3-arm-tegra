@@ -32,6 +32,11 @@
 #define put_byte_3      lsl #0
 #endif
 
+.macro mov32, reg, val
+	 movw    \reg, #:lower16:\val
+	 movt    \reg, #:upper16:\val
+.endm
+
 /*
  * Data preload for architectures that support it
  */

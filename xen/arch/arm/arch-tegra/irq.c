@@ -21,7 +21,7 @@
 #include <xen/bitops.h>
 #include <asm/irq.h>
 #include <asm/gic.h>
-#include <asm/arch/tegra-regs.h>
+#include <asm/arch/hardware.h>
 
 #define ICTLR_CPU_IEP_VFIQ	0x08
 #define ICTLR_CPU_IEP_FIR	0x14
@@ -118,7 +118,7 @@ void tegra_irq_init(void)
 	gic_arch_extn.unmask = tegra_unmask_irq;
 	gic_arch_extn.retrigger = tegra_retrigger_irq;
 
-	gic_dist_init(0, IO_TO_VIRT(TEGRA_ARM_INT_DIST_BASE), 29);
-	gic_cpu_init(0, IO_TO_VIRT(TEGRA_ARM_PERIF_BASE + 0x100));
+	gic_dist_init(0, (void *) IO_TO_VIRT(TEGRA_ARM_INT_DIST_BASE), 29);
+	gic_cpu_init(0, (void *) IO_TO_VIRT(TEGRA_ARM_PERIF_BASE + 0x100));
 }
 

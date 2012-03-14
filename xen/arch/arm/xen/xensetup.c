@@ -41,8 +41,6 @@
 #include <asm/platform.h>
 #include <asm/atag.h>
 
-#include <asm/arch/irqs.h>
-
 #ifdef CONFIG_GCOV_XEN
 #include <xen/gcov.h>
 #endif
@@ -290,13 +288,14 @@ static void shared_info_table_init(void)
 
 asmlinkage void start_xen(void *unused)
 {
+	char *cmdline = atag_cmdline();
 
 	/*
 	 * Command line arguments may override
 	 * platform initialization, so this
 	 * must be the first thing done.
 	 */
-	cmdline_parse(atag_cmdline());
+	cmdline_parse(cmdline);
 	platform_setup();
 
 	printk(XEN_BANNER);
@@ -308,7 +307,8 @@ asmlinkage void start_xen(void *unused)
 	       XEN_COMPILE_BY, XEN_COMPILE_DOMAIN,
 	       XEN_COMPILER, XEN_COMPILE_DATE);
 	printk(" Platform: %s\n", XEN_PLATFORM);
-	printk(" GIT SHA: %s\n\n", XEN_CHANGESET);
+	printk(" GIT SHA: %s\n", XEN_CHANGESET);
+	printk(" Kernel command line: %s\n", cmdline);
 
 	memory_init();
 

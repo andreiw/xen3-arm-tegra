@@ -12,7 +12,7 @@
  */
 
 #include <xen/config.h>
-#include <asm/arch/tegra-regs.h>
+#include <asm/arch/hardware.h>
 #include <asm/serial_reg.h>
 #include <xen/linkage.h>
 

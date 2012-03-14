@@ -1,7 +1,6 @@
 #ifndef TEGRA_REGS_H
 #define TEGRA_REGS_H
 
-#include <asm/arch/hardware.h>
 #include <asm/sizes.h>
 
 #define TEGRA_ARM_PERIF_BASE		0x50040000
@@ -34,11 +33,16 @@
 #define TEGRA_TMRUS_BASE		0x60005010
 #define TEGRA_TMRUS_SIZE		SZ_64
 
+#define TEGRA_TMRUS_CFG			0x4
+
 #define TEGRA_TMR3_BASE			0x60005050
 #define TEGRA_TMR3_SIZE			SZ_8
 
 #define TEGRA_TMR4_BASE			0x60005058
 #define TEGRA_TMR4_SIZE			SZ_8
+
+#define TEGRA_TMR_PTV			0x0
+#define TEGRA_TMR_PCR			0x4
 
 #define TEGRA_CLK_RESET_BASE		0x60006000
 #define TEGRA_CLK_RESET_SIZE		SZ_4K
