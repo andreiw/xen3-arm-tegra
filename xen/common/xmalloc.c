@@ -100,12 +100,6 @@ static void *xmalloc_whole_pages(size_t size)
     return hdr+1;
 }
 
-/* Return size, increased to alignment with align. */
-static inline size_t align_up(size_t size, size_t align)
-{
-    return (size + align - 1) & ~(align - 1);
-}
-
 void *_xmalloc(size_t size, size_t align)
 {
     struct xmalloc_hdr *i;

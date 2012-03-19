@@ -1,5 +1,7 @@
-#ifndef _LINUX_KERNEL_H
-#define _LINUX_KERNEL_H
+#ifndef _XEN_KERNEL_H
+#define _XEN_KERNEL_H
+
+#include <xen/types.h>
 
 /*
  * 'kernel.h' contains some often-used function prototypes etc
@@ -56,6 +58,11 @@
 	1; \
 })
 
+/* Return size, increased to alignment with align. */
+static inline size_t align_up(size_t size, size_t align)
+{
+    return (size + align - 1) & ~(align - 1);
+}
 
 #endif /* _LINUX_KERNEL_H */
 
