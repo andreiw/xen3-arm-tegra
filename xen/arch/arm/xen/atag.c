@@ -71,6 +71,22 @@ char *atag_cmdline(void)
 {
 	struct atag_cmdline *ac;
 
-	ac = atag_next(NULL, ATAG_TYPE_CMDLINE);
-	return ac ? &ac->cmdline : NULL;
+	ac = (struct atag_cmdline *) atag_next(NULL, ATAG_TYPE_CMDLINE);
+	return ac ? ac->cmdline : NULL;
+}
+
+/*
+ * Returns the bootloader-passed initrd image.
+ */
+int atag_initrd(u32 *start, u32 *end)
+{
+	struct atag_initrd2 *ai;
+
+	ai = (struct atag_initrd2 *) atag_next(NULL, ATAG_TYPE_INITRD2);
+	if (!ai)
+		return -ENXIO;
+
+	*start = ai->start;
+	*end = *start + ai->size;
+	return 0;
 }

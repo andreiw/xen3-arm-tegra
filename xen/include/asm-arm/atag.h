@@ -54,6 +54,7 @@ struct atag_cmdline
 };
 
 char *atag_cmdline(void);
+int atag_initrd(u32 *start, u32 *end);
 struct atag_header *atag_next(struct atag_header *headers, u32 tag);
 
 extern struct atag_header *atag_info_ptr;
