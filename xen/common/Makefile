@@ -23,6 +23,7 @@ obj-y += timer.o
 obj-y += vsprintf.o
 obj-y += xmalloc.o
 #obj-y += vdma.o
+obj-y += bv.o
 
 obj-$(perfc)       += perfc.o
 obj-$(crash_debug) += gdbstub.o
