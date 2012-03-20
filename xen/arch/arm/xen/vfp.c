@@ -38,7 +38,6 @@
 #include <asm/hardirq.h>
 #include <asm/uaccess.h>
 #include <asm/string.h>
-#include <asm/memmap.h>
 
 #define FPEXC           cr8
 #define FPINST          cr9

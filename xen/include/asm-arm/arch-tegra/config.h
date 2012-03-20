@@ -8,14 +8,8 @@
 
 /* This needs to match asm/config.h, xen.lds.S */
 #define KERNEL_VIRT_BASE        (0xff000000)
-
 #define __PAGE_OFFSET           (KERNEL_VIRT_BASE - KERNEL_PHYS_BASE)
 
-#define MEMMAP_DRAM_ADDR	PHYS_OFFSET
-#define MEMMAP_DRAM_SIZE	0x04000000
-
-/* Will go away. */
-#define MEMMAP_NOR_ADDR		0xC8000000
-#define MEMMAP_NOR_SIZE		0x02000000
-
+/* This should become dynamic. */
+#define KERNEL_HEAP_SIZE        (2 * 1024 * 1024)
 #endif

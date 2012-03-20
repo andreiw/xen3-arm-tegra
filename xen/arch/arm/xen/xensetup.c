@@ -33,13 +33,13 @@
 #include <security/acm/policy_conductor.h>
 #include <security/acm/acm_hooks.h>
 #include <security/ssm-xen/sra_func.h>
-#include <asm/memmap.h>
 #include <asm/trap.h>
 #include <asm/memory.h>
 #include <asm/uaccess.h>
 #include <asm/cpu-ops.h>
 #include <asm/platform.h>
 #include <asm/atag.h>
+#include <xen/bv.h>
 
 #ifdef CONFIG_GCOV_XEN
 #include <xen/gcov.h>
@@ -62,60 +62,6 @@ unsigned long xenheap_phys_start;
 unsigned long xenheap_phys_end;
 
 cpumask_t cpu_online_map;
-
-struct domain_addr_set {
-        unsigned long   guest_memory_start;
-        unsigned long   guest_memory_size;
-        unsigned long   elf_image_address;
-        unsigned long   elf_image_size;
-        unsigned long   initrd_address;
-        unsigned long   initrd_size;
-        unsigned long   command_line_address;
-        unsigned long   stack_start;
-};
-
-struct domain_addr_set domain_addrs[4]= {
-	{
-		MEMMAP_GUEST_0_START_PADDR,             // guest memory start
-		MEMMAP_GUEST_0_SIZE,                    // guest memory size
-		MEMMAP_GUEST_0_ELF_IMAGE_PADDR,         // elf image address
-		MEMMAP_GUEST_0_ELF_MAX_SIZE,              // elf image size
-		0,     // ramdisk image address
-		0,          // ramdisk image size
-		0,                                   // commandline
-		0 
-	},
-	{
-		MEMMAP_GUEST_1_START_PADDR,             // guest memory start
-		MEMMAP_GUEST_1_SIZE,                    // guest memory size
-		MEMMAP_GUEST_1_ELF_IMAGE_PADDR,         // elf image address
-		MEMMAP_GUEST_1_ELF_MAX_SIZE,              // elf image size
-		0,     // ramdisk image address
-		0,          // ramdisk image size
-		0,                                   // commandline
-		0 
-	},
-	{
-		MEMMAP_GUEST_2_START_PADDR,             // guest memory start
-		MEMMAP_GUEST_2_SIZE,                    // guest memory size
-		MEMMAP_GUEST_2_ELF_IMAGE_PADDR,         // elf image address
-		MEMMAP_GUEST_2_ELF_MAX_SIZE,              // elf image size
-		0,     // ramdisk image address
-		0,          // ramdisk image size
-		0,                                   // commandline
-		0
-	},
-	{
-		MEMMAP_GUEST_3_START_PADDR,             // guest memory start
-		MEMMAP_GUEST_3_SIZE,                    // guest memory size
-		MEMMAP_GUEST_3_ELF_IMAGE_PADDR,         // elf image address
-		MEMMAP_GUEST_3_ELF_MAX_SIZE,              // elf image size
-		0,     // ramdisk image address
-		0,          // ramdisk image size
-		0,                                   // commandline
-		0
-	},
-};
 
 static void subsystem_init(void)
 {
@@ -208,7 +154,7 @@ static void memory_init()
 	memset(frame_table, 0, nr_pages << PAGE_SHIFT);
 
 	xenheap_phys_start = init_boot_allocator(va_to_ma(frame_table) + (nr_pages << PAGE_SHIFT));
-	xenheap_phys_end   = xenheap_phys_start + MEMMAP_XEN_SIZE;
+	xenheap_phys_end   = xenheap_phys_start + KERNEL_HEAP_SIZE;
 	printk("xenheap_phys_start = 0x%x (VA 0x%x)\n", xenheap_phys_start, ma_to_va(xenheap_phys_start));
 	printk("xenheap_phys_end = 0x%x (VA 0x%x)\n", xenheap_phys_end, ma_to_va(xenheap_phys_end));
 
@@ -286,8 +232,11 @@ static void shared_info_table_init(void)
 	consistent_write((void *)&idle_pgd[PGD_IDX(SHARED_INFO_BASE)], pde_val(MK_PDE(va_to_ma(shared_info_table), PDE_TYPE_COARSE | PDE_DOMAIN_SUPERVISOR)));
 }
 
-asmlinkage void start_xen(void *unused)
+void start_xen(void *unused)
 {
+	struct bv bv = INIT_BV_NONE;
+	struct bv_file dom0_data = INIT_BV_FILE_NONE;
+	struct bv_file initrd0_data = INIT_BV_FILE_NONE;
 	char *cmdline = atag_cmdline();
 
 	/*
@@ -309,6 +258,8 @@ asmlinkage void start_xen(void *unused)
 	printk(" Platform: %s\n", XEN_PLATFORM);
 	printk(" GIT SHA: %s\n", XEN_CHANGESET);
 	printk(" Kernel command line: %s\n", cmdline);
+	atag_initrd((u32 *) &bv.start, (u32 *) &bv.end);
+	printk(" Boot volume: 0x%x-0x%x\n", bv.start, bv.end);
 
 	memory_init();
 
@@ -355,86 +306,96 @@ asmlinkage void start_xen(void *unused)
 	dom0 = domain_create(0, 0);
 
 	BUG_ON(dom0 == NULL);
+	if (bv.start == bv.end)
+		PANIC("No boot volume passed to Xen :-(\n");
+
+	if (bv_find(&bv, "dom0", &dom0_data))
+		PANIC("No dom0 kernel present in boot volume :-(\n");
+
+	printk("Dom0 kernel 0x%x-0x%x\n", dom0_data.start, dom0_data.end);
+
+	if (!bv_find(&bv, "initrd0", &initrd0_data))
+		printk("Dom0 initrd 0x%x-0x%x\n",
+		       initrd0_data.start, initrd0_data.end);
 
 	/* { */
 	/* 	local_irq_enable(); */
 	/* 	while(1); */
 	/* } */
 
-	if ( construct_dom0(dom0,
-			domain_addrs[0].guest_memory_start,
-			domain_addrs[0].guest_memory_size,
-			domain_addrs[0].elf_image_address,
-			domain_addrs[0].elf_image_size,
-			domain_addrs[0].initrd_address,
-			domain_addrs[0].initrd_size,
-			NULL) != 0)
-	{
-		PANIC("Could not set up DOM0 guest OS\n");
-	}
+	/*
+	 * Hardcoding stuff in.
+	 */
+	if (construct_dom0(dom0,
+			   align_up(xenheap_phys_end, 0x100000),
+			   12 * 1024 * 1024,
+			   (u32) dom0_data.start,
+			   dom0_data.end - dom0_data.start,
+			   (u32) initrd0_data.start,
+			   initrd0_data.end - initrd0_data.start,
+			   NULL) != 0)
+		PANIC("Could not prepare dom0\n");
 
 	set_bit(_DOMF_privileged, &dom0->domain_flags);
-
 	domain_unpause_by_systemcontroller(dom0);
-
 	local_irq_enable();
-
 	startup_cpu_idle_loop();
 }
 
 int get_guest_domain_address( dom0_op_t * dom0_op)
 {
-	unsigned int domain_id;
-	unsigned int ret=0;
-	dom0_op_t * op = dom0_op;
+	/* unsigned int domain_id; */
+	/* unsigned int ret=0; */
+	/* dom0_op_t * op = dom0_op; */
 	
-	domain_id = op->u.guest_image_info.domain;
+	/* domain_id = op->u.guest_image_info.domain; */
 
-	/* return guest domain loading physical address */
-	op->u.guest_image_info.guest_image_address = domain_addrs[domain_id].elf_image_address;
-	op->u.guest_image_info.guest_image_size    = domain_addrs[domain_id].elf_image_size;
+	/* /\* return guest domain loading physical address *\/ */
+	/* op->u.guest_image_info.guest_image_address = domain_addrs[domain_id].elf_image_address; */
+	/* op->u.guest_image_info.guest_image_size    = domain_addrs[domain_id].elf_image_size; */
 
-	return ret;
+	/* return ret; */
+	return -ENXIO;
 }
 
 int create_guest_domain( dom0_op_t * dom0_op )
 {
-	unsigned int domain_id;
-	unsigned long guest_va;
-	struct domain *dom;
+	/* unsigned int domain_id; */
+	/* unsigned long guest_va; */
+	/* struct domain *dom; */
 
-	domain_id = dom0_op->u.guest_image_info.domain;
+	/* domain_id = dom0_op->u.guest_image_info.domain; */
 
-	guest_va = dom0_op->u.guest_image_info.guest_image_address;
+	/* guest_va = dom0_op->u.guest_image_info.guest_image_address; */
 
-	dom = find_domain_by_id(domain_id);
-	if ( dom == NULL )
-	{
-		PANIC("Could not find the domain structure for DOM guest OS\n");
-		return DOM_CREATE_FAIL;	
-	}
+	/* dom = find_domain_by_id(domain_id); */
+	/* if ( dom == NULL ) */
+	/* { */
+	/* 	PANIC("Could not find the domain structure for DOM guest OS\n"); */
+	/* 	return DOM_CREATE_FAIL;	 */
+	/* } */
 
-	dom->store_port = dom0_op->u.guest_image_info.store_port;
-	dom->console_port = dom0_op->u.guest_image_info.console_port;
+	/* dom->store_port = dom0_op->u.guest_image_info.store_port; */
+	/* dom->console_port = dom0_op->u.guest_image_info.console_port; */
 		
-	if ( construct_guest_dom( dom,
-			domain_addrs[domain_id].guest_memory_start,
-			domain_addrs[domain_id].guest_memory_size,
-			domain_addrs[domain_id].elf_image_address,
-			domain_addrs[domain_id].elf_image_size,
-			domain_addrs[domain_id].initrd_address,
-			domain_addrs[domain_id].initrd_size,
-			NULL) != 0)           // stack start
-	{
-		put_domain(dom);
-		PANIC("Could not set up DOM1 guest OS\n");
-		return DOM_CREATE_FAIL;	
-	}
+	/* if ( construct_guest_dom( dom, */
+	/* 		domain_addrs[domain_id].guest_memory_start, */
+	/* 		domain_addrs[domain_id].guest_memory_size, */
+	/* 		domain_addrs[domain_id].elf_image_address, */
+	/* 		domain_addrs[domain_id].elf_image_size, */
+	/* 		domain_addrs[domain_id].initrd_address, */
+	/* 		domain_addrs[domain_id].initrd_size, */
+	/* 		NULL) != 0)           // stack start */
+	/* { */
+	/* 	put_domain(dom); */
+	/* 	PANIC("Could not set up DOM1 guest OS\n"); */
+	/* 	return DOM_CREATE_FAIL; */
+	/* } */
 
-	dom0_op->u.guest_image_info.store_mfn = dom->store_mfn;
-	dom0_op->u.guest_image_info.console_mfn = dom->console_mfn;
+	/* dom0_op->u.guest_image_info.store_mfn = dom->store_mfn; */
+	/* dom0_op->u.guest_image_info.console_mfn = dom->console_mfn; */
 
-	put_domain(dom);
-
-	return DOM_CREATE_SUCCESS;	
+	/* put_domain(dom); */
+	/* return DOM_CREATE_SUCCESS; */
+	return -ENXIO;
 }

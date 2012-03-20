@@ -25,7 +25,6 @@
 #include <asm/pgtable.h>
 #include <asm/page.h>
 #include <asm/system.h>
-#include <asm/memmap.h>
 #include <asm/arch/hardware.h>
 
         .type   text, %function

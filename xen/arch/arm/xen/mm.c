@@ -39,7 +39,6 @@
 #include <xen/guest_access.h>
 #include <security/acm/acm_hooks.h>
 #include <asm/memory.h>
-#include <asm/memmap.h>
 #include <asm/cpu-ops.h>
 
 #define VERBOSE 1

@@ -8,10 +8,14 @@ Or maybe not. We'll see.
 Status
 ======
 
-Interrupts and timer working. Next up:
+Interrupts and timer working. A "boot volume" passed by the
+bootloader (CPIO archive, *cough*, initrd) are expected to
+contain /dom0 and /initrd0, which constitute dom0 kernel
+and initrd, respectively.
+
+Next up:
 1) Slashing and burning existing dom0 loading code.
-2) Using an initrd cpio archive to store dom0/u kernels.
-3) Attempting to load some dummy kernels and seeing the existing
+2) Attempting to load some dummy kernels and seeing the existing
    switching code work or not.
 
 Building
@@ -46,10 +50,11 @@ Handing off to C...
 [XEN]  http://www.cl.cam.ac.uk/netos/xen
 [XEN]  University of Cambridge Computer Laboratory
 [XEN] 
-[XEN]  Xen version 3.0.2-2 (andreiw@(none)) (gcc version 4.4.3 (GCC) ) Wed Mar 14 00:41:11 EDT 2012
+[XEN]  Xen version 3.0.2-2 (andreiw@(none)) (gcc version 4.4.3 (GCC) ) Mon Mar 19 20:47:46 EDT 2012
 [XEN]  Platform: arm-tegra
-[XEN]  GIT SHA: 23345fafccb4030f242850e3a0637f388fbdff29
+[XEN]  GIT SHA: 7fc094c3050bc49ef2796001925be72a27728893
 [XEN]  Kernel command line: <NULL>
+[XEN]  Boot volume: 0x5000000-0x5000200
 [XEN] TTB PA 0x104000
 [XEN] idle_pgd VA 0xff004000
 [XEN] xen_pstart 0x0
@@ -66,14 +71,17 @@ Handing off to C...
 [XEN] calling init_boot_pages on 0x649000-0x40000000
 [XEN] Using scheduler: Simple EDF Scheduler (sedf)
 [XEN] Initializing ARM FCSE Unit
+[XEN] Dom0 kernel 0x5000164-0x5000178
+[XEN] Dom0 initrd 0x50000e8-0x50000f0
 [XEN] *** LOADING DOMAIN : 0 ***
 [XEN] DOM0 image is not a Xen-compatible Elf image.
-[XEN] Could not set up DOM0 guest OS
+[XEN] Could not prepare dom0
 [XEN] 
-[XEN] VMM Panic at xensetup.c:377
+[XEN] VMM Panic at xensetup.c:337
 
 Changelog (more or less)
 ========================
+Mar-19-2012: Boot volume stuff and xensetup.c cleanup.
 Mar-14-2012: Timer and delay working.
 Mar-06-2012: GIC/legacy IC stuff in (except for IRQ path),
              timer work - unfinished. Fix HIGH_VECTORS

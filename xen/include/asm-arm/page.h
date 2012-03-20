@@ -16,6 +16,16 @@
 #define round_pgup(_p)      (((_p)+(PAGE_SIZE-1))&PAGE_MASK)
 #define round_pgdown(_p)    ((_p)&PAGE_MASK)
 
+#ifdef __ASSEMBLY__
+#define MAP_ENTRY(va, pa, size, attr)           \
+	.word   size                            ;\
+	.word   4 * ((va) >> 20)                ;\
+	.word   (pa) | (attr)                   ;
+#endif
+
+#define PFN_DOWN(x)	((x)>> PAGE_SHIFT)
+#define PFN_UP(x)	(((x)+PAGE_SIZE-1) >> PAGE_SHIFT)
+
 #ifndef __ASSEMBLY__
 #include <xen/lib.h>
 
