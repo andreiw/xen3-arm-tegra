@@ -103,6 +103,34 @@ static struct irqchip tegra_internal_chip = {
 	.retrigger = tegra_retrigger_irq,
 };
 
+static void tegra_select_fiq(unsigned int irq, bool fiq)
+{
+	void __iomem *base;
+
+	irq -= FIRST_LEGACY_IRQ;
+	base = ictlr_reg_base[(irq) / 32];
+	writel(fiq << (irq & 31), base + ICTLR_CPU_IEP_CLASS);
+}
+
+void tegra_fiq_enable(int irq)
+{
+	void __iomem *base = (void *) IO_TO_VIRT(TEGRA_ARM_PERIF_BASE + 0x100);
+
+	/* enable FIQ */
+	u32 val = readl(base + GIC_CPU_CTRL);
+	val &= ~8; /* pass FIQs through */
+	val |= 2; /* enableNS */
+	writel(val, base + GIC_CPU_CTRL);
+	tegra_select_fiq(irq, true);
+	tegra_unmask_irq(irq);
+}
+
+void tegra_fiq_disable(int irq)
+{
+	tegra_mask_irq(irq);
+	tegra_select_fiq(irq, false);
+}
+
 void tegra_irq_init(void)
 {
 	int i;

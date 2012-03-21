@@ -25,7 +25,6 @@
 #include <xen/linkage.h>
 #include <asm/init.h>
 #include <asm/linkage.h>
-#include <asm/arch/irqs.h>
 #include <asm/page.h>
 #include <asm/system.h>
 #include <asm/asm-macros.h>

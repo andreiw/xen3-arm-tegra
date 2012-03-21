@@ -182,4 +182,8 @@
 
 #define NR_IRQS				(INT_BOARD_BASE + NR_BOARD_IRQS)
 
+void tegra_fiq_enable(int irq);
+void tegra_fiq_disable(int irq);
+void tegra_irq_init(void);
+
 #endif
