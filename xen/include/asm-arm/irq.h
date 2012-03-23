@@ -181,4 +181,12 @@ int setup_irq(unsigned int, struct irqaction *);
 void level_irq_handler(unsigned int irq, struct irqdesc *desc, struct cpu_user_regs *regs);
 void edge_irq_handler(unsigned int irq, struct irqdesc *desc, struct cpu_user_regs *regs);
 int pirq_guest_eoi(struct domain *d, unsigned int irq);
+
+struct fiq_handler {
+	void (*fiq)(struct fiq_handler *h, void *regs, void *svc_sp);
+	void (*resume)(struct fiq_handler *h);
+};
+
+int fiq_register_handler(struct fiq_handler *handler);
+
 #endif
