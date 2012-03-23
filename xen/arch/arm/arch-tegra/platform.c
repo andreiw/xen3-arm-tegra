@@ -63,6 +63,15 @@ static void tegra_uart_putc(struct serial_port *port, char c)
 		tegra_uart_putc(port, '\r');
 }
 
+static void uart_fiq(struct fiq_handler *h, void *regs, void *svc_sp)
+{
+  printk("uart_fiq!!!");
+}
+
+struct fiq_handler fh = {
+  .fiq = uart_fiq,
+};
+
 static int tegra_uart_getc(struct serial_port *port, char *pc)
 {
 	return 1;
@@ -82,6 +91,12 @@ static struct uart_driver tegra_uart_driver = {
 
 static void tegra_uart_init(void)
 {
+
+	/* enable rx and lsr interrupt */
+	uart_write(UART_IER_RLSI | UART_IER_RDI, UART_IER);
+	/* interrupt on every character */
+	uart_write(0, UART_IIR);
+
 	serial_register_uart(0, &tegra_uart_driver, &tegra_uart_params);
 }
 

@@ -41,6 +41,9 @@
 #include <asm/atag.h>
 #include <xen/bv.h>
 
+#include <asm/irq.h>
+#include <xen/delay.h>
+
 #ifdef CONFIG_GCOV_XEN
 #include <xen/gcov.h>
 #endif
@@ -277,6 +280,18 @@ void start_xen(void *unused)
 #endif
 
 	timer_init();
+
+        {
+          extern struct fiq_handler fh;
+          fiq_register_handler(&fh);
+          tegra_fiq_enable(INT_UARTB);
+          //local_fiq_enable();
+          local_irq_enable();
+          while(1) {
+            mdelay(1000);
+            printk("-");
+          }
+        }
 
 	init_acm();
 

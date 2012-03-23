@@ -21,7 +21,7 @@
 	.global	main
 	.type	main, %function
 main:
-.LFB109:
+.LFB106:
 	.file 1 "xen/asm-offsets.c"
 	.loc 1 59 0
 	@ args = 0, pretend = 0, frame = 0
@@ -382,7 +382,7 @@ main:
 	.loc 1 134 0
 	mov	r0, r3
 	ldmfd	sp, {fp, sp, pc}
-.LFE109:
+.LFE106:
 	.size	main, .-main
 	.section	.debug_frame,"",%progbits
 .Lframe0:
@@ -403,10 +403,10 @@ main:
 	.4byte	.LEFDE0-.LASFDE0
 .LASFDE0:
 	.4byte	.Lframe0
-	.4byte	.LFB109
-	.4byte	.LFE109-.LFB109
+	.4byte	.LFB106
+	.4byte	.LFE106-.LFB106
 	.byte	0x4
-	.4byte	.LCFI0-.LFB109
+	.4byte	.LCFI0-.LFB106
 	.byte	0xd
 	.uleb128 0xc
 	.byte	0x4
@@ -432,7 +432,7 @@ main:
 	.section	.debug_loc,"",%progbits
 .Ldebug_loc0:
 .LLST0:
-	.4byte	.LFB109-.Ltext0
+	.4byte	.LFB106-.Ltext0
 	.4byte	.LCFI0-.Ltext0
 	.2byte	0x2
 	.byte	0x7d
@@ -443,7 +443,7 @@ main:
 	.byte	0x7c
 	.sleb128 0
 	.4byte	.LCFI2-.Ltext0
-	.4byte	.LFE109-.Ltext0
+	.4byte	.LFE106-.Ltext0
 	.2byte	0x2
 	.byte	0x7b
 	.sleb128 4
@@ -2662,8 +2662,8 @@ main:
 	.byte	0x3a
 	.byte	0x1
 	.4byte	0x62
-	.4byte	.LFB109
-	.4byte	.LFE109
+	.4byte	.LFB106
+	.4byte	.LFE106
 	.4byte	.LLST0
 	.uleb128 0xc
 	.4byte	0x9bd

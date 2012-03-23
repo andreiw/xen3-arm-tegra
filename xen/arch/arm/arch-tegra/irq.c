@@ -120,9 +120,13 @@ void tegra_fiq_enable(int irq)
 	u32 val = readl(base + GIC_CPU_CTRL);
 	val &= ~8; /* pass FIQs through */
 	val |= 2; /* enableNS */
+        printk("1");
 	writel(val, base + GIC_CPU_CTRL);
+        printk("2");
 	tegra_select_fiq(irq, true);
+        printk("3");
 	tegra_unmask_irq(irq);
+        printk("4");
 }
 
 void tegra_fiq_disable(int irq)

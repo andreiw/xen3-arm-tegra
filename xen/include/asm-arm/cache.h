@@ -35,25 +35,6 @@
 
 #define L1_CACHE_BYTES			32
 
-#define CACHE_VIVT				(0x00000001)
-#define CACHE_VIPT				(0x00000002)
-#define CACHE_PIPT				(0x00000004)
-
-#define INVL_ICACHE
-#define INVL_DCACHE
-
-static inline void cache_flush(unsigned long start, unsigned long end, unsigned int flags)
-{
-}
-
-static inline void cache_invalidate(unsigned long start, unsigned long end, unsigned int flags)
-{
-}
-
-static inline void cache_clean(unsigned long start, unsigned long end, unsigned int flags)
-{
-}
-
 static inline void dump_cache(const char *prefix, int cpu, unsigned int cache)
 {
 	unsigned int mult = 2 + (CACHE_M(cache) ? 1 : 0);
