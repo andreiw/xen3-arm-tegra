@@ -38,6 +38,7 @@
 #include <asm/uaccess.h>
 #include <asm/cpu-ops.h>
 #include <asm/platform.h>
+#include <asm/fiqdb.h>
 #include <asm/atag.h>
 #include <asm/irq.h>
 #include <xen/bv.h>
@@ -266,6 +267,10 @@ void start_xen(void *unused)
 	sort_extables();
 
 	trap_init();
+
+#ifdef CONFIG_FIQDB
+	fiqdb_init();
+#endif /* CONFIG_FIQDB */
 
 #if CONFIG_GCOV_XEN
 	gcov_core_init();

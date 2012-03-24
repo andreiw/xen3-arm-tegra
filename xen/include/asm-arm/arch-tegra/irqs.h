@@ -182,6 +182,20 @@
 
 #define NR_IRQS				(INT_BOARD_BASE + NR_BOARD_IRQS)
 
+#if defined(CONFIG_TEGRA_DEBUG_UART_NONE)
+#define TEGRA_DEBUG_UART_INT 0
+#elif defined(CONFIG_TEGRA_DEBUG_UARTA)
+#define TEGRA_DEBUG_UART_INT INT_UARTA
+#elif defined(CONFIG_TEGRA_DEBUG_UARTB)
+#define TEGRA_DEBUG_UART_INT INT_UARTB
+#elif defined(CONFIG_TEGRA_DEBUG_UARTC)
+#define TEGRA_DEBUG_UART_INT INT_UARTC
+#elif defined(CONFIG_TEGRA_DEBUG_UARTD)
+#define TEGRA_DEBUG_UART_INT INT_UARTD
+#elif defined(CONFIG_TEGRA_DEBUG_UARTE)
+#define TEGRA_DEBUG_UART_INT INT_UARTE
+#endif
+
 void tegra_fiq_enable(int irq);
 void tegra_fiq_disable(int irq);
 void tegra_irq_init(void);

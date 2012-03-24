@@ -57,11 +57,15 @@ static int tegra_uart_tx_empty(struct serial_port *port)
 static void tegra_uart_putc(struct serial_port *port, char c)
 {
 	struct tegra_uart *uart = port->uart;
-	tegra_uart_write(uart, c, UART_TX);
-	if (c == '\n')
-		tegra_uart_putc(port, '\r');
-}
 
+	tegra_uart_write(uart, c, UART_TX);
+	if (c == '\n') {
+		while(!tegra_uart_tx_empty(port))
+		  cpu_relax();
+
+		tegra_uart_putc(port, '\r');
+	}
+}
 
 static int tegra_uart_getc(struct serial_port *port, char *pc)
 {

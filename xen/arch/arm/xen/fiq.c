@@ -32,7 +32,6 @@ static void fiq_set_handler(void *handler)
 	unsigned long *fiq_slot = (unsigned long *)
 		(VECTORS_BASE + (exception_vectors_jump_fiq -
 				 exception_vectors_table));
-	printk("old handler = 0x%x\n", *fiq_slot);
 	*fiq_slot = (u32) handler;
 	cpu_coherent_range(fiq_slot, fiq_slot + 1);
 }

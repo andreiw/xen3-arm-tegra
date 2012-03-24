@@ -26,6 +26,7 @@
 #include <asm/serial_reg.h>
 #include <asm/arch/hardware.h>
 
+void tegra_fiqdb_register();
 void tegra_uart_init(int index, struct ns16550_defaults *defaults);
 
 static void tegra_platform_halt(int mode)
@@ -45,6 +46,9 @@ static void tegra_sys_clk_init(void)
 
 static void tegra_platform_setup(void)
 {
+#ifdef CONFIG_TEGRA_FIQDB_SUPPORT
+	tegra_fiqdb_register();
+#endif /* CONFIG_TEGRA_FIQDB_SUPPORT */
 	tegra_uart_init(0, NULL);
 	init_console();
 

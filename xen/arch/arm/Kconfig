@@ -39,12 +39,20 @@ source "arch/arm/arch-tegra/Kconfig"
 
 choice
 	prompt "ARM platform"
-config SELECT_PLATFORM_XOOM_TEGRA2
+config PLATFORM_XOOM_TEGRA2
 	bool "Xoom Tegra2"
-	select PLATFORM_XOOM_TEGRA2
 	help
 		Say Y here if you are using the Tegra2 Xoom
 endchoice
+endmenu
+
+menu "Debugging"
+config FIQDB_SUPPORT
+	bool
+
+config FIQDB
+	depends on FIQDB_SUPPORT
+	bool "Enable FIQ debugger"
 endmenu
 
 menu "Customize Memory Map"

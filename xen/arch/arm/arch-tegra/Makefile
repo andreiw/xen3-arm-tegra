@@ -7,5 +7,6 @@ obj-y += debug.o
 obj-y += uart.o
 obj-y += delay.o
 obj-y += tegra2_clocks.o
+obj-$(CONFIG_TEGRA_FIQDB_SUPPORT) += fiqdb_support.o
 
 include $(BASEDIR)/Post.mk

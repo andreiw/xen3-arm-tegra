@@ -3,33 +3,37 @@ config MACHINE_TEGRA2
 	select CPU_CORTEX_A9
 	select PIC_GIC
 
+config TEGRA_FIQDB_SUPPORT
+	depends on MACHINE_TEGRA2
+	select FIQDB_SUPPORT
+	bool "Enable Tegra FIQ debugger support"
+
+choice
+	depends on MACHINE_TEGRA2
+	default TEGRA_DEBUG_UARTB if PLATFORM_XOOM_TEGRA2
+	default TEGRA_DEBUG_UART_NONE
+	prompt "Low-level debug console UART"
+
+config TEGRA_DEBUG_UART_NONE
+	bool "None"
+
+config TEGRA_DEBUG_UARTA
+	bool "UART-A"
+
+config TEGRA_DEBUG_UARTB
+	bool "UART-B"
+
+config TEGRA_DEBUG_UARTC
+	bool "UART-C"
+
+config TEGRA_DEBUG_UARTD
+	bool "UART-D"
+
+config TEGRA_DEBUG_UARTE
+	bool "UART-E"
+endchoice
+
 config PLATFORM_XOOM_TEGRA2
 	bool
 	select USE_HIGH_VECTORS
 	select MACHINE_TEGRA2
-	select TEGRA_DEBUG_UARTB
-
-choice
-	depends on MACHINE_TEGRA2
-        prompt "Low-level debug console UART"
-        default TEGRA_DEBUG_UART_NONE
-
-config TEGRA_DEBUG_UART_NONE
-        bool "None"
-
-config TEGRA_DEBUG_UARTA
-        bool "UART-A"
-
-config TEGRA_DEBUG_UARTB
-        bool "UART-B"
-
-config TEGRA_DEBUG_UARTC
-        bool "UART-C"
-
-config TEGRA_DEBUG_UARTD
-        bool "UART-D"
-
-config TEGRA_DEBUG_UARTE
-        bool "UART-E"
-
-endchoice
