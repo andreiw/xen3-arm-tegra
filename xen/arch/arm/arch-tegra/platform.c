@@ -26,6 +26,8 @@
 #include <asm/serial_reg.h>
 #include <asm/arch/hardware.h>
 
+void tegra_uart_init(int index, struct ns16550_defaults *defaults);
+
 static void tegra_platform_halt(int mode)
 {
 }
@@ -37,76 +39,13 @@ static void tegra_memory_init(void)
 	register_memory_bank(0x00000000, 1 * 1024 * 1024 * 1024);
 }
 
-unsigned long uart_base = IO_TO_VIRT(TEGRA_DEBUG_UART_BASE);
-unsigned long uart_shift = 2;
-
-static inline unsigned char uart_read(int offset)
-{
-	return readb(uart_base + (offset << uart_shift));
-}
-
-static inline void uart_write(unsigned char val, int offset)
-{
-	writeb(val, uart_base + (offset << uart_shift));
-}
-
-static void tegra_uart_putc(struct serial_port *port, char c)
-{
-	unsigned long lsr;
-	do {
-		lsr = uart_read (UART_LSR);
-		barrier();
-	} 	while ((lsr & (UART_LSR_TEMT | UART_LSR_THRE)) == 0);
-	uart_write (c, UART_TX);
-
-	if(c == '\n')
-		tegra_uart_putc(port, '\r');
-}
-
-static void uart_fiq(struct fiq_handler *h, void *regs, void *svc_sp)
-{
-  printk("uart_fiq!!!");
-}
-
-struct fiq_handler fh = {
-  .fiq = uart_fiq,
-};
-
-static int tegra_uart_getc(struct serial_port *port, char *pc)
-{
-	return 1;
-}
-
-static struct ns16550_defaults tegra_uart_params = {
-	.baud      = BAUD_AUTO,
-	.data_bits = 8,
-	.parity    = 'n',
-	.stop_bits = 1
-};
-
-static struct uart_driver tegra_uart_driver = {
-	.putc = tegra_uart_putc,
-	.getc = tegra_uart_getc
-};
-
-static void tegra_uart_init(void)
-{
-
-	/* enable rx and lsr interrupt */
-	uart_write(UART_IER_RLSI | UART_IER_RDI, UART_IER);
-	/* interrupt on every character */
-	uart_write(0, UART_IIR);
-
-	serial_register_uart(0, &tegra_uart_driver, &tegra_uart_params);
-}
-
 static void tegra_sys_clk_init(void)
 {
 }
 
 static void tegra_platform_setup(void)
 {
-	tegra_uart_init();
+	tegra_uart_init(0, NULL);
 	init_console();
 
 	tegra_memory_init();

@@ -1,148 +1,103 @@
-/******************************************************************************
- * imx21ads_serial.c
- * 
- * Copyright (c) 2006-2008, J Y Hwang
- */
-
-#include <xen/types.h>
-#include <xen/config.h>
-#include <xen/init.h>
-#include <xen/lib.h>
-#include <xen/spinlock.h>
-#include <xen/serial.h> 
-#include <asm/io.h>
-#include <asm/termbits.h>	 
-#include <asm/serial_reg.h>	
-#include <asm/arch/imx-regs.h>
-#include <asm/arch/uart.h>
-
 /*
- * Configure serial port with a string <baud>,DPS,<io-base>,<irq>.
- * The tail of the string can be omitted if platform defaults are sufficient.
- * If the baud rate is pre-configured, perhaps by a bootloader, then 'auto'
- * can be specified in place of a numeric baud rate.
+ * uart.c
+ *
+ * Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public version 2 of License as published by
+ * the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-static char opt_com1[30] = "", opt_com2[30] = "";
-string_param("com1", opt_com1);
-string_param("com2", opt_com2);
 
-struct imx21ads_uart imx21ads_uart_com[2] = { { 0 } };
+#include <xen/spinlock.h>
+#include <xen/lib.h>
+#include <xen/serial.h>
+#include <asm/platform.h>
+#include <asm/irq.h>
+#include <asm/io.h>
+#include <asm/termbits.h>
+#include <asm/serial_reg.h>
+#include <asm/arch/hardware.h>
 
-static int imx21ads_uart_tx_empty(struct serial_port *port)
-{
-	return 1;
-}
+#define UART_SHIFT 2
 
-#define BOTH_EMPTY (UART_LSR_TEMT | UART_LSR_THRE)
-static int lsr_break_flag;
-
-static inline imx21ads_uart_putc(struct serial_port *port, char c)
-{
-	while(UTS(UART_1) & UTS_TXFULL);
-
-	UTXD(UART_1) = c;
-
-	if(c == '\n') {
-		imx21ads_uart_putc(port, '\r');
-	}
-
-//	printch(c);
-}
-
-static int imx21ads_uart_getc(struct serial_port *port, char *pc)
-{
-	return 1;
-}
-
-static void imx21ads_uart_init_preirq(struct serial_port *port)
-{
-        int cflag = CREAD | HUPCL | CLOCAL;
-        unsigned cval;
-	int quot;
-
-        cflag |= B115200;
-        cflag |= CS8;
-	quot = 3000000 / 115200;
-
-	cval = cflag & (CSIZE | CSTOPB);
-	cval >>= 4;
-
-        if (cflag & PARENB)
-            cval |= UART_LCR_PARITY;
-        if (!(cflag & PARODD))
-            cval |= UART_LCR_EPAR;
-}
-
-static void imx21ads_uart_init_postirq(struct serial_port *port)
-{
-}
-
-#define imx21ads_uart_endboot NULL
-
-static struct uart_driver imx21ads_uart_driver = {
-        .init_preirq  = imx21ads_uart_init_preirq,
-        .init_postirq = imx21ads_uart_init_postirq,
-        .endboot      = imx21ads_uart_endboot,
-        .tx_empty     = imx21ads_uart_tx_empty,
-        .putc         = imx21ads_uart_putc,
-        .getc         = imx21ads_uart_getc
+struct tegra_uart {
+	void __iomem *base;
 };
 
-static int parse_parity_char(int c)
-{
-        switch ( c ) {
-        case 'n':
-                return PARITY_NONE;
-        case 'o': 
-                return PARITY_ODD;
-        case 'e': 
-                return PARITY_EVEN;
-        case 'm': 
-                return PARITY_MARK;
-        case 's': 
-                return PARITY_SPACE;
-        }
+struct tegra_uart tegra_uarts[1];
 
-        return 0;
+static inline unsigned char tegra_uart_read(struct tegra_uart *uart, int offset)
+{
+	return readb(uart->base + (offset << UART_SHIFT));
 }
 
-#define PARSE_ERR(_f, _a...)                        \
-        do {                                        \
-            printk( "ERROR: " _f "\n" , ## _a );    \
-            return;                                 \
-        } while ( 0 )
-
-static void imx21ads_uart_parse_port_config(struct imx21ads_uart *uart, char *conf)
+static inline void tegra_uart_write(struct tegra_uart *uart, unsigned char val, int offset)
 {
-        /* Register with generic serial driver. */
-        serial_register_uart(uart - imx21ads_uart_com, &imx21ads_uart_driver, uart);
+	writeb(val, uart->base + (offset << UART_SHIFT));
 }
 
-void imx21ads_uart_init(int index, struct ns16550_defaults *defaults)
+static int tegra_uart_tx_empty(struct serial_port *port)
 {
-        struct imx21ads_uart *uart = &imx21ads_uart_com[index];
-
-        if ( (index < 0) || (index > 1) )
-                return;
-
-        if ( defaults != NULL ) {
-                uart->baud      = defaults->baud;
-                uart->data_bits = defaults->data_bits;
-                uart->parity    = parse_parity_char(defaults->parity);
-                uart->stop_bits = defaults->stop_bits;
-                uart->irq       = defaults->irq;
-                uart->io_base   = defaults->io_base;
-        }
-
-        imx21ads_uart_parse_port_config(uart, (index == 0) ? opt_com1 : opt_com2);
+	struct tegra_uart *uart = port->uart;
+	unsigned long lsr = tegra_uart_read(uart, UART_LSR);
+	if (lsr & UART_LSR_THRE)
+		return 1;
+	return 0;
 }
 
-/*
- * Local variables:
- * mode: C
- * c-set-style: "BSD"
- * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: nil
- * End:
- */
+static void tegra_uart_putc(struct serial_port *port, char c)
+{
+	struct tegra_uart *uart = port->uart;
+	tegra_uart_write(uart, c, UART_TX);
+	if (c == '\n')
+		tegra_uart_putc(port, '\r');
+}
+
+
+static int tegra_uart_getc(struct serial_port *port, char *pc)
+{
+	struct tegra_uart *uart = port->uart;
+	unsigned long lsr = tegra_uart_read(uart, UART_LSR);
+	if (lsr & UART_LSR_DR) {
+		*pc = tegra_uart_read(uart, UART_RX);
+		return 1;
+	}
+	return 0;
+}
+
+static void tegra_uart_init_preirq(struct serial_port *port)
+{
+	struct tegra_uart *uart = port->uart;
+
+	uart->base = (void __iomem *) IO_TO_VIRT(TEGRA_DEBUG_UART_BASE);
+	if (tegra_uart_read(uart, UART_LSR) & UART_LSR_DR)
+		tegra_uart_read(uart, UART_RX);
+}
+
+static struct uart_driver tegra_uart_driver = {
+        .init_preirq  = tegra_uart_init_preirq,
+        .tx_empty     = tegra_uart_tx_empty,
+        .putc         = tegra_uart_putc,
+        .getc         = tegra_uart_getc
+};
+
+void tegra_uart_init(int index, struct ns16550_defaults *defaults)
+{
+	struct tegra_uart *uart = &tegra_uarts[index];
+
+	if (index)
+		return;
+
+	serial_register_uart(uart - tegra_uarts,
+			     &tegra_uart_driver,
+			     uart);
+}
