@@ -5,6 +5,16 @@ This is a an effort to bring up Samsung's Xen3 tree on
 Tegra2. It's meant as a stepping stone to the Xen4 port.
 Or maybe not. We'll see.
 
+"Bring up" is a very relative word... most of the code
+I end up having to (re)write isn't platform specific.
+On the other hand, writing an OS is much more exciting
+than making an existing one work on $FOO chip, so
+I can't complain ;-).
+
+Once the "basics" are in, the more interesting work
+of figuring out the correct subset of hypercalls
+and porting the Tegra2 Linux kernel to be PV can begin.
+
 Status
 ======
 
@@ -33,7 +43,7 @@ Running
 
 Assuming you have a Xoom with the serial port through the headphone h^Hjack.
 
-$ sudo fastboot boot  /home/andreiw/src/xen3-arm-tegra/dist/install/boot/xen-bin-3.0.2-2 
+$ sudo fastboot boot  /home/andreiw/src/xen3-arm-tegra/dist/install/boot/xen-bin-3.0.2-2 bootvol.img
 
 This is the current output:
 ATAG    (P): 0x00000100
