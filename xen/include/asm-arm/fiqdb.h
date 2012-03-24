@@ -22,6 +22,7 @@ struct platform_fiqdb {
 	int (*init)(void);
 	void (*putc)(char c);
 	int (*getc)(void);
+	void (*flush)(void);
 };
 
 #define FIQDB_NO_CHAR 0x00ff0000

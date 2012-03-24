@@ -184,7 +184,6 @@ int pirq_guest_eoi(struct domain *d, unsigned int irq);
 
 struct fiq_handler {
 	void (*fiq)(struct fiq_handler *h, void *regs, void *svc_sp);
-	void (*resume)(struct fiq_handler *h);
 };
 
 int fiq_register_handler(struct fiq_handler *handler);

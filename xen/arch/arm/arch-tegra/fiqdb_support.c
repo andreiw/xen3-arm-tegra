@@ -40,6 +40,12 @@ static inline void uart_write(unsigned char val, int offset)
 	writeb(val, uart_base + (offset << UART_SHIFT));
 }
 
+static void tegra_fiqdb_flush(void)
+{
+	while (!(uart_read(UART_LSR) & UART_LSR_TEMT))
+		cpu_relax();
+}
+
 static void tegra_fiqdb_putc(char c)
 {
 	unsigned long lsr;
@@ -71,6 +77,7 @@ static struct platform_fiqdb tegra_fiqdb = {
 	.init = tegra_fiqdb_init,
 	.getc = tegra_fiqdb_getc,
 	.putc = tegra_fiqdb_putc,
+	.flush = tegra_fiqdb_flush,
 };
 
 int __init tegra_fiqdb_register(void)
