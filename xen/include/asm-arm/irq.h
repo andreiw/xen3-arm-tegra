@@ -188,5 +188,14 @@ struct fiq_handler {
 };
 
 int fiq_register_handler(struct fiq_handler *handler);
+extern char exception_vectors_table[];
+extern char exception_vectors_jump_rst[];
+extern char exception_vectors_jump_und[];
+extern char exception_vectors_jump_swi[];
+extern char exception_vectors_jump_pabt[];
+extern char exception_vectors_jump_dabt[];
+extern char exception_vectors_jump_adx[];
+extern char exception_vectors_jump_irq[];
+extern char exception_vectors_jump_fiq[];
 
 #endif

@@ -42,8 +42,11 @@
   name:
 
 #define PRIVATE(name) \
-  .global name; \
   ALIGN; \
+  name:
+
+#define GLOBAL(name) \
+  .global name; \
   name:
 #endif
 

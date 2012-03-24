@@ -73,23 +73,32 @@ SPFIX(	addne	r0, r0, #4	)
 		.align	5
 		.global exception_vectors_table
 exception_vectors_table:
-		ldr		pc, .rst
-		ldr		pc, .und
-		ldr		pc, .swi
-		ldr		pc, .pabt
-		ldr		pc, .dabt
-		ldr		pc, .adx
-		ldr		pc, .irq
-		ldr		pc, .fiq
+		ldr		pc, exception_vectors_jump_rst
+		ldr		pc, exception_vectors_jump_und
+		ldr		pc, exception_vectors_jump_swi
+		ldr		pc, exception_vectors_jump_pabt
+		ldr		pc, exception_vectors_jump_dabt
+		ldr		pc, exception_vectors_jump_adx
+		ldr		pc, exception_vectors_jump_irq
+		ldr		pc, exception_vectors_jump_fiq
 
-.rst:	.long	vector_reset
-.und:	.long	vector_undefined_instruction
-.swi:	.long	vector_swi
-.pabt:	.long	vector_prefetch_abort
-.dabt:	.long	vector_data_abort
-.adx:	.long	vector_addrexcptn
-.irq:	.long	vector_irq
-.fiq:	.long	vector_fiq
+GLOBAL(exception_vectors_jump_rst)
+	.long	vector_reset
+GLOBAL(exception_vectors_jump_und)
+	.long	vector_undefined_instruction
+GLOBAL(exception_vectors_jump_swi)
+	.long	vector_swi
+GLOBAL(exception_vectors_jump_pabt)
+	.long	vector_prefetch_abort
+GLOBAL(exception_vectors_jump_dabt)
+	.long	vector_data_abort
+GLOBAL(exception_vectors_jump_adx)
+	.long	vector_addrexcptn
+GLOBAL(exception_vectors_jump_irq)
+	.long	vector_irq
+GLOBAL(exception_vectors_jump_fiq)
+	.long	vector_fiq
+
 
 		.align	5
 vector_reset:
