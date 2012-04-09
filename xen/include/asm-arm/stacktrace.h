@@ -1,5 +1,5 @@
 /*
- * fiqdb.h
+ * stacktrace.h
  *
  * Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
  *
@@ -18,20 +18,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef ARM_FIQDB_H
-#define ARM_FIQDB_H
+#ifndef ARM_STACKTRACE_H
+#define ARM_STACKTRACE_H
 
-struct platform_fiqdb {
-	int (*init)(void);
-	void (*putc)(char c);
-	int (*getc)(void);
-	void (*flush)(void);
+struct stackframe {
+	u32 fp;
+	u32 sp;
+	u32 pc;
 };
 
-#define FIQDB_NO_CHAR 0x00ff0000
-#define FIQDB_BREAK   0x00ff0001
+int unwind_frame(struct stackframe *frame);
+void walk_stackframe(struct stackframe *frame,
+                     int (*fn)(struct stackframe *, void *), void *data);
 
-int fiqdb_init(void);
-void fiqdb_register(struct platform_fiqdb *platform_fiqdb);
-
-#endif /* ARM_FIQDB_H */
+#endif
