@@ -278,7 +278,7 @@ void start_xen(void *unused)
 
 #ifdef CONFIG_VMM_SECURITY
 	if ( sra_init() != 0 )
-	  PANIC("Error Secure Repository Agent initialization\n");
+	  panic("Error Secure Repository Agent initialization\n");
 #endif
 
 	timer_init();
@@ -312,10 +312,10 @@ void start_xen(void *unused)
 
 	BUG_ON(dom0 == NULL);
 	if (bv.start == bv.end)
-		PANIC("No boot volume passed to Xen :-(\n");
+		panic("No boot volume passed to Xen :-(\n");
 
 	if (bv_find(&bv, "dom0", &dom0_data))
-		PANIC("No dom0 kernel present in boot volume :-(\n");
+		panic("No dom0 kernel present in boot volume :-(\n");
 
 	printk("Dom0 kernel 0x%x-0x%x\n", dom0_data.start, dom0_data.end);
 
@@ -339,7 +339,7 @@ void start_xen(void *unused)
 			   (u32) initrd0_data.start,
 			   initrd0_data.end - initrd0_data.start,
 			   NULL) != 0)
-		PANIC("Could not prepare dom0\n");
+		panic("Could not prepare dom0\n");
 
 	set_bit(_DOMF_privileged, &dom0->domain_flags);
 	domain_unpause_by_systemcontroller(dom0);
@@ -376,7 +376,7 @@ int create_guest_domain( dom0_op_t * dom0_op )
 	/* dom = find_domain_by_id(domain_id); */
 	/* if ( dom == NULL ) */
 	/* { */
-	/* 	PANIC("Could not find the domain structure for DOM guest OS\n"); */
+	/* 	panic("Could not find the domain structure for DOM guest OS\n"); */
 	/* 	return DOM_CREATE_FAIL;	 */
 	/* } */
 
@@ -393,7 +393,7 @@ int create_guest_domain( dom0_op_t * dom0_op )
 	/* 		NULL) != 0)           // stack start */
 	/* { */
 	/* 	put_domain(dom); */
-	/* 	PANIC("Could not set up DOM1 guest OS\n"); */
+	/* 	panic("Could not set up DOM1 guest OS\n"); */
 	/* 	return DOM_CREATE_FAIL; */
 	/* } */
 

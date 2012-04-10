@@ -37,6 +37,31 @@
 #include <asm/uaccess.h>
 #include <asm/system.h>
 
+/* ARM ARM ARMv7 p. 1396. */
+#define DFSR_FS(x) (((x) & 7) | (((x) & 0x400) >> 10))
+#define DFSR_DOM(x) (((x) & 0xf0) >> 4)
+#define DFSR_W(x) (((x) & 0x800) >> 11)
+#define DFSR_E(x) (((x) & 0x1000) >> 12)
+
+#define DFSR_ALIGN  (1)
+#define DFSR_ICACHE (4)
+#define DFSR_TLE1   (12)
+#define DFSR_TLE2   (14)
+#define DFSR_TLS1   (28)
+#define DFSR_TLS2   (30)
+#define DFSR_TF_S   (5)
+#define DFSR_TF_P   (7)
+#define DFSR_AF_S   (3)
+#define DFSR_AF_P   (6)
+#define DFSR_DF_S   (9)
+#define DFSR_DF_P   (11)
+#define DFSR_PF_S   (13)
+#define DFSR_PF_P   (15)
+#define DFSR_DE     (2)
+#define DFSR_SEA    (8)
+#define DFSR_MASPE  (25)
+#define DFSR_AEA    (22)
+
 static const char *processor_modes[] = {
 	"USER_26", "FIQ_26" , "IRQ_26" , "SVC_26" , "UK4_26" , "UK5_26" , "UK6_26" , "UK7_26" ,
 	"UK8_26" , "UK9_26" , "UK10_26", "UK11_26", "UK12_26", "UK13_26", "UK14_26", "UK15_26",
@@ -46,7 +71,7 @@ static const char *processor_modes[] = {
 
 asmlinkage void __div0(void)
 {
-        printk("Division by zero in kernel.\n");
+        panic("Division by zero in kernel.\n");
 }
 
 int fixup_exception(struct cpu_context *regs)
@@ -144,7 +169,7 @@ unsigned long kernel_text_end(void)
 long do_set_callbacks(unsigned long event, unsigned long failsafe)
 {
 	struct vcpu *v = (struct vcpu *)current;
-    
+
 	if ((event < HYPERVISOR_VIRT_START) && (failsafe < HYPERVISOR_VIRT_START)) {
 		v->arch.guest_context.event_callback    = event;
 		v->arch.guest_context.failsafe_callback = failsafe;
@@ -158,18 +183,21 @@ long do_set_callbacks(unsigned long event, unsigned long failsafe)
 
 }
 
-asmlinkage void do_prefetch_abort(unsigned long pc, struct cpu_context *regs)
+asmlinkage void do_prefetch_abort(u32 fsr, u32 far, struct cpu_context *regs)
 {
+	panic("Prefetch abort %08x at 0x%x!\n", fsr, far);
 	while(1);
 }
 
-asmlinkage void do_data_abort(unsigned long fsr, unsigned long far, struct cpu_context *regs)
+asmlinkage void do_data_abort(u32 fsr, u32 far, struct cpu_context *regs)
 {
+	panic("Data abort %08x at 0x%x!\n", fsr, far);
 	while(1);
 }
 
 asmlinkage void do_undefined_instruction(unsigned long pc, struct cpu_context *regs)
 {
+	panic("Undefined instruction!\n");
 	while(1);
 }
 
@@ -194,7 +222,7 @@ long do_set_trap_table(GUEST_HANDLE(trap_info_t) traps)
 		guest_handle_add_offset(traps, 1);
 	}
 
-	if ( i != TRAP_TABLE_ENTRIES ) 
+	if ( i != TRAP_TABLE_ENTRIES )
 		goto failed;
 
 	return 0;

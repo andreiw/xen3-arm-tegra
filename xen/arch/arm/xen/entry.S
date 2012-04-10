@@ -147,8 +147,8 @@ SPFIX(  addne   r0, r0, #4  )
 		mov     r1, lr
 		stmia   r5, {r0 - r3}
 
-		mrc     p15, 0, r0, c6, c0, 0
-		mrc     p15, 0, r1, c5, c0, 0
+		mrc     p15, 0, r0, c5, c0, 0
+		mrc     p15, 0, r1, c6, c0, 0
 
 		and		r4, r3, #PSR_MODE_MASK
 		eors	r4, r4, #PSR_MODE_SVC
@@ -224,8 +224,8 @@ SPFIX(  addne   r0, r0, #4  )
 		mov     r1, lr
 		stmia   r5, {r0 - r3}
 
-		mrc     p15, 0, r0, c6, c0, 0
-		mrc     p15, 0, r1, c5, c0, 0
+		mrc     p15, 0, r0, c5, c0, 1
+		mrc     p15, 0, r1, c6, c0, 2
 
 		and     r4, r3, #PSR_MODE_MASK
 		eors    r4, r4, #PSR_MODE_SVC

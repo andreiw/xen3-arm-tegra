@@ -121,6 +121,16 @@ void set_printk_prefix(const char *prefix)
 	strcpy(printk_prefix, prefix);
 }
 
+void console_start_sync(void)
+{
+	/* No-op. */
+}
+
+void debugtrace_dump(void)
+{
+	/* No-op. */
+}
+
 void init_console(void)
 {
 	sercon_handle = 0;

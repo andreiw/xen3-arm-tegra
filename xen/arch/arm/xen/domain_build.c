@@ -84,7 +84,7 @@ static void parse_features(
 		printk("Unknown kernel feature \"%.*s\".\n",
 		(int)(p-feats), feats);
 		if (req)
-			PANIC("Domain 0 requires an unknown hypervisor feature.\n");
+			panic("Domain 0 requires an unknown hypervisor feature.\n");
 	}
 
 	feats = p;

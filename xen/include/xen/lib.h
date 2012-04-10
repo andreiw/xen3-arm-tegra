@@ -8,18 +8,12 @@
 #include <xen/xmalloc.h>
 #include <xen/string.h>
 
-#define BUG()											\
-	do {												\
-		printk("BUG at %s:%d\n", __FILE__, __LINE__);	\
+#define BUG()								\
+	do {								\
+		printk("BUG at %s:%d\n", __FILE__, __LINE__);		\
+		panic("BUG\n");						\
 		while(1);						\
 	} while ( 0 )
-
-#define PANIC(msg) 											\
-	do {													\
-		printk("%s\n", msg);								\
-		printk("VMM Panic at %s:%d\n", __FILE__, __LINE__);	\
-		while(1);											\
-	}while (0)
 
 #define BUG_ON(_p) do { if (_p) BUG(); } while ( 0 )
 

@@ -341,3 +341,17 @@ void fiqdb_register(struct platform_fiqdb *platform_fiqdb)
 {
 	pfiqdb = platform_fiqdb;
 }
+
+/*
+ * Called from panic().
+ */
+void debugger_trap_immediate(void)
+{
+
+	/*
+	 * FIQ could be disabled.
+	 */
+	local_fiq_enable();
+	fiqdb_prompt();
+	while(1);
+}

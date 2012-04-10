@@ -40,7 +40,7 @@ void tegra_timer_init(void)
 		break;
 	default:
 		printk("System clock rate: %d\n", rate);
-		PANIC("Unknown system clock rate\n");
+		panic("Unknown system clock rate\n");
 	}
 	writel(rate, IO_TO_VIRT(TEGRA_TMRUS_BASE +
 				TEGRA_TMRUS_CFG));
