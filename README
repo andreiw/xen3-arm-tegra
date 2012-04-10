@@ -91,44 +91,26 @@ Handing off to C...
 [XEN] Dom0 initrd 0x50000e8-0x50000f0
 [XEN] *** LOADING DOMAIN : 0 ***
 [XEN] DOM0 image is not a Xen-compatible Elf image.
-[XEN] Could not prepare dom0
 [XEN] 
-[XEN] VMM Panic at xensetup.c:342
-fiqdb> 
-fiqdb> 
+[XEN] ****************************************
+[XEN] Panic on CPU 0:
+[XEN] Could not prepare dom0
+[XEN] ****************************************
+[XEN] 
+fiqdb> version
+ Xen version 3.0.2-2 (andreiw@(none)) (gcc version 4.4.3 (GCC) ) Mon Apr  9 21:27:50 EDT 2012
+ Platform: arm-tegra
+ GIT SHA: 434df0afb45b76c30ae8edc135c77ca15f99a486
 fiqdb> bt
- pc ff028168 sp ff039fb0 fp ff039ffc
+ pc ff03217c sp ff039ee8 fp ff039efc
+ pc ff026d14 sp ff039f00 fp ff039f9c
+ pc ff02887c sp ff039fb0 fp ff039ffc
  pc 00000000 sp ff03a000 fp 0000c090
-fiqdb> ?
- FIQ debugger commands:
-  bt         backtrace
-  regs       register dump
-  xregs      extended register dump
-  version    kernel version
-fiqdb> regs
- r0 00000000  r1 0000000a  r2  00000000  r3 60000093
- r4 001082dc  r5 000000df  r6  00c5107f  r7 00335e84
- r8 00000003  r9 00a00800  r10 0000c090  fp ff039ffc
- ip ff039ed8  sp ff039fb0  lr  ff034a44  pc ff028168
- cpsr 60000093 mode SVC
- spsr 00000000 mode ???
-fiqdb> xregs
- r0 00000000  r1 0000000a  r2  00000000  r3 60000093
- r4 001082dc  r5 000000df  r6  00c5107f  r7 00335e84
- r8 00000003  r9 00a00800  r10 0000c090  fp ff039ffc
- ip ff039ed8  sp ff039fb0  lr  ff034a44  pc ff028168
- cpsr 60000093 mode SVC
- spsr 00000000 mode ???
- svc: sp ff748ec8  lr ff031214  spsr 00000000  mode ???
- abt: sp ff03c000  lr 00000000  spsr 00000000  mode ???
- und: sp ff03d000  lr 00000000  spsr 00000000  mode ???
- irq: sp ff03b000  lr 001a41cc  spsr 2000001f  mode SYS
- fiq: r8 ff031608  r9 ff03855c  r10  00000000  r11  ff028168 r12 60000093
- fiq: sp ff748fb8  lr ff02816c  spsr 60000093  mode SVC
 fiqdb> 
 
 Changelog (more or less)
 ========================
+Apr-09-2012: Update panic/debug logic.
 Apr-08-2012: FIQ debugger some more.
 Mar-24-2012: FIQ debugger beginnings, refactored out UART.
 Mar-19-2012: Boot volume stuff and xensetup.c cleanup.
