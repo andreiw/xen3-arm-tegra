@@ -24,6 +24,7 @@
 #include <xen/errno.h>
 #include <xen/lib.h>
 #include <xen/compile.h>
+#include <xen/shutdown.h>
 #include <asm/fiqdb.h>
 #include <asm/irq.h>
 #include <asm/stacktrace.h>
@@ -253,12 +254,15 @@ static void fiqdb_exec(char *command,
 			     XEN_COMPILER, XEN_COMPILE_DATE);
 		fiqdb_printf("Platform: %s\n", XEN_PLATFORM);
 		fiqdb_printf("GIT SHA: %s\n", XEN_CHANGESET);
+	} else if (!strcmp(command, "reset")) {
+		machine_restart(0);
 	} else {
 		fiqdb_printf("FIQ debugger commands:\n");
 		fiqdb_printf(" bt         backtrace\n");
 		fiqdb_printf(" regs       register dump\n");
 		fiqdb_printf(" xregs      extended register dump\n");
 		fiqdb_printf(" version    kernel version\n");
+		fiqdb_printf(" reset      reset\n");
 	}
 	debug_indent--;
 }
