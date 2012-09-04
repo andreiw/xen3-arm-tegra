@@ -507,21 +507,17 @@ ENTRY(__switch_to)
 
 		mrc		p15, 0, r4, c3, c0, 0
 		mrc		p15, 0, r5, c1, c0, 0
-		mrc		p15, 0, r6, c13, c0, 0
 
 		str		r4, [r1, #(OFFSET_SYS_REGS + OFFSET_DACR)]
 		str		r5, [r1, #(OFFSET_SYS_REGS + OFFSET_CR)]
-		str		r6, [r1, #(OFFSET_SYS_REGS + OFFSET_PIDR)]
 
 		bl		arch_context_switch
 
 		ldr		r4, [r2, #(OFFSET_SYS_REGS + OFFSET_DACR)]
 		ldr		r5, [r2, #(OFFSET_SYS_REGS + OFFSET_CR)]
-		ldr		r6, [r2, #(OFFSET_SYS_REGS + OFFSET_PIDR)]
 
 		mcr		p15, 0, r4, c3, c0, 0
 		mcr		p15, 0, r5, c1, c0, 0
-		mcr		p15, 0, r6, c13, c0, 0
 
 		add		ip, r2, #(OFFSET_USER_REGS + OFFSET_R4)
 		ldmia   ip,  {r4 - sl, fp, ip, sp, lr}

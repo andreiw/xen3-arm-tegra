@@ -246,7 +246,6 @@ void new_thread(struct vcpu *v,
 	v->arch.guest_context.user_regs.r14 = return_to_guest;
 
 	v->arch.guest_context.sys_regs.dacr = DOMAIN_KERNEL_VALUE;
-	v->arch.guest_context.sys_regs.pidr = 0;
 	v->arch.guest_context.sys_regs.cr = get_cr();
 }
 

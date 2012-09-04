@@ -83,7 +83,6 @@ int main(void)
 	DEFINE(OFFSET_VCR,						offsetof(struct arch_vcpu_info, cr));
 	DEFINE(OFFSET_VDACR,					offsetof(struct arch_vcpu_info, dacr));
 	DEFINE(OFFSET_VCPAR,					offsetof(struct arch_vcpu_info, cpar));
-	DEFINE(OFFSET_VPIDR,					offsetof(struct arch_vcpu_info, pidr));
 	DEFINE(OFFSET_VFSR,						offsetof(struct arch_vcpu_info, fsr));
 	DEFINE(OFFSET_VFAR,						offsetof(struct arch_vcpu_info, far));
 	BLANK();
@@ -122,7 +121,6 @@ int main(void)
 	DEFINE(OFFSET_PSR,						offsetof(struct cpu_user_regs, psr));
 	DEFINE(OFFSET_CTX,						offsetof(struct cpu_user_regs, ctx));
 	BLANK();
-	DEFINE(OFFSET_PIDR,						offsetof(struct cpu_sys_regs, pidr));
 	DEFINE(OFFSET_DACR,						offsetof(struct cpu_sys_regs, dacr));
 	DEFINE(OFFSET_CR,						offsetof(struct cpu_sys_regs, cr));
 	DEFINE(OFFSET_CPAR,						offsetof(struct cpu_sys_regs, cpar));

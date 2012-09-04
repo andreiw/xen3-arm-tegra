@@ -110,7 +110,6 @@ typedef struct cpu_sys_regs {
 	unsigned long 	cpar;
 	unsigned long 	cr;
 	unsigned long 	dacr;
-	unsigned long 	pidr;
 }cpu_sys_regs_t;
 
 typedef cpu_user_regs_t	cpu_bounce_frame_t;
@@ -149,7 +148,7 @@ typedef struct arch_vcpu_info {
 	unsigned long	cr;
 	unsigned long	cpar;
 	unsigned long	dacr;
-	unsigned long	pidr;
+	unsigned long	reserved09;
 	unsigned long	far;
 	unsigned long	fsr;
 	unsigned long	reserved10;
