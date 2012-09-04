@@ -621,6 +621,8 @@ void __enter_scheduler(void)
              prev->domain->domain_id, prev->vcpu_id,
              next->domain->domain_id, next->vcpu_id);
 
+
+    printk("switching from %x to %x\n", prev, next);
     context_switch(prev, next);
 }
 

@@ -207,7 +207,7 @@ static char * number(char * buf, char * end, long long num, int base, int size, 
         /* XXX KAF: force unsigned mod and div. */
         unsigned long long num2=(unsigned long long)num;
         unsigned int base2=(unsigned int)base;
-        while (num2 != 0) { tmp[i++] = digits[num2%base2]; num2 /= base2; }
+        /* while (num2 != 0) { tmp[i++] = digits[num2%base2]; num2 /= base2; } */
     }
     if (i > precision)
         precision = i;

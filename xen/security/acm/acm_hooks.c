@@ -727,11 +727,6 @@ int acm_alloc_chunk(struct domain *dom, unsigned int order)
 	return acm_alloc_domheap(dom, 1UL << order);
 }
 
-int acm_set_guest_pages(struct domain *dom, unsigned int size)
-{
-	return acm_alloc_domheap(dom, size >> PAGE_SHIFT);
-}
-
 /*refer public/xen.h */
 int acm_modify_pte(pte_t nl1e)
 {

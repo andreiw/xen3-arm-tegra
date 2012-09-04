@@ -1,4 +1,3 @@
-
 #ifndef __SCHED_H__
 #define __SCHED_H__
 
@@ -251,7 +250,7 @@ static inline void get_knownalive_domain(struct domain *d)
 extern struct domain *domain_create(domid_t dom_id, unsigned int cpu);
 extern int construct_dom0(
     struct domain *d,
-    unsigned long guest_start_paddr, unsigned long guest_size,
+    unsigned long guest_size,
     unsigned long image_start, unsigned long image_len, 
     unsigned long initrd_start, unsigned long initrd_len,
     char *cmdline);

@@ -39,6 +39,17 @@ Building
 $ make menuconfig
 $ make
 
+Boot volume
+===========
+
+To get anywhere, you need to create a boot volume. This is a CPIO archive that at least
+should contain a 'dom0' and 'initrd0' files.
+
+Assuming the current directory contains the boot volume contents, the following
+command will create a valid Xen boot volume.
+
+$ find . | cpio --create --format='newc' > ../bootvol.img
+
 Running
 =======
 

@@ -196,9 +196,9 @@ void gettimeofday(struct timeval *tv)
     
     update_wallclock();
     
-    tv->tv_sec = shadow_ts.ts_sec;
-    tv->tv_sec += NSEC_TO_SEC(shadow_ts.ts_nsec);
-    tv->tv_usec = NSEC_TO_USEC(shadow_ts.ts_nsec % 1000000000UL);
+    /* tv->tv_sec = shadow_ts.ts_sec; */
+    /* tv->tv_sec += NSEC_TO_SEC(shadow_ts.ts_nsec); */
+    /* tv->tv_usec = NSEC_TO_USEC(shadow_ts.ts_nsec % 1000000000UL); */
 }
 
 void print_current_time(void)

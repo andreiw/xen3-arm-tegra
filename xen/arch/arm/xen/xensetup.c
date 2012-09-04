@@ -194,6 +194,7 @@ static void memory_init()
 			e = xenheap_phys_end;
 		if ( s < e ) {
 			nr_pages += (e - s) >> PAGE_SHIFT;
+			printk("calling init_xenheap_pages on 0x%x-0x%x\n", s, e);
 			init_xenheap_pages(s, e);
 		}
 	}
@@ -332,7 +333,6 @@ void start_xen(void *unused)
 	 * Hardcoding stuff in.
 	 */
 	if (construct_dom0(dom0,
-			   align_up(xenheap_phys_end, 0x100000),
 			   12 * 1024 * 1024,
 			   (u32) dom0_data.start,
 			   dom0_data.end - dom0_data.start,

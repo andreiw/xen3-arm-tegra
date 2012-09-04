@@ -190,7 +190,7 @@ gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly)
 			return 0;
 		}
 	}
-	while ((nflags = atomic_cmpxchg_u16(&shared[ref].flags, flags, 0)) !=
+	while ((nflags = atomic_cmpxchg_u16((volatile u16 *) &shared[ref].flags, flags, 0)) !=
 	       flags);
 
 	return 1;
@@ -248,7 +248,7 @@ gnttab_end_foreign_transfer_ref(grant_ref_t ref)
          * reference and return failure (== 0).
          */
 	while (!((flags = shared[ref].flags) & GTF_transfer_committed)) {
-		if ( atomic_cmpxchg_u16(&shared[ref].flags, flags, 0) == flags )
+		if ( atomic_cmpxchg_u16((volatile u16 *) &shared[ref].flags, flags, 0) == flags )
 			return 0;
 		cpu_relax();
 	}

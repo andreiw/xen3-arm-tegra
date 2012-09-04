@@ -187,7 +187,7 @@ unsigned long build_guest_tables(struct vcpu *v, struct domain_setup_info *dsi)
 	pgd_idx = PGD_IDX(HYPERVISOR_VIRT_START - (1 << PGD_SHIFT) * 2);
 
 	pgt = (pte_t *)ALLOC_GUEST_TABLE(0);
-    pgd[pgd_idx++] = MK_PDE((unsigned long)&pgt[0], PDE_GUEST_TABLE);
+	pgd[pgd_idx++] = MK_PDE((unsigned long)&pgt[0], PDE_GUEST_TABLE);
 	pgd[pgd_idx++] = MK_PDE((unsigned long)&pgt[256], PDE_GUEST_TABLE);
 
 #if 0
@@ -247,31 +247,14 @@ void new_thread(struct vcpu *v,
 
 	v->arch.guest_context.sys_regs.dacr = DOMAIN_KERNEL_VALUE;
 	v->arch.guest_context.sys_regs.pidr = 0;
-	v->arch.guest_context.sys_regs.cpar = (0x40) | (1 << 13);
-#ifdef  CONFIG_CPU_MONAHANS_L2CACHE
-#ifdef CONFIG_USE_HIGH_VECTORS
-	v->arch.guest_context.sys_regs.cr = 0x400197D | CR_V;
-#else
-#if 1
-	v->arch.guest_context.sys_regs.cr = 0x400197D;
-#else
-	v->arch.guest_context.sys_regs.cr = 0x00C5187F | CR_V;
-#endif
-#endif
-#else
-#ifdef CONFIG_USE_HIGH_VECTORS
-	v->arch.guest_context.sys_regs.cr = 0x400197D | CR_V;
-#else
-	v->arch.guest_context.sys_regs.cr = 0x400197D | CR_V;
-#endif
-#endif
+	v->arch.guest_context.sys_regs.cr = get_cr();
 }
 
 int construct_dom0(struct domain *d,
-	unsigned long guest_start, unsigned long guest_size,
-	unsigned long image_start, unsigned long image_size,
-	unsigned long initrd_start, unsigned long initrd_size,
-	char *cmdline)
+		   unsigned long guest_size,
+		   unsigned long image_start, unsigned long image_size,
+		   unsigned long initrd_start, unsigned long initrd_size,
+		   char *cmdline)
 {
 	char    *p = NULL;
 	int     i;
@@ -298,7 +281,6 @@ int construct_dom0(struct domain *d,
 
 	/* Guest partition should be aligned to 1MB boundary */
 	ASSERT((guest_size & 0xFFFFF) == 0);
-	ASSERT((guest_start & 0xFFFFF) == 0);
 
 	v = d->vcpu[0];
 
@@ -308,9 +290,6 @@ int construct_dom0(struct domain *d,
 
 	dsi.image_addr = image_start;
 	dsi.image_len  = image_size;
-
-	dsi.p_start = guest_start;
-	dsi.p_end   = guest_start + guest_size;
 
 	printk("*** LOADING DOMAIN : %d ***\n", (int)d->domain_id);
 
@@ -350,12 +329,20 @@ int construct_dom0(struct domain *d,
 		}
 	}
 
-	page = (struct page_info *)set_guest_pages(d, guest_start, guest_size, ~ALLOC_DOM_DMA);
+	page = (struct page_info *) alloc_domheap_pages(d,
+                                                        get_order_from_bytes(guest_size),
+                                                        ~ALLOC_DOM_DMA);
 
 	if (page == NULL) {
-		printk("Not enough RAM for domain %d allocation.\n", d->domain_id);
+          printk("Not enough RAM for domain %d allocation (%u pages available)\n",
+                 d->domain_id,
+                 avail_domheap_pages());
 		return -ENOMEM;
 	}
+
+	dsi.p_start = page_to_phys(page);
+	dsi.p_end   = dsi.p_start + guest_size;
+	printk("Guest physical: 0x%x-0x%x\n", dsi.p_start, dsi.p_end);
 
 	nr_pages = guest_size >> PAGE_SHIFT;
 
@@ -366,6 +353,7 @@ int construct_dom0(struct domain *d,
 
 	nr_pt_pages = build_guest_tables(v, &dsi);
 	BUG_ON(nr_pt_pages == 0);
+	printk("Guest virtual: 0x%x-0x%x\n", dsi.v_start, dsi.v_end);
 
 	write_ptbase(current);
 
@@ -379,9 +367,6 @@ int construct_dom0(struct domain *d,
 		(void)alloc_vcpu(d, i, i);
 
 	write_ptbase(v);
-
-	phys_offset = v->arch.guest_pstart - v->arch.guest_vstart;
-	dsi.image_addr -= phys_offset;
 
 	/* Copy the OS image and free temporary buffer. */
 	loadelfimage(&dsi);
@@ -399,7 +384,7 @@ int construct_dom0(struct domain *d,
 	si->pt_base      = (unsigned long)v->arch.guest_vtable;
 	si->nr_pt_frames = nr_pt_pages;
 	si->mfn_list     = NULL;
-	si->min_mfn      = guest_start >> PAGE_SHIFT;
+	si->min_mfn      = dsi.p_start >> PAGE_SHIFT;
 
 	map_track += PAGE_SIZE;
 
@@ -409,9 +394,7 @@ int construct_dom0(struct domain *d,
 		si->mod_len = initrd_size;
 
 		printk("Initrd len 0x%lx, start at 0x%lx\n", si->mod_len, si->mod_start);
-
-		memcpy((void *)map_track, (const void *)(initrd_start - phys_offset), initrd_size);
-
+		memcpy((void *)map_track, (const void *)(initrd_start), initrd_size);
 		map_track = round_pgup(map_track + initrd_size);
 	}
 
@@ -425,6 +408,7 @@ int construct_dom0(struct domain *d,
 
 	set_bit(_VCPUF_initialised, &v->vcpu_flags);
 
+	printk("Entry 0x%x\n", dsi.v_kernentry);
 	new_thread(v, dsi.v_kernentry, map_track + PAGE_SIZE, (unsigned long)si);
 
 	i = 0;
@@ -441,10 +425,10 @@ int construct_dom0(struct domain *d,
 }
 
 int construct_guest_dom(struct domain *d,
-	unsigned long guest_start, unsigned long guest_size,
-	unsigned long image_start, unsigned long image_size,
-	unsigned long initrd_start, unsigned long initrd_size,
-	char *cmdline)
+			unsigned long guest_size,
+			unsigned long image_start, unsigned long image_size,
+			unsigned long initrd_start, unsigned long initrd_size,
+			char *cmdline)
 {
 	char    *p = NULL;
 	int     i;
@@ -472,9 +456,8 @@ int construct_guest_dom(struct domain *d,
 
 	printf("Image Start = 0x%x\n", image_start);
 
-    /* Guest partition should be aligned to 1MB boundary */
+	/* Guest partition should be aligned to 1MB boundary */
 	ASSERT((guest_size & 0xFFFFF) == 0);
-	ASSERT((guest_start & 0xFFFFF) == 0);
 
 	BUG_ON(test_bit(_VCPUF_initialised, &v->vcpu_flags));
 
@@ -484,9 +467,6 @@ int construct_guest_dom(struct domain *d,
 
 	dsi.image_addr = image_start;
 	dsi.image_len  = image_size;
-
-	dsi.p_start = guest_start;
-	dsi.p_end   = guest_start + guest_size;
 
 	printk("*** LOADING DOMAIN : %d ***\n", (int)d->domain_id);
 
@@ -533,12 +513,17 @@ int construct_guest_dom(struct domain *d,
 		}
 	}
 
-	page = (struct page_info *)set_guest_pages(d, guest_start, guest_size, ~ALLOC_DOM_DMA);
-
+	page = (struct page_info *) alloc_domheap_pages(d,
+                                                        get_order_from_bytes(guest_size),
+                                                        ~ALLOC_DOM_DMA);
 	if (page == NULL) {
 		printk("Not enough RAM for domain %d allocation.\n", d->domain_id);
 		return -ENOMEM;
 	}
+
+	dsi.p_start = page_to_phys(page);
+	dsi.p_end   = dsi.p_start + guest_size;
+	printk("Guest physical: 0x%x-0x%x\n", dsi.p_start, dsi.p_end);
 
 	dsi.v_start &= (~(0xFFFFF));
 
@@ -584,7 +569,7 @@ int construct_guest_dom(struct domain *d,
 	si->pt_base      = (unsigned long)v->arch.guest_vtable;
 	si->nr_pt_frames = nr_pt_pages;
 	si->mfn_list     = NULL;
-	si->min_mfn      = guest_start >> PAGE_SHIFT;
+	si->min_mfn      = dsi.p_start >> PAGE_SHIFT;
 
 	map_track += PAGE_SIZE;
 

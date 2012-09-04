@@ -60,7 +60,7 @@ int acm_granttable_dumptab(struct domain *dom);
 
 // controls how much memory space a domain can take.
 int acm_alloc_chunk(struct domain *dom, unsigned int order);
-int acm_set_guest_pages(struct domain *dom, unsigned int size);
+
 // controls privileges to reserving memory space for other domains
 int acm_increase_reservation(struct domain *dom, unsigned int extent_order);
 int acm_decrease_reservation(struct domain *dom);

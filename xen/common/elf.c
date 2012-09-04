@@ -146,19 +146,22 @@ int loadelfimage(struct domain_setup_info *dsi)
     Elf_Ehdr *ehdr = (Elf_Ehdr *)dsi->image_addr;
     Elf_Phdr *phdr;
     int h;
-  
+
     for ( h = 0; h < ehdr->e_phnum; h++ ) 
-    {
+      {
         phdr = (Elf_Phdr *)(elfbase + ehdr->e_phoff + (h*ehdr->e_phentsize));
         if ( !is_loadable_phdr(phdr) )
-            continue;
+          continue;
         if ( phdr->p_filesz != 0 )
+          {
             memcpy((char *)phdr->p_paddr, elfbase + phdr->p_offset, 
                    phdr->p_filesz);
-        if ( phdr->p_memsz > phdr->p_filesz )
-            memset((char *)phdr->p_paddr + phdr->p_filesz, 0, 
-                   phdr->p_memsz - phdr->p_filesz);
-    }
+          }
+        if ( phdr->p_memsz > phdr->p_filesz ) {
+          memset((char *)phdr->p_paddr + phdr->p_filesz, 0, 
+                 phdr->p_memsz - phdr->p_filesz);
+        }
+      }
 
     loadelfsymtab(dsi, 1);
 

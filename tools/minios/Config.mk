@@ -14,8 +14,7 @@ HOSTCFLAGS 		= -Wall -Werror -Wstrict-prototypes -g -fomit-frame-pointer
 #
 # Cross Tool chain configuration
 #
-#CROSS_COMPILE		= arm_v4t_le-
-CROSS_COMPILE		= /opt/arm-linux-4.1.1/bin/arm-linux-
+CROSS_COMPILE		= arm-eabi-
 
 #
 # Target Configuration for Xeno-mini
@@ -33,7 +32,8 @@ STRIP      		= $(CROSS_COMPILE)strip
 OBJCOPY    		= $(CROSS_COMPILE)objcopy
 OBJDUMP    		= $(CROSS_COMPILE)objdump
 
-CFLAGS 			+= -fno-builtin -Wall -Werror -Wredundant-decls -Wno-format -mapcs
+CFLAGS  += -nostdinc -fno-builtin -fno-common -fno-strict-aliasing -fno-short-enums -fsigned-char -fshort-wchar -fno-strict-aliasing
+CFLAGS  += -iwithprefix include -Wno-pointer-arith -pipe -mabi=aapcs -mapcs
 CFLAGS 			+= -Wnested-externs -Wpointer-arith 
 CFLAGS			+= -I$(CURDIR)/include -L$(CURDIR)/lib
 CFLAGS			+= -D__XEN__ -D__KERNEL__ -DCONFIG_${DOMAIN_NUM}
