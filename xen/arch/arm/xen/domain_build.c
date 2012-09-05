@@ -4,6 +4,8 @@
  * Copyright (C) 2008 Samsung Electronics
  *          JaeMin Ryu  <jm77.ryu@samsung.com>
  *
+ * Copyright (C) 2012 Andrei Warkentin <andrey.warkentin@gmail.com>
+ *
  * Secure Xen on ARM architecture designed by Sang-bum Suh consists of
  * Xen on ARM and the associated access control.
  *
@@ -239,8 +241,7 @@ void new_thread(struct vcpu *v,
 	cpu_context->ulr = 0;
 	cpu_context->ssp = (unsigned long)(domain_stack + sizeof(struct cpu_context));
 	cpu_context->pc = start_pc;
-
-	cpu_context->spsr = 0x10;
+	cpu_context->spsr = PSR_MODE_USR;
 
 	v->arch.guest_context.user_regs.r13 = (unsigned long)domain_stack;
 	v->arch.guest_context.user_regs.r14 = return_to_guest;
