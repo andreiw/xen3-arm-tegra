@@ -579,6 +579,4 @@ ENTRY(hypercall_table)
 		.long	do_ni_hypercall							/* 45 */
 		.long	do_ni_hypercall
 		.long	do_ni_hypercall
-		.long	fcse_set_pid
-		.long	fcse_get_pid
-		.long	do_vfp_op								/* 50 */
+		.long	do_vfp_op
