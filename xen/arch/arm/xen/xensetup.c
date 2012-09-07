@@ -236,8 +236,9 @@ static void shared_info_table_init(void)
 
 void xd_test(void *context)
 {
-  printk("Hello from a Xen domain!\n");
   while (1) {
+    printk("Hello from a Xen domain %u!\n", current->domain->domain_id);
+    sched_yield();
   };
 }
 
@@ -247,7 +248,7 @@ void start_xen(void *unused)
 	struct bv_file dom0_data = INIT_BV_FILE_NONE;
 	struct bv_file initrd0_data = INIT_BV_FILE_NONE;
 	char *cmdline = atag_cmdline();
-        struct domain *xd;
+        struct domain *xd, *xd2;
 
 	/*
 	 * Command line arguments may override
@@ -357,6 +358,11 @@ void start_xen(void *unused)
         xd = xen_domain_create(1, xd_test, 0);
         BUG_ON(xd == NULL);
         domain_unpause_by_systemcontroller(xd);
+
+        xd2 = xen_domain_create(2, xd_test, 0);
+        BUG_ON(xd2 == NULL);
+        domain_unpause_by_systemcontroller(xd2);
+
 
 	local_irq_enable();
 	startup_cpu_idle_loop();

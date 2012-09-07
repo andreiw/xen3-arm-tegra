@@ -344,7 +344,7 @@ static long do_poll(struct sched_poll *sched_poll)
 }
 
 /* Voluntarily yield the processor for this allocation. */
-static long do_yield(void)
+long sched_yield(void)
 {
     TRACE_2D(TRC_SCHED_YIELD, current->domain->domain_id, current->vcpu_id);
     set_bit(_VCPUF_yield, &current->vcpu_flags);
@@ -360,7 +360,7 @@ long do_sched_op_compat(int cmd, unsigned long arg)
     {
     case SCHEDOP_yield:
     {
-        ret = do_yield();
+        ret = sched_yield();
         break;
     }
 
@@ -394,7 +394,7 @@ asmlinkage long do_sched_op(int cmd, GUEST_HANDLE(void) arg)
     {
     case SCHEDOP_yield:
     {
-        ret = do_yield();
+        ret = sched_yield();
         break;
     }
 

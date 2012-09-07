@@ -457,6 +457,9 @@ extern int construct_dom_xen(struct domain *d,
                              xen_domain_fn fn,
                              void *context);
 
+/* Voluntarily yield the processor for this allocation. */
+long sched_yield(void);
+
 #endif /* __SCHED_H__ */
 
 /*

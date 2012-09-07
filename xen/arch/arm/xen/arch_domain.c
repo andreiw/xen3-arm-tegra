@@ -38,7 +38,7 @@
 
 #define switch_mm(mm)	cpu_switch_ttb(mm)
 
-void __switch_to( struct vcpu *, struct vcpu_guest_context *, struct vcpu_guest_context *);
+void __switch_to(struct vcpu *, struct vcpu_guest_context *, struct vcpu_guest_context *);
 
 #define switch_to(prev,next,last)                                       \
 do {                                                                    \
@@ -293,7 +293,7 @@ static void continue_cpu_idle_loop(void)
 		local_irq_disable();
 		cpu_idle();
 		local_irq_enable();
-		//raise_softirq(SCHEDULE_SOFTIRQ);
+		raise_softirq(SCHEDULE_SOFTIRQ);
 		do_softirq();
 	}
 }

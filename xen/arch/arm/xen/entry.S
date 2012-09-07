@@ -502,30 +502,31 @@ resume_guest_domain:
  */
 		.align	5
 ENTRY(__switch_to)
-		add     ip, r1, #(OFFSET_USER_REGS + OFFSET_R4)
-		stmia   ip, {r4 - sl, fp, ip, sp, lr}
 
-		mrc		p15, 0, r4, c3, c0, 0
-		mrc		p15, 0, r5, c1, c0, 0
+	add     ip, r1, #(OFFSET_USER_REGS + OFFSET_R4)
+	stmia   ip, {r4 - sl, fp, ip, sp, lr}
 
-		str		r4, [r1, #(OFFSET_SYS_REGS + OFFSET_DACR)]
-		str		r5, [r1, #(OFFSET_SYS_REGS + OFFSET_CR)]
+	mrc		p15, 0, r4, c3, c0, 0 
+	mrc		p15, 0, r5, c1, c0, 0
 
-		bl		arch_context_switch
+	str		r4, [r1, #(OFFSET_SYS_REGS + OFFSET_DACR)]
+	str		r5, [r1, #(OFFSET_SYS_REGS + OFFSET_CR)]
 
-		ldr		r4, [r2, #(OFFSET_SYS_REGS + OFFSET_DACR)]
-		ldr		r5, [r2, #(OFFSET_SYS_REGS + OFFSET_CR)]
+	bl		arch_context_switch
 
-		mcr		p15, 0, r4, c3, c0, 0
-		mcr		p15, 0, r5, c1, c0, 0
+	ldr		r4, [r2, #(OFFSET_SYS_REGS + OFFSET_DACR)]
+	ldr		r5, [r2, #(OFFSET_SYS_REGS + OFFSET_CR)]
 
-		add		ip, r2, #(OFFSET_USER_REGS + OFFSET_R4)
-		ldmia   ip,  {r4 - sl, fp, ip, sp, lr}
- 
-		mov		pc, lr
+	mcr		p15, 0, r4, c3, c0, 0
+	mcr		p15, 0, r5, c1, c0, 0
 
-		.align	5
-		.type hypercall_table, #object
+	add		ip, r2, #(OFFSET_USER_REGS + OFFSET_R4)
+	ldmia   ip,  {r4 - sl, fp, ip, sp, lr}
+
+	mov		pc, lr
+
+	.align	5
+	.type hypercall_table, #object
 ENTRY(hypercall_table)
 		.long	do_set_trap_table						/*  0 */
 		.long	do_mmu_update

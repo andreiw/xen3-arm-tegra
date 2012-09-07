@@ -228,7 +228,7 @@ void new_thread(struct vcpu *v,
 
 	ci = (struct cpu_info *)domain_stack;
 	ci->vcpu = v;
-	ci->vspsr = PSR_MODE_SVC;
+	ci->vspsr = PSR_MODE_USR;
 	ci->vsp = 0;
 	ci->vdacr = DOMAIN_KERNEL_VALUE;
 
@@ -241,12 +241,40 @@ void new_thread(struct vcpu *v,
 	cpu_context->ulr = 0;
 	cpu_context->ssp = (unsigned long)(domain_stack + sizeof(struct cpu_context));
 	cpu_context->pc = start_pc;
-	cpu_context->spsr = PSR_MODE_USR;
+	cpu_context->spsr = PSR_MODE_SVC;
 
 	v->arch.guest_context.user_regs.r13 = (unsigned long)domain_stack;
 	v->arch.guest_context.user_regs.r14 = return_to_guest;
 
 	v->arch.guest_context.sys_regs.dacr = DOMAIN_KERNEL_VALUE;
+	v->arch.guest_context.sys_regs.cr = get_cr();
+}
+
+void new_xen_thread(struct vcpu *v,
+	unsigned long start_pc,
+	unsigned long context)
+{
+	void *domain_stack;
+	struct cpu_info *ci;
+
+	domain_stack = alloc_xenheap_pages(STACK_ORDER);
+	if(domain_stack == NULL) {
+		return;
+	}
+
+	ci = (struct cpu_info *)domain_stack;
+	ci->vcpu = v;
+	ci->vspsr = PSR_MODE_SVC;
+	ci->vsp = 0;
+	ci->vdacr = DOMAIN_HYPERVISOR_VALUE;
+
+	domain_stack += STACK_SIZE;
+
+	v->arch.guest_context.user_regs.r13 = (unsigned long) domain_stack;
+	v->arch.guest_context.user_regs.r14 = start_pc;
+
+   /* Fix me. */
+	v->arch.guest_context.sys_regs.dacr = 0xdf /* DOMAIN_HYPERVISOR_VALUE */;
 	v->arch.guest_context.sys_regs.cr = get_cr();
 }
 
@@ -267,7 +295,7 @@ int construct_dom_xen(struct domain *d,
    v->arch.guest_table = idle_domain->vcpu[0]->arch.guest_table;
 
    set_bit(_VCPUF_initialised, &v->vcpu_flags);
-   new_thread(v, (unsigned long) fn, 0, context);
+   new_xen_thread(v, (unsigned long) fn, context);
 
    return 0;
 }
