@@ -252,7 +252,7 @@ long do_dom0_op(GUEST_HANDLE(dom0_op_t) u_dom0_op)
         if( dom >= 3 )
             break;
 #endif
-        if ( (d = domain_create(dom, 0)) == NULL )
+        if ( (d = domain_create(dom, 0, 0)) == NULL )
             break;
 
         memcpy(d->handle, op->u.createdomain.handle,

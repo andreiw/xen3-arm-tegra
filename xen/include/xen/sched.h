@@ -99,65 +99,65 @@ struct vcpu
 
 struct domain
 {
-    domid_t          domain_id;
+	domid_t          domain_id;
 
-    struct shared_info   *shared_info;     /* shared data area */
+	struct shared_info   *shared_info;     /* shared data area */
 
-    spinlock_t       big_lock;
+	spinlock_t       big_lock;
 
-    spinlock_t       page_alloc_lock; /* protects all the following fields  */
-    struct list_head page_list;       /* linked list, of size tot_pages     */
-    struct list_head xenpage_list;    /* linked list, of size xenheap_pages */
-    unsigned int     tot_pages;       /* number of pages currently possesed */
-    unsigned int     max_pages;       /* maximum value for tot_pages        */
-    unsigned int     xenheap_pages;   /* # pages allocated from Xen heap    */
+	spinlock_t       page_alloc_lock; /* protects all the following fields  */
+	struct list_head page_list;       /* linked list, of size tot_pages     */
+	struct list_head xenpage_list;    /* linked list, of size xenheap_pages */
+	unsigned int     tot_pages;       /* number of pages currently possesed */
+	unsigned int     max_pages;       /* maximum value for tot_pages        */
+	unsigned int     xenheap_pages;   /* # pages allocated from Xen heap    */
 
-    /* Scheduling. */
-    int              shutdown_code; /* code value from OS (if DOMF_shutdown) */
-    void            *sched_priv;    /* scheduler-specific data */
+	/* Scheduling. */
+	int              shutdown_code; /* code value from OS (if DOMF_shutdown) */
+	void            *sched_priv;    /* scheduler-specific data */
 
-    struct domain   *next_in_list;
-    struct domain   *next_in_hashbucket;
+	struct domain   *next_in_list;
+	struct domain   *next_in_hashbucket;
 
-    struct list_head rangesets;
-    spinlock_t       rangesets_lock;
+	struct list_head rangesets;
+	spinlock_t       rangesets_lock;
 
-    /* Event channel information. */
-    struct evtchn   *evtchn[NR_EVTCHN_BUCKETS];
-    spinlock_t       evtchn_lock;
+	/* Event channel information. */
+	struct evtchn   *evtchn[NR_EVTCHN_BUCKETS];
+	spinlock_t       evtchn_lock;
 
-    grant_table_t   *grant_table;
+	grant_table_t   *grant_table;
 
-    /*
-     * Interrupt to event-channel mappings. Updates should be protected by the 
-     * domain's event-channel spinlock. Read accesses can also synchronise on 
-     * the lock, but races don't usually matter.
-     */
+	/*
+	 * Interrupt to event-channel mappings. Updates should be protected by the
+	 * domain's event-channel spinlock. Read accesses can also synchronise on
+	 * the lock, but races don't usually matter.
+	 */
 #define NR_PIRQS 256 /* Put this somewhere sane! */
-    u16				pirq_to_evtchn[NR_PIRQS];
-    unsigned long	pirq_mask[NR_PIRQS/32];
+	u16				pirq_to_evtchn[NR_PIRQS];
+	unsigned long	pirq_mask[NR_PIRQS/32];
 
 	/* I/O capabilities (access to IRQs and memory-mapped I/O). */
 	struct rangeset *iomem_caps;
 	struct rangeset *irq_caps;
 	struct rangeset *dma_caps;
 
-    unsigned long    domain_flags;
-    unsigned long    vm_assist;
+	unsigned long    domain_flags;
+	unsigned long    vm_assist;
 
-    atomic_t         refcnt;
+	atomic_t         refcnt;
 
-    struct vcpu *vcpu[MAX_VIRT_CPUS];
+	struct vcpu *vcpu[MAX_VIRT_CPUS];
 
-    /* Bitmask of CPUs which are holding onto this domain's state. */
-    cpumask_t        domain_dirty_cpumask;
+	/* Bitmask of CPUs which are holding onto this domain's state. */
+	cpumask_t        domain_dirty_cpumask;
 
-    struct arch_domain arch;
+	struct arch_domain arch;
 
-    void *ssid; /* sHype security subject identifier */
+	void *ssid; /* sHype security subject identifier */
 
-    /* Control-plane tools handle for this domain. */
-    xen_domain_handle_t handle;
+	/* Control-plane tools handle for this domain. */
+	xen_domain_handle_t handle;
 
 	uint32_t store_port; //for xenstore kcr
 	unsigned long store_mfn; //for xenstore kcr
@@ -207,6 +207,10 @@ extern struct vcpu *idle_vcpu[NR_CPUS];
 #define IDLE_DOMAIN_ID   (0x7FFFU)
 #define is_idle_domain(d) ((d)->domain_id == IDLE_DOMAIN_ID)
 #define is_idle_vcpu(v)   (is_idle_domain((v)->domain))
+#define is_xen_domain(d)  ((d)->domain_flags & DOMF_xen)
+#define is_xen_vcpu(v)    (is_xen_domain((v)->domain))
+#define is_vm_domain(d)   (!is_idle_domain((d)) && !is_xen_domain((d)))
+#define is_vm_vcpu(v)     (!is_idle_vcpu((v)) && !is_xen_vcpu((v)))
 
 struct vcpu *alloc_vcpu(
     struct domain *d, unsigned int vcpu_id, unsigned int cpu_id);
@@ -247,11 +251,13 @@ static inline void get_knownalive_domain(struct domain *d)
     ASSERT(!(atomic_read(&d->refcnt) & DOMAIN_DESTROYED));
 }
 
-extern struct domain *domain_create(domid_t dom_id, unsigned int cpu);
+extern struct domain *domain_create(domid_t dom_id,
+                                    unsigned int cpu,
+                                    unsigned long flags);
 extern int construct_dom0(
     struct domain *d,
     unsigned long guest_size,
-    unsigned long image_start, unsigned long image_len, 
+    unsigned long image_start, unsigned long image_len,
     unsigned long initrd_start, unsigned long initrd_len,
     char *cmdline);
 
@@ -407,6 +413,9 @@ extern struct domain *domain_list;
  /* Domain is being debugged by controller software. */
 #define _DOMF_debugging        4
 #define DOMF_debugging         (1UL<<_DOMF_debugging)
+ /* Domain is a Xen kernel thread. */
+#define _DOMF_xen              5
+#define DOMF_xen               (1UL<<_DOMF_xen)
 
 static inline int vcpu_runnable(struct vcpu *v)
 {
@@ -442,14 +451,16 @@ static inline void vcpu_unblock(struct vcpu *v)
 
 #define VM_ASSIST(_d,_t) (test_bit((_t), &(_d)->vm_assist))
 
+typedef void (*xen_domain_fn)(void *context);
+
+extern int construct_dom_xen(struct domain *d,
+                             xen_domain_fn fn,
+                             void *context);
+
 #endif /* __SCHED_H__ */
 
 /*
  * Local variables:
- * mode: C
- * c-set-style: "BSD"
- * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: nil
+ * eval: (xen-c-mode)
  * End:
  */

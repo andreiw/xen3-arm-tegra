@@ -16,7 +16,7 @@
 #include <public/sched_ctl.h>
 
 /*verbosity settings*/
-#define SEDFLEVEL 0
+#define SEDFLEVEL 10
 #define PRINT(_f, _a...)  \
     if ((_f)<=SEDFLEVEL) printk(_a );
 

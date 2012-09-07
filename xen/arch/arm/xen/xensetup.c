@@ -234,12 +234,20 @@ static void shared_info_table_init(void)
 	consistent_write((void *)&idle_pgd[PGD_IDX(SHARED_INFO_BASE)], pde_val(MK_PDE(va_to_ma(shared_info_table), PDE_TYPE_COARSE | PDE_DOMAIN_SUPERVISOR)));
 }
 
+void xd_test(void *context)
+{
+  printk("Hello from a Xen domain!\n");
+  while (1) {
+  };
+}
+
 void start_xen(void *unused)
 {
 	struct bv bv = INIT_BV_NONE;
 	struct bv_file dom0_data = INIT_BV_FILE_NONE;
 	struct bv_file initrd0_data = INIT_BV_FILE_NONE;
 	char *cmdline = atag_cmdline();
+        struct domain *xd;
 
 	/*
 	 * Command line arguments may override
@@ -301,7 +309,7 @@ void start_xen(void *unused)
 	embunit_test_example();
 #endif
 
-	idle_domain = domain_create(IDLE_DOMAIN_ID, 0);
+	idle_domain = domain_create(IDLE_DOMAIN_ID, 0, 0);
 
 	BUG_ON(idle_domain == NULL);
 
@@ -309,7 +317,8 @@ void start_xen(void *unused)
 	idle_vcpu[0] = current;
 	idle_vcpu[0]->arch.guest_table = va_to_ma(&idle_pgd[0]);
 
-	dom0 = domain_create(0, 0);
+#if 0
+	dom0 = domain_create(0, 0, 0);
 
 	BUG_ON(dom0 == NULL);
 	if (bv.start == bv.end)
@@ -343,6 +352,12 @@ void start_xen(void *unused)
 
 	set_bit(_DOMF_privileged, &dom0->domain_flags);
 	domain_unpause_by_systemcontroller(dom0);
+#endif
+
+        xd = xen_domain_create(1, xd_test, 0);
+        BUG_ON(xd == NULL);
+        domain_unpause_by_systemcontroller(xd);
+
 	local_irq_enable();
 	startup_cpu_idle_loop();
 }

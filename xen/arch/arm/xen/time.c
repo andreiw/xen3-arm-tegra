@@ -35,12 +35,12 @@ u64 jiffies_64 __cacheline_aligned = INITIAL_JIFFIES;
 
 void timer_tick(unsigned int ticks)
 {
-    struct vcpu *v   = current;
+	struct vcpu *v   = current;
 	unsigned int cpu = smp_processor_id();
 
 	jiffies_64 += ticks;
 
-	if ( likely(!is_idle_vcpu(v)) )
+	if (likely(is_vm_vcpu(v)))
 	{
 		send_timer_event(v);
 	}

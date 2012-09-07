@@ -156,9 +156,9 @@ struct vcpu *alloc_vcpu(struct domain *d, unsigned int vcpu_id, unsigned int cpu
         cpumask_of_cpu(cpu_id) : CPU_MASK_ALL;
 
     v->runstate.state = is_idle_vcpu(v) ? RUNSTATE_running : RUNSTATE_offline;
-    v->runstate.state_entry_time = NOW(); 
+    v->runstate.state_entry_time = NOW();
 
-    if ( (vcpu_id != 0) && !is_idle_domain(d) )
+    if ( (vcpu_id != 0) && is_vm_domain(d) )
         set_bit(_VCPUF_down, &v->vcpu_flags);
 
     if ( SCHED_OP(alloc_task, v) < 0 )
@@ -176,11 +176,11 @@ struct vcpu *alloc_vcpu(struct domain *d, unsigned int vcpu_id, unsigned int cpu
     return v;
 }
 
-void sched_add_domain(struct vcpu *v) 
+void sched_add_domain(struct vcpu *v)
 {
     /* Initialise the per-domain timers. */
     init_timer(&v->timer, dom_timer_fn, v, v->processor);
-    init_timer(&v->poll_timer, poll_timer_fn, v, v->processor);	
+    init_timer(&v->poll_timer, poll_timer_fn, v, v->processor);
 
     if ( is_idle_vcpu(v) )
     {
@@ -193,10 +193,10 @@ void sched_add_domain(struct vcpu *v)
     TRACE_2D(TRC_SCHED_DOM_ADD, v->domain->domain_id, v->vcpu_id);
 }
 
-void sched_rem_domain(struct vcpu *v) 
+void sched_rem_domain(struct vcpu *v)
 {
-    kill_timer(&v->timer);  
-    kill_timer(&v->poll_timer); 
+    kill_timer(&v->timer);
+    kill_timer(&v->poll_timer);
 
     SCHED_OP(rem_task, v);
     TRACE_2D(TRC_SCHED_DOM_REM, v->domain->domain_id, v->vcpu_id);
@@ -554,6 +554,8 @@ void __enter_scheduler(void)
 
     ASSERT(!in_irq());
 	
+    printk("in sched\n");
+
     spin_lock_irq(&schedule_data[cpu].schedule_lock);
 
     stop_timer(&schedule_data[cpu].s_timer);
@@ -575,6 +577,7 @@ void __enter_scheduler(void)
 
     if ( unlikely(prev == next) )
     {
+       printk("Nothing to schedule to\n");
         spin_unlock_irq(&schedule_data[cpu].schedule_lock);
         return continue_running(prev);
     }
@@ -608,13 +611,13 @@ void __enter_scheduler(void)
     prev->sleep_tick = schedule_data[cpu].tick;
 
     /* Ensure that the domain has an up-to-date time base. */
-    if ( !is_idle_vcpu(next) )
+    if (is_vm_vcpu(next))
     {
-        //update_dom_time(next);
-        if ( next->sleep_tick != schedule_data[cpu].tick )
-		{
-            send_timer_event(next);
-		}
+	    //update_dom_time(next);
+	    if ( next->sleep_tick != schedule_data[cpu].tick )
+	    {
+		    send_timer_event(next);
+	    }
     }
 
     TRACE_4D(TRC_SCHED_SWITCH,
@@ -622,7 +625,8 @@ void __enter_scheduler(void)
              next->domain->domain_id, next->vcpu_id);
 
 
-    printk("switching from %x to %x\n", prev, next);
+    printk("switching from %x to %x\n", prev->domain->domain_id,
+           next->domain->domain_id);
     context_switch(prev, next);
 }
 
@@ -649,7 +653,7 @@ void t_timer_fn(void *unused)
 
 	schedule_data[cpu].tick++;
 
-	if ( likely(!is_idle_vcpu(v)) )
+	if (likely(is_vm_vcpu(v)))
 	{
 		//update_dom_time(v);
 		send_timer_event(v);
@@ -751,10 +755,6 @@ void dump_runq(unsigned char key)
 
 /*
  * Local variables:
- * mode: C
- * c-set-style: "BSD"
- * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: nil
+ * eval: (xen-c-mode)
  * End:
  */

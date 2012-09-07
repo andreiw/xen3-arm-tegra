@@ -250,6 +250,28 @@ void new_thread(struct vcpu *v,
 	v->arch.guest_context.sys_regs.cr = get_cr();
 }
 
+int construct_dom_xen(struct domain *d,
+                      xen_domain_fn fn,
+                      void *context)
+{
+   struct vcpu *v;
+
+   BUG_ON(d == NULL);
+   BUG_ON(fn == NULL);
+   BUG_ON((d->domain_flags & DOMF_xen) == 0);
+
+   v = d->vcpu[0];
+   BUG_ON(v == NULL);
+   BUG_ON(test_bit(_VCPUF_initialised, &v->vcpu_flags));
+
+   v->arch.guest_table = idle_domain->vcpu[0]->arch.guest_table;
+
+   set_bit(_VCPUF_initialised, &v->vcpu_flags);
+   new_thread(v, (unsigned long) fn, 0, context);
+
+   return 0;
+}
+
 int construct_dom0(struct domain *d,
 		   unsigned long guest_size,
 		   unsigned long image_start, unsigned long image_size,
@@ -726,3 +748,9 @@ int elf_sanity_check(Elf_Ehdr *ehdr)
 
 	return 1;
 }
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

@@ -59,7 +59,7 @@ int arch_domain_create(struct domain *d)
 {
 	struct shared_info *shared_info;
 
-    if ( !is_idle_domain(d) )
+	if (is_vm_domain(d))
 	{
 		shared_info = alloc_xenheap_page();
 
@@ -70,23 +70,23 @@ int arch_domain_create(struct domain *d)
 			return -ENOMEM;
 		}
 
-        memset(shared_info, 0, PAGE_SIZE);
+		memset(shared_info, 0, PAGE_SIZE);
 		d->shared_info = SHARED_INFO_LIMIT - (PAGE_SIZE * (d->domain_id + 1));
 		consistent_write(&shared_info_table[PGT_IDX((unsigned long)d->shared_info)], va_to_ma(shared_info) | PTE_FLAG_SHARED_INFO);
 
 		share_xen_page_with_guest(mfn_to_page(va_to_ma(shared_info) >> PAGE_SHIFT), d, PGT_writable_page);
 
-        d->arch.ioport_caps = rangeset_new(d, "I/O Ports", RANGESETF_prettyprint_hex);
-        if ( d->arch.ioport_caps == NULL )
-            goto fail_nomem;
+		d->arch.ioport_caps = rangeset_new(d, "I/O Ports", RANGESETF_prettyprint_hex);
+		if ( d->arch.ioport_caps == NULL )
+			goto fail_nomem;
 	}
 	
 	return 0;
 		
 fail_nomem:
-    free_xenheap_page(shared_info);
+	free_xenheap_page(shared_info);
 
-    return -ENOMEM;
+	return -ENOMEM;
 }
 
 void arch_domain_destroy(struct domain *d)
@@ -141,13 +141,12 @@ void context_switch(struct vcpu *prev, struct vcpu *next)
 	ASSERT(prev != next);
 	ASSERT(vcpu_runnable(next));
 
-	if (!is_idle_domain(next->domain))
+	if (is_vm_domain(next->domain))
 	{
 		write_ptbase(next);
 	}
 
 	context_saved(prev);
-
 	switch_to(prev,next,prev);
 }
 
