@@ -1,5 +1,5 @@
-Xen3 ARMv7/Tegra2 work.
-=======================
+Xen3 ARMv7/Tegra2 work
+======================
 
 This is a an effort to bring up Samsung's Xen3 tree on
 Tegra2. It's meant as a stepping stone to the Xen4 port.
@@ -15,29 +15,28 @@ Once the "basics" are in, the more interesting work
 of figuring out the correct subset of hypercalls
 and porting the Tegra2 Linux kernel to be PV can begin.
 
-Status
-======
 
-Interrupts and timer working. A "boot volume" passed by the
-bootloader (CPIO archive, *cough*, initrd) are expected to
-contain /dom0 and /initrd0, which constitute dom0 kernel
-and initrd, respectively.
+Differences
+===========
 
-There are rudimentary beginnings of a FIQ-based debugger which
-currently can dump regs, version and a simple backtrace.
+Compatibility with Samsung's tree (or other Xen ARM efforts) is
+not a goal. Compatibility at hypercall interface is a non-goal
+as well.
 
-Next up:
-0) Fixing the wacky stuff with different regs getting
-   saved in IRQ versus ABT, and fix code in arch/arm/xen/traps.c.
-1) Slashing and burning existing dom0 loading code.
-2) Attempting to load some dummy kernels and seeing the existing
-   switching code work or not.
+Current differences from Samsung's tree:
+1) ARMv7-only support.
+2) Dom0/U configuration is not hardcoded.
+3) Boot through ATAG-compatible bootloader, with all images passed
+   through a "boot volume".
+4) Kernel threads ("xen domains").
+
 
 Building
 ========
 
 $ make menuconfig
 $ make
+
 
 Boot volume
 ===========
@@ -50,6 +49,7 @@ command will create a valid Xen boot volume.
 
 $ find . | cpio --create --format='newc' > ../bootvol.img
 
+
 Running
 =======
 
@@ -57,7 +57,6 @@ Assuming you have a Xoom with the serial port through the headphone h^Hjack.
 
 $ sudo fastboot boot  /home/andreiw/src/xen3-arm-tegra/dist/install/boot/xen-bin-3.0.2-2 bootvol.img
 
-This is the current output:
 ATAG    (P): 0x00000100
 Linked  (V): 0xff008000
 Actual  (P): 0x00a00800
@@ -76,51 +75,92 @@ Handing off to C...
 [XEN]  http://www.cl.cam.ac.uk/netos/xen
 [XEN]  University of Cambridge Computer Laboratory
 [XEN] 
-[XEN]  Xen version 3.0.2-2 (andreiw@(none)) (gcc version 4.4.3 (GCC) ) Sat Mar 24 00:05:03 EDT 2012
+[XEN]  Xen version 3.0.2-2 (andreiw@localdomain) (gcc version 4.4.3 (GCC) ) Fri Sep  7 19:20:40 EDT 2012
 [XEN]  Platform: arm-tegra
-[XEN]  GIT SHA: 6ead803ecebf377327b0958065ddb3c1eb7f1e62
+[XEN]  GIT SHA: 32d9ee835326ff17a1fa7c4cf13a83d9ba285c19
 [XEN]  Kernel command line: <NULL>
-[XEN]  Boot volume: 0x5000000-0x5000200
+[XEN]  Boot volume: 0x5000000-0x5022400
 [XEN] TTB PA 0x104000
 [XEN] idle_pgd VA 0xff004000
 [XEN] xen_pstart 0x0
 [XEN] xen_pend 0x40000000
-[XEN] _end 0xff04101c
-[XEN] _end VA 0x14101C
+[XEN] _end 0xff04206c
+[XEN] _end VA 0x14206C
 [XEN] nr_pages needed for all page_infos = 0x500
-[XEN] frame table is at 0xff042000-0xff542000
-[XEN] xenheap_phys_start = 0x64b000 (VA 0xff54b000)
-[XEN] xenheap_phys_end = 0x84b000 (VA 0xff74b000)
+[XEN] frame table is at 0xff043000-0xff543000
+[XEN] xenheap_phys_start = 0x64c000 (VA 0xff54c000)
+[XEN] xenheap_phys_end = 0x84c000 (VA 0xff74c000)
 [XEN] looking at bank 0
 [XEN]         base - 0x0
 [XEN]         end  - 0x40000000
-[XEN] calling init_boot_pages on 0x64b000-0x40000000
+[XEN] calling init_boot_pages on 0x64c000-0x40000000
+[XEN] calling init_xenheap_pages on 0x64c000-0x84c000
 [XEN] FIQ debugger enabled
 [XEN] Using scheduler: Simple EDF Scheduler (sedf)
-[XEN] Initializing ARM FCSE Unit
-[XEN] Dom0 kernel 0x5000164-0x5000178
-[XEN] Dom0 initrd 0x50000e8-0x50000f0
-[XEN] *** LOADING DOMAIN : 0 ***
-[XEN] DOM0 image is not a Xen-compatible Elf image.
-[XEN] 
-[XEN] ****************************************
-[XEN] Panic on CPU 0:
-[XEN] Could not prepare dom0
-[XEN] ****************************************
-[XEN] 
-fiqdb> version
- Xen version 3.0.2-2 (andreiw@(none)) (gcc version 4.4.3 (GCC) ) Mon Apr  9 21:27:50 EDT 2012
- Platform: arm-tegra
- GIT SHA: 434df0afb45b76c30ae8edc135c77ca15f99a486
-fiqdb> bt
- pc ff03217c sp ff039ee8 fp ff039efc
- pc ff026d14 sp ff039f00 fp ff039f9c
- pc ff02887c sp ff039fb0 fp ff039ffc
- pc 00000000 sp ff03a000 fp 0000c090
-fiqdb> 
+[XEN] add to list
+[XEN] add to list
+[XEN] in sched
+[XEN] switching from 7fff to 1
+[XEN] Hello from a Xen domain 1!
+[XEN] in sched
+[XEN] switching from 1 to 2
+[XEN] Hello from a Xen domain 2!
+[XEN] in sched
+[XEN] switching from 2 to 1
+[XEN] Hello from a Xen domain 1!
+[XEN] in sched
+[XEN] switching from 1 to 2
+[XEN] Hello from a Xen domain 2!
+[XEN] in sched
+[XEN] switching from 2 to 1
+[XEN] Hello from a Xen domain 1!
+[XEN] in sched
+[XEN] switching from 1 to 2
+[XEN] Hello from a Xen domain 2!
+[XEN] in sched
+[XEN] switching from 2 to 1
+[XEN] Hello from a Xen domain 1!
+[XEN] in sched
+[XEN] switching from 1 to 2
+[XEN] Hello from a Xen domain 2!
+[XEN] in sched
+[XEN] switching from 2 to 1
+[XEN] Hello from a Xen domain 1!
+[XEN] in sched
+[XEN] switching from 1 to 2
+[XEN] Hello from a Xen domain 2!
+[XEN] in sched
+[XEN] switching from 2 to 1
+[XEN] Hello from a Xen domain 1!
+
+
+Status
+======
+
+* Interrupts and timer working.
+* Fixes to memory allocators (did it ever work before?)
+* A "boot volume" passed by the bootloader (CPIO archive) is
+  expected to contain /dom0 and /initrd0, which constitute dom0
+  kernel and initrd, respectively.
+* Beginnings of a FIQ-based serial debugger which currently can
+  dump regs, version and a simple backtrace.
+* Dom0 loading code is more-or-less in place.
+* Passing control to Dom0 doesn't work yet.
+* Beginnings of cooperative threading (I call them Xen domains).
+
+Next up:
+* Fixing the wacky stuff with different regs getting
+  saved in IRQ versus ABT, and fix code in arch/arm/xen/traps.c.
+* Continue to slash and burn through existing dom0 boot code - 
+  need to figure out why non-manager DACR values don't work
+  (probably paging code).
+* Grow the threading code.
+
 
 Changelog (more or less)
 ========================
+Sep-07-2012: Added xen domains (coop threading).
+Sep-04-2012: Dom0 bring-up work.
 Apr-09-2012: Update panic/debug logic.
 Apr-08-2012: FIQ debugger some more.
 Mar-24-2012: FIQ debugger beginnings, refactored out UART.
@@ -132,6 +172,7 @@ Mar-06-2012: GIC/legacy IC stuff in (except for IRQ path),
 Mar-05-2012: Wire GIC and legacy IC stuff.
 Mar-02-2012: First work since summer, fixed mm bugs.
 Jun-23-2011: Initial commit.
+
 
 TODO
 ====
@@ -158,6 +199,7 @@ Nice to have:
    for debugging, although by the time I get to a PV
    kernel, a sanitized view on GPIOs will need to be
    exposed via a hypercall.
+
 
 Contact Info
 ============
