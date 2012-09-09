@@ -260,11 +260,10 @@ long do_vm_assist(unsigned int cmd, unsigned int type)
 
 long do_ni_hypercall(void)
 {
-	printf("NI_HYPERCALL\n");
+  printf("NI_HYPERCALL\n");
 
-	while(1);
-    /* No-op hypercall. */
-    return -ENOSYS;
+  /* No-op hypercall. */
+  return -ENOSYS;
 }
 
 /*

@@ -233,9 +233,3 @@ failed:
 	return -EFAULT;
 }
 
-#if 0
-void trap_init(void)
-{
-
-}
-#endif

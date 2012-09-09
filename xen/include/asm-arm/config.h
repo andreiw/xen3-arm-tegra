@@ -18,7 +18,6 @@
 #endif
 
 #define STACK_SIZE				(PAGE_SIZE << STACK_ORDER)
-#define FORCE_CRASH()			while(1);
 
 #ifndef NDEBUG
 # define MEMORY_GUARD

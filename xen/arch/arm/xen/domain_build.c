@@ -546,8 +546,7 @@ int construct_guest_dom(struct domain *d,
 
 	rc = inspect_guest_tables(v);
 	if(!rc) {
-		printf("Wrong guest table found\n");
-		while(1);
+		panic("Wrong guest table found\n");
 	}
 
 	nr_pages = guest_size >> PAGE_SHIFT;

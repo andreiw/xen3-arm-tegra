@@ -13,8 +13,6 @@
 
 long do_sysctl(GUEST_HANDLE(xen_sysctl_t) u_sysctl)
 {
-	while(1);
-
 	return 0;
 }
 

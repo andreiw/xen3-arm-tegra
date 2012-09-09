@@ -400,8 +400,7 @@ void set_irq_handler(unsigned int irq, irq_handler_t handler)
 	}
 
 	if (handler == NULL) {
-		printk("Handler is not specificed\n");
-		while(1);
+		panic("Handler is not specified\n");
 	}
 
 	desc = irq_to_desc(irq);
@@ -443,8 +442,7 @@ void set_irq_flags(unsigned int irq, unsigned int iflags)
 	struct irqdesc *desc;
 
 	if (irq >= NR_IRQS) {
-		printk("Trying to set irq flags for IRQ%d\n", irq);
-		while(1);
+		panic("Trying to set irq flags for IRQ%d\n", irq);
 	}
 
 	desc = irq_to_desc(irq);

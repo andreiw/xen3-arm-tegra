@@ -409,7 +409,7 @@ int do_mmuext_op(GUEST_HANDLE(mmuext_op_t) uops,
 			cpu_flush_tlb_all();
             break;
         case MMUEXT_FLUSH_TLB_MM:
-			while(1);
+          panic("unsupported?");
 	    	cpu_flush_tlb_all();
             break;
         case MMUEXT_FLUSH_TLB_KERNEL_PAGE:
@@ -542,14 +542,11 @@ int do_update_va_mapping(u32 va, u32 flags, u64 val64)
     perfc_incrc(calls_to_update_va);
     
     panic("unsupported?");
-	while(1);
 
 	if ( unlikely(!__addr_ok(va)) )
 		return -EINVAL;
          
 	LOCK_BIGLOCK(d);
-
-	while(1);
 
 	if ( unlikely(!modify_pte(get_pl1pte_from_virtaddr(v, va), val)) )
 		rc = -EINVAL;

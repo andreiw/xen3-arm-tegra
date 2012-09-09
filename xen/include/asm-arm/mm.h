@@ -193,8 +193,7 @@ static inline int get_page(struct page_info *page,
 		     unlikely((nx & PGC_count_mask) == 0) || /* Count overflow? */
 		     unlikely(d != _domain) )                /* Wrong owner? */
 		{
-			printf("shadow mode is not implemented on xen-arm\n");
-			while(1);
+			panic("shadow mode is not implemented on xen-arm\n");
 			return 0;
 		}
  	} while ( unlikely((y = cmpxchg((u32 *) &page->count_info, (u32) x, (u32) nx)) != x) );
