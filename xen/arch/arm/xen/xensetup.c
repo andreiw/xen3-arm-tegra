@@ -30,9 +30,7 @@
 #include <xen/string.h>
 #include <public/version.h>
 #include <public/sched.h>
-#include <security/acm/policy_conductor.h>
-#include <security/acm/acm_hooks.h>
-#include <security/ssm-xen/sra_func.h>
+
 #include <asm/trap.h>
 #include <asm/memory.h>
 #include <asm/uaccess.h>
@@ -286,14 +284,7 @@ void start_xen(void *unused)
 	gcov_core_init();
 #endif
 
-#ifdef CONFIG_VMM_SECURITY
-	if ( sra_init() != 0 )
-	  panic("Error Secure Repository Agent initialization\n");
-#endif
-
 	timer_init();
-
-	init_acm();
 
 	scheduler_init();
 

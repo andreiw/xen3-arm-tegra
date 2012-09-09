@@ -76,24 +76,6 @@ int parseelfimage(struct domain_setup_info *dsi)
             printk("ERROR: Xen will only load images built for Xen v3.0\n");
             return -EINVAL;
         }
-#ifdef CONFIG_VMM_SECURITY_SCID
-		  {
-            char* str_id;
-				char* str_end;
-            if ( ((str_id = strstr(guestinfo, "SCID=")) == NULL) )
-            {
-                printk("ERROR: Security Class ID is not specified\n");
-                return -EINVAL;
-            }
-				str_id += strlen("SCID=");
-				dsi->scid = simple_strtoul(str_id, &str_end, 10);
-				if (dsi->scid < 0)
-            {
-                printk("ERROR: Security Class ID is not vaild\n");
-				    return -EINVAL;
-				}
-		  }
-#endif
 
         break;
     }

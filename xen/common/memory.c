@@ -20,7 +20,6 @@
 #include <asm/current.h>
 #include <asm/hardirq.h>
 #include <public/memory.h>
-#include <security/acm/acm_hooks.h>
 
 /*
  * To allow safe resume of do_memory_op() after preemption, we need to know 
@@ -57,12 +56,6 @@ increase_reservation(
             return i;
         }
 
-        if(!acm_increase_reservation(d, extent_order)){
-            DPRINTK(3,"Out of limit by ACM: Could not allocate order=%d extent: "
-                    "id=%d flags=%x (%ld of %d)\n",
-                    extent_order, d->domain_id, flags, i, nr_extents);
-            return i;
-        }
 
         if ( unlikely((page = alloc_domheap_pages(
             d, extent_order, flags)) == NULL) )
@@ -114,13 +107,6 @@ populate_physmap(
 
         if ( unlikely(__copy_from_guest_offset(&gpfn, extent_list, i, 1)) )
             goto out;
-
-        if(!acm_populate_physmap(d, extent_order)){
-            DPRINTK(3,"Out of limit by ACM: Could not allocate order=%d extent: "
-                    "id=%d flags=%x (%ld of %d)\n",
-                    extent_order, d->domain_id, flags, i, nr_extents);
-            goto out;
-        }
 
         if ( unlikely((page = alloc_domheap_pages(
             d, extent_order, flags)) == NULL) )
@@ -251,11 +237,6 @@ translate_gpfn_list(
     if ( (d = find_domain_by_id(op.domid)) == NULL )
         return -ESRCH;
 
-    if ( !acm_translate_gpfn_list(d) ){
-        put_domain(d);
-        return -EPERM;
-    }
-
     if ( !shadow_mode_translate(d) )
     {
         put_domain(d);
@@ -348,10 +329,6 @@ long do_memory_op(unsigned long cmd, GUEST_HANDLE(void) arg)
                 &preempted);
             break;
         case XENMEM_decrease_reservation:
-            if(!acm_decrease_reservation(d)){
-                put_domain(d);
-                return -EPERM;
-            }
             rc = decrease_reservation(
                 d,
                 reservation.extent_start,
@@ -399,10 +376,6 @@ long do_memory_op(unsigned long cmd, GUEST_HANDLE(void) arg)
             return -EPERM;
         else if ( (d = find_domain_by_id(domid)) == NULL )
             return -ESRCH;
-        else if ( !acm_current_reservation(d) ){
-            put_domain(d);
-            return -EPERM;
-        }
         rc = (op == XENMEM_current_reservation) ? d->tot_pages : d->max_pages;
 
         if ( unlikely(domid != DOMID_SELF) )

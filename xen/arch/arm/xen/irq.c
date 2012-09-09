@@ -36,7 +36,6 @@
 #include <xen/event.h>
 #include <asm/linkage.h>
 #include <asm/hardirq.h>
-#include <security/acm/acm_hooks.h>
 #include <xen/config.h>
 
 #define ACK_TYPE_NONE	0
@@ -71,9 +70,7 @@ asmlinkage int do_set_HID_irq(unsigned int irq)
 	unsigned long flags;
 
 	spin_lock_irqsave(&desc->lock, flags);
-	if(acm_set_HID_irq(irq)) {
-		desc->isHIDirq = 1;
-	}
+        desc->isHIDirq = 1;
 	spin_unlock_irqrestore(&desc->lock, flags);
 
 	return 0;
@@ -81,18 +78,16 @@ asmlinkage int do_set_HID_irq(unsigned int irq)
 
 asmlinkage int do_set_foreground_domain(unsigned int dom)
 {
-	if(acm_set_foregrounddom())
-		foreground_domain = dom;
+  foreground_domain = dom;
 
-	return 0;
+  return 0;
 }
 
 int do_set_irq_type(unsigned int irq, unsigned int type)
 {
-	printk("do_set_irq_type : irq = 0x%x, type = 0x%x\n", irq, type);
+  printk("do_set_irq_type : irq = 0x%x, type = 0x%x\n", irq, type);
 
-	if(acm_set_irq_type())
- 	   return set_irq_type(irq, type);
+  return set_irq_type(irq, type);
 }
 
 static int pirq_ack_type(int irq)
@@ -124,24 +119,23 @@ static void handle_guest_bound_irq(unsigned int irq)
 	action = (irq_guest_action_t *)desc->action;
 
 	for ( i = 0; i < action->nr_guests; i++ ) {
-		d = action->guest[i];
+          d = action->guest[i];
 
-		// send HID irqs to only the foreground domain.
-		if (desc->isHIDirq && d->domain_id != (domid_t)foreground_domain) {
-			continue;
-		}
+          // send HID irqs to only the foreground domain.
+          if (desc->isHIDirq && d->domain_id != (domid_t)foreground_domain) {
+            continue;
+          }
 
-		if(acm_send_guest_pirq(d, irq)){
-			if(action->ack_type == ACK_TYPE_UNMASK) {
-				if(!test_and_set_bit(irq, (volatile unsigned long *)&d->pirq_mask)) {
-					action->in_flight++;
-				}
-			}
 
-			send_guest_pirq(d, irq);
-		}
-	}
-	spin_unlock_irqrestore(&desc->lock, flags);
+          if(action->ack_type == ACK_TYPE_UNMASK) {
+            if(!test_and_set_bit(irq, (volatile unsigned long *)&d->pirq_mask)) {
+              action->in_flight++;
+            }
+          }
+
+          send_guest_pirq(d, irq);
+        }
+        spin_unlock_irqrestore(&desc->lock, flags);
 }
 
 int pirq_guest_unmask(struct domain *d)

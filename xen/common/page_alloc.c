@@ -39,7 +39,6 @@
 #include <xen/softirq.h>
 #include <xen/domain_page.h>
 #include <xen/init.h>
-#include <security/acm/acm_hooks.h>
 
 /*
  * Comma-separated list of hexadecimal page numbers containing bad bytes.

@@ -28,8 +28,6 @@
 
 #include <public/xen.h>
 #include <public/event_channel.h>
-#include <security/acm/acm_hooks.h>
-#include <security/acm/aci_generator.h>
 
 #define bucket_from_port(d,p) 						\
 	((d)->evtchn[(p)/EVTCHNS_PER_BUCKET])
@@ -95,34 +93,18 @@ long evtchn_alloc_unbound(evtchn_alloc_unbound_t *alloc)
     if ( (port = get_free_port(d)) < 0 )
         ERROR_EXIT(port);
 
-#ifdef CONFIG_VMM_SECURITY_ACM
-    if(!acm_evtchn_alloc_unbound(d, alloc->remote_dom, port, alloc->use))
-        ERROR_EXIT(-EPERM);
-#endif	 
-
     chn = evtchn_from_port(d, port);
 
     chn->state = ECS_UNBOUND;
     if ( (chn->u.unbound.remote_domid = alloc->remote_dom) == DOMID_SELF )
         chn->u.unbound.remote_domid = current->domain->domain_id;
 
-    /* for ACM */
-#ifdef CONFIG_VMM_SECURITY_ACM
-    chn->u.unbound.use = alloc->use;
-#endif	 
-
     alloc->port = port;
 
  out:
     spin_unlock(&d->evtchn_lock);
 
-#ifdef CONFIG_VMM_SECURITY_ACM
-    if(rc >= 0 )
-	update_evtchn_stat(d->domain_id, alloc->remote_dom, alloc->use, 1);
-#endif	 
-
     put_domain(d);
-
     return rc;
 }
 
@@ -167,31 +149,13 @@ static long evtchn_bind_interdomain(evtchn_bind_interdomain_t *bind)
          (rchn->u.unbound.remote_domid != ld->domain_id) )
         ERROR_EXIT(-EINVAL);
 
-#ifdef CONFIG_VMM_SECURITY_ACM	 
-    if( (ld->domain_id != rdom) && (rchn->u.unbound.use != bind->use) ){
-        printk("[evtchn_bind_interdomain] ERROR ON BINDING INTERDOMAIN! ld:%d(use:0x%x) rd:%d(use:0x%x)\n",
-               ld->domain_id, bind->use, rdom, rchn->u.unbound.use);
-        ERROR_EXIT(-EINVAL);
-    }
-
-    if(!acm_evtchn_bind_interdomain(ld, rd, lport, bind->use))
-        ERROR_EXIT(-EPERM);
-#endif	 
-
     lchn->u.interdomain.remote_dom  = rd;
     lchn->u.interdomain.remote_port = (u16)rport;
     lchn->state                     = ECS_INTERDOMAIN;
-    /* for ACM */
-#ifdef CONFIG_VMM_SECURITY_ACM	 
-    lchn->u.interdomain.use	    = bind->use;
-#endif	 
     
     rchn->u.interdomain.remote_dom  = ld;
     rchn->u.interdomain.remote_port = (u16)lport;
     rchn->state                     = ECS_INTERDOMAIN;
-#ifdef CONFIG_VMM_SECURITY_ACM	 
-    rchn->u.interdomain.use	    = bind->use;
-#endif	 
 
     /*
      * We may have lost notifications on the remote unbound port. Fix that up
@@ -206,12 +170,7 @@ static long evtchn_bind_interdomain(evtchn_bind_interdomain_t *bind)
     if ( ld != rd )
         spin_unlock(&rd->evtchn_lock);
     
-#ifdef CONFIG_VMM_SECURITY_ACM	 
-	if(rc >= 0 )
-		update_evtchn_stat(ld->domain_id, rd->domain_id, bind->use, 1);
-#endif	 
     put_domain(rd);
-
     return rc;
 }
 
@@ -233,9 +192,6 @@ static long evtchn_bind_virq(evtchn_bind_virq_t *bind)
 
     if ( v->virq_to_evtchn[virq] != 0 )
         ERROR_EXIT(-EEXIST);
-
-	 if(!acm_evtchn_bindvirq(vcpu, virq))
-		 ERROR_EXIT(-EPERM);
 
     if ( (port = get_free_port(d)) < 0 )
         ERROR_EXIT(port);
@@ -289,14 +245,6 @@ static long evtchn_bind_pirq(evtchn_bind_pirq_t *bind)
 
     if ( pirq >= ARRAY_SIZE(d->pirq_to_evtchn) )
         return -EINVAL;
-
-#ifndef CONFIG_VMM_SECURITY_ACM	 
-    if ( !irq_access_permitted(d, pirq) )
-        return -EPERM;
-#endif
-
-	 if(!acm_evtchn_bindpirq(pirq))
-		 return -EPERM;
 
     spin_lock(&d->evtchn_lock);
 
@@ -409,9 +357,6 @@ long __evtchn_close(struct domain *d1, int port1)
             rc = -EINVAL;
             goto out;
         }
-#ifdef CONFIG_VMM_SECURITY_ACM    
-        update_evtchn_stat(d1->domain_id, d2->domain_id, chn1->u.interdomain.use, -1);
-#endif		  
   
         port2 = chn1->u.interdomain.remote_port;
         BUG_ON(!port_is_valid(d2, port2));
@@ -421,10 +366,6 @@ long __evtchn_close(struct domain *d1, int port1)
         BUG_ON(chn2->u.interdomain.remote_dom != d1);
 
         chn2->state = ECS_UNBOUND;
-#ifdef CONFIG_VMM_SECURITY_ACM
-        chn2->u.unbound.use = chn1->u.interdomain.use;
-#endif
-
         chn2->u.unbound.remote_domid = d1->domain_id;
         break;
 
@@ -475,13 +416,6 @@ long evtchn_send(unsigned int lport)
     case ECS_INTERDOMAIN:
         rd    = lchn->u.interdomain.remote_dom;
         rport = lchn->u.interdomain.remote_port;
-
-#ifdef CONFIG_VMM_SECURITY_ACM		  
-        if(!acm_evtchn_send(ld, rd, lport, lchn->u.interdomain.use)){
-            ret = -EPERM;
-				break;
-			}
-#endif		  
 
         rchn  = evtchn_from_port(rd, rport);
         evtchn_set_pending(rd->vcpu[rchn->notify_vcpu_id], rport);
@@ -587,55 +521,27 @@ static long evtchn_status(evtchn_status_t *status)
     {
     case ECS_FREE:
     case ECS_RESERVED:
-		  if(!acm_evtchn_status(d, port, 0)){
-			  rc = -EPERM;
-			  goto out;
-		  }
         status->status = EVTCHNSTAT_closed;
         break;
     case ECS_UNBOUND:
-#ifdef CONFIG_VMM_SECURITY_ACM		  
-		  if(!acm_evtchn_status(d, port, chn->u.unbound.use)){
-			  rc = -EPERM;
-			  goto out;
-		  }
-#endif		  
         status->status = EVTCHNSTAT_unbound;
         status->u.unbound.dom = chn->u.unbound.remote_domid;
         break;
     case ECS_INTERDOMAIN:
-#ifdef CONFIG_VMM_SECURITY_ACM		  
-		  if(!acm_evtchn_status(d, port, chn->u.interdomain.use)){
-			  rc = -EPERM;
-			  goto out;
-		  }
-#endif		  
         status->status = EVTCHNSTAT_interdomain;
         status->u.interdomain.dom  =
             chn->u.interdomain.remote_dom->domain_id;
         status->u.interdomain.port = chn->u.interdomain.remote_port;
         break;
     case ECS_PIRQ:
-		  if(!acm_irq_status_query(chn->u.pirq)){
-			  rc = -EPERM;
-			  goto out;
-		  }
         status->status = EVTCHNSTAT_pirq;
         status->u.pirq = chn->u.pirq;
         break;
     case ECS_VIRQ:
-		  if(!acm_evtchn_virq_status(d, port, chn->u.virq)){
-			  rc = -EPERM;
-			  goto out;
-		  }
         status->status = EVTCHNSTAT_virq;
         status->u.virq = chn->u.virq;
         break;
     case ECS_IPI:
-		  if(!acm_evtchn_status(d, port, 0)){
-			  rc = -EPERM;
-			  goto out;
-		  }
         status->status = EVTCHNSTAT_ipi;
         break;
     default:
@@ -797,7 +703,6 @@ int evtchn_init(struct domain *d)
     if ( get_free_port(d) != 0 )
         return -EINVAL;
     evtchn_from_port(d, 0)->state = ECS_RESERVED;
-    create_evtchn_stat(d->domain_id);
     return 0;
 }
 
@@ -810,8 +715,6 @@ void evtchn_destroy(struct domain *d)
 
     for ( i = 0; i < NR_EVTCHN_BUCKETS; i++ )
         xfree(d->evtchn[i]);
-
-    destroy_evtchn_stat(d->domain_id);
 }
 /*
  * Local variables:

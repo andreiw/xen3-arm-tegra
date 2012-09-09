@@ -27,7 +27,6 @@
 #include <asm/current.h>
 #include <public/dom0_ops.h>
 #include <public/sched_ctl.h>
-#include <security/acm/acm_hooks.h>
 
 extern long arch_do_dom0_op(struct dom0_op *op, GUEST_HANDLE(dom0_op_t) u_dom0_op);
 extern void arch_getdomaininfo_ctxt(struct vcpu *, struct vcpu_guest_context *);	    
@@ -116,11 +115,6 @@ long do_dom0_op(GUEST_HANDLE(dom0_op_t) u_dom0_op)
         if ( d != NULL )
         {
             ret = -EPERM;
-            if(!acm_set_vcpucontext(d, d->vcpu[op->u.setvcpucontext.vcpu]))
-            {
-                put_domain(d);
-                break;
-            }
 
             ret = set_info_guest(d, &op->u.setvcpucontext);
             put_domain(d);
@@ -137,12 +131,6 @@ long do_dom0_op(GUEST_HANDLE(dom0_op_t) u_dom0_op)
             ret = -EINVAL;
             if ( d != current->domain )
             {
-                if(!acm_pause_domain(d))
-                {
-                    put_domain(d);
-                    ret = -EPERM;
-                    break;
-                }
                 domain_pause_by_systemcontroller(d);
                 ret = 0;
             }
@@ -161,15 +149,8 @@ long do_dom0_op(GUEST_HANDLE(dom0_op_t) u_dom0_op)
             if ( (d != current->domain) && 
 		 test_bit(_VCPUF_initialised, &d->vcpu[0]->vcpu_flags) )
             {
-                if(!acm_unpause_domain(d))
-		{
-                    ret = -EPERM;
-                } 
-		else 
-		{
-                    domain_unpause_by_systemcontroller(d);
-                    ret = 0;
-                }
+              domain_unpause_by_systemcontroller(d);
+              ret = 0;
             }
             put_domain(d);
         }
@@ -280,8 +261,6 @@ long do_dom0_op(GUEST_HANDLE(dom0_op_t) u_dom0_op)
             break;
 
         ret = -EPERM;
-        if ( !acm_set_maxvcpus(d) )
-            goto maxvcpu_out;
 
         /*
          * Can only create new VCPUs while the domain is not fully constructed
@@ -322,13 +301,6 @@ maxvcpu_out:
 
 		if ( d != NULL )
 		{
-			if (!acm_destroy_domain(d))
-			{
-				put_domain(d);
-				ret = -EPERM;
-				break;
-			}
-
 			ret = -EINVAL;
 			if ( d != current->domain )
 			{
@@ -381,13 +353,6 @@ maxvcpu_out:
             break;
         }
 
-        ret = -EPERM;
-        if (!acm_set_vcpuaffinity(d, v))
-        {
-            put_domain(d);
-            break;
-        }
-
         new_affinity = v->cpu_affinity;
         memcpy(cpus_addr(new_affinity),
                &op->u.setvcpuaffinity.cpumap,
@@ -402,10 +367,6 @@ maxvcpu_out:
 
     case DOM0_SCHEDCTL:
     {
-        ret = -EPERM;
-        if(!acm_sched_ctl())
-            break;
-
         ret = sched_ctl(&op->u.schedctl);
         if ( copy_to_guest(u_dom0_op, op, 1) )
             ret = -EFAULT;
@@ -414,10 +375,6 @@ maxvcpu_out:
 
     case DOM0_ADJUSTDOM:
     {
-        ret = -EPERM;
-        if(!acm_adjust_dom())
-            break;
-
         ret = sched_adjdom(&op->u.adjustdom);
         if ( copy_to_guest(u_dom0_op, op, 1) )
             ret = -EFAULT;
@@ -445,13 +402,6 @@ maxvcpu_out:
         {
             read_unlock(&domlist_lock);
             ret = -ESRCH;
-            break;
-        }
-
-        if (!acm_get_domaininfo(d))
-        {
-            put_domain(d);
-            ret = -EPERM;
             break;
         }
 
@@ -534,10 +484,6 @@ maxvcpu_out:
         if ( !test_bit(_VCPUF_initialised, &v->vcpu_flags) )
             goto getvcpucontext_out;
 
-        ret = -EPERM;
-        if(!acm_get_vcpucontext(d, v))
-            goto getvcpucontext_out;
-
         ret = -ENOMEM;
         if ( (c = xmalloc(struct vcpu_guest_context)) == NULL )
             goto getvcpucontext_out;
@@ -582,10 +528,6 @@ getvcpucontext_out:
         if ( (v = d->vcpu[op->u.getvcpuinfo.vcpu]) == NULL )
             goto getvcpuinfo_out;
 
-        ret = -EPERM;
-        if(!acm_get_vcpuinfo(d, v))
-            goto getvcpuinfo_out;
-
         vcpu_runstate_get(v, &runstate);
 
         op->u.getvcpuinfo.online   = !test_bit(_VCPUF_down, &v->vcpu_flags);
@@ -610,10 +552,6 @@ getvcpuinfo_out:
 
     case DOM0_SETTIME:
     {
-        ret = -EPERM;
-        if(!acm_settime())
-            break;
-
         do_settime(op->u.settime.secs, 
         op->u.settime.nsecs, 
         op->u.settime.system_time);
@@ -623,10 +561,7 @@ getvcpuinfo_out:
 
     case DOM0_TBUFCONTROL:
     {
-        ret = -EPERM;
-        if(!acm_tbuf_control())
-            break;
-		while(1);
+      panic("unsupported?");
 #if 0
         ret = tb_control(&op->u.tbufcontrol);
 #endif
@@ -637,10 +572,6 @@ getvcpuinfo_out:
 
     case DOM0_SCHED_ID:
     {
-        ret = -EPERM;
-        if(!acm_sched_get_id())
-            break;
-
         op->u.sched_id.sched_id = sched_id();
         if ( copy_to_guest(u_dom0_op, op, 1) )
             ret = -EFAULT;
@@ -662,13 +593,6 @@ getvcpuinfo_out:
         ret = -EINVAL;
         new_max = op->u.setdomainmaxmem.max_memkb >> (PAGE_SHIFT-10);
 
-        ret = -EPERM;
-        if (!acm_set_domainmaxmem(d))
-        {
-            put_domain(d);
-            break;
-        }
-
         spin_lock(&d->page_alloc_lock);
         if ( new_max >= d->tot_pages )
         {
@@ -689,13 +613,6 @@ getvcpuinfo_out:
         d = find_domain_by_id(op->u.setdomainhandle.domain);
         if ( d != NULL )
         {
-            ret = -EPERM;
-            if (!acm_set_domainhandle(d))
-            {
-                put_domain(d);
-                break;
-            }
-
             memcpy(d->handle, op->u.setdomainhandle.handle,
                    sizeof(xen_domain_handle_t));
             put_domain(d);
@@ -712,13 +629,6 @@ getvcpuinfo_out:
         d = find_domain_by_id(op->u.setdebugging.domain);
         if ( d != NULL )
         {
-            ret = -EPERM;
-            if (!acm_set_debugging(d))
-            {
-                put_domain(d);
-                break;
-            }
-
             if ( op->u.setdebugging.enable )
                 set_bit(_DOMF_debugging, &d->domain_flags);
             else
@@ -780,10 +690,6 @@ getvcpuinfo_out:
     case DOM0_PERFCCONTROL:
     {
         extern int perfc_control(dom0_perfccontrol_t *);
-
-        ret = -EPERM;
-        if(!acm_perfc_control())
-            break;
 
         ret = perfc_control(&op->u.perfccontrol);
         if ( copy_to_guest(u_dom0_op, op, 1) )

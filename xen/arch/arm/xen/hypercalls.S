@@ -30,11 +30,6 @@
 #include <asm/asm-macros.h>
 #include <asm/arch/entry-macro.S>
 
-#ifndef CONFIG_VMM_SECURITY_ACM	
-ENTRY(do_acm_op)
-	mov	pc, lr
-#endif	
-
 #define TLBF_INVL_ITLB		1
 #define TLBF_INVL_DTLB		2
 #define ILFB_DRAIN_WB		4

@@ -31,7 +31,6 @@
 #include <asm/profile.h>
 #include <public/sched.h>
 #include <public/sched_ctl.h>
-#include <security/acm/acm_hooks.h>
 
 extern void arch_getdomaininfo_ctxt(struct vcpu *,
                                     struct vcpu_guest_context *);
@@ -451,9 +450,6 @@ asmlinkage long do_sched_op(int cmd, GUEST_HANDLE(void) arg)
         if ( d == NULL )
             break;
 
-        if(!acm_remote_shutdown(d))
-            return -EPERM;
-
         domain_shutdown(d, (u8)sched_remote_shutdown.reason);
         put_domain(d);
         ret = 0;
@@ -559,11 +555,6 @@ void __enter_scheduler(void)
     spin_lock_irq(&schedule_data[cpu].schedule_lock);
 
     stop_timer(&schedule_data[cpu].s_timer);
-	 
-#ifdef CONFIG_VMM_SECURITY_ACM	 
-    /* Inspect battery usage for scheduler adjustment.  */
-    acm_check_battery_saving(prev->domain);
-#endif		
 
     /* get policy-specific decision on scheduling... */
     next_slice = ops.do_schedule(now);

@@ -29,6 +29,7 @@ Current differences from Samsung's tree:
 3) Boot through ATAG-compatible bootloader, with all images passed
    through a "boot volume".
 4) Kernel threads ("xen domains").
+5) No ACM, given likely hypercall changes.
 
 
 Building

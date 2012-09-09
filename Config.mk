@@ -66,22 +66,6 @@ CFLAGS += $(foreach i, $(EXTRA_INCLUDES), -I$(i))
 # Choose the best mirror to download linux kernel
 KERNEL_REPO = http://www.kernel.org
 
-# If ACM_SECURITY = y, then the access control module is compiled
-# into Xen and the policy type can be set by the boot policy file
-#        y - Build the Xen ACM framework
-#        n - Do not build the Xen ACM framework
-ACM_SECURITY ?= n
-
-# If ACM_SECURITY = y and no boot policy file is installed,
-# then the ACM defaults to the security policy set by
-# ACM_DEFAULT_SECURITY_POLICY
-# Supported models are:
-#	ACM_NULL_POLICY
-#	ACM_CHINESE_WALL_POLICY
-#	ACM_SIMPLE_TYPE_ENFORCEMENT_POLICY
-#	ACM_CHINESE_WALL_AND_SIMPLE_TYPE_ENFORCEMENT_POLICY
-ACM_DEFAULT_SECURITY_POLICY ?= ACM_NULL_POLICY
-
 # Optional components
 XENSTAT_XENTOP ?= y
 

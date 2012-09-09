@@ -37,7 +37,6 @@
 #include <xen/iocap.h>
 #include <xen/perfc.h>
 #include <xen/guest_access.h>
-#include <security/acm/acm_hooks.h>
 #include <asm/memory.h>
 #include <asm/cpu-ops.h>
 
@@ -343,10 +342,8 @@ int do_mmuext_op(GUEST_HANDLE(mmuext_op_t) uops,
             break;
         }
 
-		okay = 1;
-		mfn  = op.arg1.mfn;
-
-		acm_mmuext_op();
+        okay = 1;
+        mfn  = op.arg1.mfn;
 
         switch ( op.cmd )
         {
@@ -366,9 +363,9 @@ int do_mmuext_op(GUEST_HANDLE(mmuext_op_t) uops,
 			cpu_flush_tlb_all();
             break;
         case MMUEXT_INVLPG_LOCAL:
-			while(1);
-            local_flush_tlb_one(op.arg1.linear_addr);
-            break;
+          panic("unsupported?");
+          /* local_flush_tlb_one(op.arg1.linear_addr); */
+          break;
         case MMUEXT_TLB_FLUSH_MULTI:
         case MMUEXT_INVLPG_MULTI:
         case MMUEXT_TLB_FLUSH_ALL:
@@ -438,7 +435,7 @@ int do_mmuext_op(GUEST_HANDLE(mmuext_op_t) uops,
                 return -EFAULT;
             break;
         case MMUEXT_DEBUG_TLB_DUMP:
-			while(1);
+          panic("unsupprted?");
             break;
         default:
             MEM_LOG("Invalid extended pt command 0x%x", op.cmd);
@@ -544,6 +541,7 @@ int do_update_va_mapping(u32 va, u32 flags, u64 val64)
 
     perfc_incrc(calls_to_update_va);
     
+    panic("unsupported?");
 	while(1);
 
 	if ( unlikely(!__addr_ok(va)) )

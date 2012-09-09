@@ -39,7 +39,6 @@
 #include <asm/current.h>
 #include <asm/uaccess.h>
 #include <asm/irq.h>
-#include <security/acm/acm_hooks.h>
 
 extern int pirq_guest_unmask(struct domain *d);
 
@@ -69,11 +68,6 @@ asmlinkage long do_physdev_op(struct physdev_op *uop)
 			ret = -EINVAL;
 			if ( (irq < 0) || (irq >= NR_IRQS) )
 				break;
-
-			if(!acm_irq_status_query(irq)){
-				ret = -EPERM;
-				break;
-			}
 
 			op.u.irq_status_query.flags = 0;
 			if (irq_desc[irq].type & IRQ_TYPE_EDGE_BOTH)

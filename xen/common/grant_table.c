@@ -30,7 +30,7 @@
 #include <xen/mm.h>
 #include <xen/trace.h>
 #include <xen/guest_access.h>
-#include <security/acm/acm_hooks.h>
+
 
 #define PIN_FAIL(_lbl, _rc, _f, _a...)          \
     do {                                        \
@@ -101,14 +101,6 @@ static void __gnttab_map_grant_ref(struct gnttab_map_grant_ref *op)
         return;
     }
 
-#ifdef ACM_SECURITY
-    if ( acm_pre_grant_map_ref(op->dom) )
-    {
-        op->status = GNTST_permission_denied;
-        return;
-    }
-#endif
-
     if ( unlikely((rd = find_domain_by_id(op->dom)) == NULL) ||
          unlikely(ld == rd) )
     {
@@ -119,14 +111,6 @@ static void __gnttab_map_grant_ref(struct gnttab_map_grant_ref *op)
         return;
     }
 
-#ifdef CONFIG_VMM_SECURITY_ACM
-    if(!acm_granttable_share(ld, rd, rd->grant_table->shared[op->ref].frame, op->use, op->flags)){
-        if ( rd != NULL )
-            put_domain(rd);
-        op->status = GNTST_permission_denied;
-        return;
-    }
-#endif	 
 
     /* Get a maptrack handle. */
     if ( unlikely((handle = get_maptrack_handle(ld->grant_table)) == -1) )
@@ -513,13 +497,6 @@ static long gnttab_setup_table(GUEST_HANDLE(gnttab_setup_table_t) uop, unsigned 
         goto out;
     }
 
-    if(!acm_granttable_setup(d))
-    {
-        op.status = GNTST_permission_denied;
-        put_domain(d);
-        goto out;
-    }
-
     if ( op.nr_frames <= NR_GRANT_FRAMES )
     {
         ASSERT(d->grant_table != NULL);
@@ -662,15 +639,6 @@ static long gnttab_transfer(GUEST_HANDLE(gnttab_transfer_t) uop, unsigned int co
             gop.status = GNTST_bad_domain;
             goto copyback;
         }
-
-#ifdef CONFIG_VMM_SECURITY_ACM		  
-        if(!acm_granttable_transfer(d, e, mfn, gop.use))
-        {
-            gop.status = GNTST_permission_denied;
-            put_domain(d);
-            goto copyback;
-        }
-#endif	
 
         spin_lock(&e->page_alloc_lock);
 

@@ -9,7 +9,6 @@
 #include <xen/types.h>
 #include <xen/time.h>
 #include <public/xen.h>
-#include <public/acm_ops.h>
 #include <public/event_channel.h>
 #include <asm/hypercall.h>
 
@@ -79,10 +78,6 @@ do_vcpu_op(
     int cmd,
     int vcpuid,
     GUEST_HANDLE(void) arg);
-
-extern long
-do_acm_op(
-    GUEST_HANDLE(acm_op_t) u_acm_op);
 
 extern long
 do_nmi_op(

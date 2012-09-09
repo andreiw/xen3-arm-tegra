@@ -165,12 +165,6 @@ struct domain
 
 	uint32_t console_port; //for console ldh
 	unsigned long console_mfn; //for console ldh
-
-	/* For ACM */
-	unsigned long scid;
-	uint8_t acm_batterylife;
-	uint16_t acm_battery_save_mode;
-	uint16_t acm_shutdown;
 	
 	uint32_t evtchn_count;
 }__cacheline_aligned;
@@ -196,11 +190,6 @@ struct domain_setup_info
     unsigned long symtab_len;
     /* Indicate whether it's xen specific image */
     char *xen_section_string;
-#ifdef CONFIG_VMM_SECURITY_SCID
-    /* security class id */
-    unsigned long scid;
-#endif
-
 };
 
 extern struct vcpu *idle_vcpu[NR_CPUS];

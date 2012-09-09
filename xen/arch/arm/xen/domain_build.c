@@ -33,16 +33,8 @@
 #include <xen/xmalloc.h>
 #include <public/xen.h>
 #include <public/version.h>
-#include <public/security/secure_storage_struct.h>
-#include <security/ssm-xen/sra_func.h>
-#include <security/crypto/crypto.h>
-#include <security/acm/acm_hooks.h>
 
 extern struct domain * idle_domain;
-
-#ifdef CONFIG_VMM_SECURITY_IMAGE_VERIFICATION
-static void image_verification_for_security(unsigned long image_addr, domid_t domain_id);
-#endif
 
 static const char *feature_names[XENFEAT_NR_SUBMAPS * 32] = {
 	[XENFEAT_writable_page_tables]       = "writable_page_tables",
@@ -345,22 +337,10 @@ int construct_dom0(struct domain *d,
 
 	d->max_pages = ~0U;
 
-#ifdef CONFIG_VMM_SECURITY_IMAGE_VERIFICATION
-	image_verification_for_security(dsi.image_addr, d->domain_id);
-#endif
-
 	rc = parseelfimage(&dsi);
 	if (rc != 0) {
 		return rc;
 	}
-
-#ifdef CONFIG_VMM_SECURITY_ACM
-	d->scid = dsi.scid;
-	d->acm_batterylife = 100;
-	acm_weight_dom_cpu(d);
-#else
-	d->scid = ~(0x0UL);
-#endif
 
 	if (dsi.xen_section_string == NULL) {
 		printk("Not a Xen-ELF image: '__xen_guest' section not found.\n");
@@ -463,12 +443,6 @@ int construct_dom0(struct domain *d,
 
 	i = 0;
 
-#ifndef CONFIG_VMM_SECURITY_ACM
-	i |= ioports_permit_access(d, 0, 0xFFFF);
-	i |= iomem_permit_access(d, 0UL, ~0UL);
-	i |= irqs_permit_access(d, 0, NR_PIRQS-1);
-#endif
-
 	BUG_ON(i != 0);
 
 	return 0;
@@ -522,23 +496,12 @@ int construct_guest_dom(struct domain *d,
 
 	d->max_pages = ~0U;
 
-#ifdef CONFIG_VMM_SECURITY_IMAGE_VERIFICATION
-	image_verification_for_security(dsi.image_addr, d->domain_id);
-#endif
-
 	rc = parseelfimage(&dsi);
 	if (rc != 0) {
         local_irq_enable();
 		return rc;
 	}
 
-#ifdef CONFIG_VMM_SECURITY_ACM
-	d->scid = dsi.scid;
-	d->acm_batterylife = 100;
-	acm_weight_dom_cpu(d);
-#else
-	d->scid = ~(0x0UL);
-#endif
 
 	if (dsi.xen_section_string == NULL) {
 		printk("Not a Xen-ELF image: '__xen_guest' section not found.\n");
@@ -671,99 +634,10 @@ int construct_guest_dom(struct domain *d,
 
 	i = 0;
 
-#ifndef CONFIG_VMM_SECURITY_ACM
-	i |= ioports_permit_access(d, 0, 0xFFFF);
-	i |= iomem_permit_access(d, 0UL, ~0UL);
-	i |= irqs_permit_access(d, 0, NR_PIRQS-1);
-#endif
-
 	BUG_ON(i != 0);
 
 	return 0;
 }
-
-#ifdef CONFIG_VMM_SECURITY_IMAGE_VERIFICATION
-/**
- *  @param dom_id domain id
- *  @return 0 if succeed, 1 if no image exists, -1 if fails
- **/
-static int verify_image(void* image, int dom_id)
-{
-	void* signature = NULL;
-	size_t image_size;
-	size_t sig_size;
-	image_type_t image_type;
-	image_type_t sig_type;
-	default_struct_t* part = NULL;
-
-	/* get image and hash */
-	switch (dom_id) {
-		case 0:
-			image_type = SECURE_DOM_IMG;
-			sig_type = SECURE_DOM_SIGNED_HASH;
-			break;
-		case 1:
-			image_type = DRIVER_DOM_IMG;
-			sig_type = DRIVER_DOM_SIGNED_HASH;
-			break;
-		case 2:
-			image_type = NORMAL_DOM1_IMG;
-			sig_type = NORMAL_DOM1_SIGNED_HASH;
-			break;
-		case 3:
-			image_type = NORMAL_DOM2_IMG;
-			sig_type = NORMAL_DOM2_SIGNED_HASH;
-			break;
-		case 4:
-			image_type = NORMAL_DOM3_IMG;
-			sig_type = NORMAL_DOM3_SIGNED_HASH;
-			break;
-		case 5:
-			image_type = NORMAL_DOM4_IMG;
-			sig_type = NORMAL_DOM4_SIGNED_HASH;
-			break;
-		default:
-			printk("verify_image(): Image is not registered\n");
-			return 1;
-	}
-
-	/* get image */
-	part = sra_get_image(PART_OS_IMAGE, image_type);
-
-	ASSERT(part);
-
-	if (part == NULL) {
-		printk("Can't get image part %d\n", image_type);
-		return 1;
-	}
-	image_size = part->size;
-
-	/* get signature */
-	part = sra_get_image(PART_SP1, sig_type);
-
-	ASSERT(part);
-
-	if (part == NULL) {
-		printk("Can't get signature %d\n", sig_type);
-		return 1;
-	}
-	signature = part->u.ptr;
-	sig_size = part->size;
-
-	return crypto_verify_data(image, image_size, signature, sig_size);
-}
-
-static void image_verification_for_security( unsigned long image_addr, domid_t domain_id)
-{
-	if (verify_image( (void *)image_addr, domain_id) != 0) {   
-		printk("Verification of DOM%d fails\n", (domid_t) domain_id);
-		return;
-	}
-        else {
-		printk("Verification of DOM%d succeeds \n", (domid_t) domain_id);
-	}
-}
-#endif
 
 int elf_sanity_check(Elf_Ehdr *ehdr)
 {
