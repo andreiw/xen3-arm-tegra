@@ -1,3 +1,0 @@
-config PLATFORM_IMX21ADS
-	bool
-	select MACHINE_IMX21

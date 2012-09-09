@@ -16,7 +16,6 @@ ifeq ($(CONFIG_CPU_ARMV7),y)
 CFLAGS += -march=armv7-a
 endif
 
-machine-$(CONFIG_MACHINE_IMX21)       := imx21
 machine-$(CONFIG_MACHINE_TEGRA2)      := tegra
 
 TARGET_MACHINE := $(machine-y)

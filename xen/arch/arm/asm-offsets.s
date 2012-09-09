@@ -459,15 +459,15 @@ main:
 	.file 19 "/home/andreiw/src/xen3-arm-tegra/xen/include/xen/irq_cpustat.h"
 	.file 20 "/home/andreiw/src/xen3-arm-tegra/xen/include/asm/time.h"
 	.section	.debug_info
-	.4byte	0xfae
+	.4byte	0xfc4
 	.2byte	0x2
 	.4byte	.Ldebug_abbrev0
 	.byte	0x4
 	.uleb128 0x1
-	.4byte	.LASF196
-	.byte	0x1
-	.4byte	.LASF197
 	.4byte	.LASF198
+	.byte	0x1
+	.4byte	.LASF199
+	.4byte	.LASF200
 	.4byte	.Ltext0
 	.4byte	.Letext0
 	.4byte	.Ldebug_line0
@@ -1638,7 +1638,7 @@ main:
 	.4byte	.LASF78
 	.byte	0xb
 	.byte	0x41
-	.4byte	0xf16
+	.4byte	0xf2c
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x8
@@ -1710,7 +1710,7 @@ main:
 	.4byte	.LASF114
 	.byte	0xb
 	.byte	0x52
-	.4byte	0xf1c
+	.4byte	0xf32
 	.byte	0x3
 	.byte	0x23
 	.uleb128 0x9c
@@ -2064,7 +2064,7 @@ main:
 	.uleb128 0x0
 	.byte	0x0
 	.uleb128 0x18
-	.4byte	.LASF199
+	.4byte	.LASF201
 	.byte	0x1
 	.uleb128 0x9
 	.byte	0x4
@@ -2228,7 +2228,7 @@ main:
 	.4byte	.LASF85
 	.byte	0xb
 	.byte	0x68
-	.4byte	0xf2c
+	.4byte	0xf42
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x4
@@ -2340,7 +2340,7 @@ main:
 	.4byte	.LASF172
 	.byte	0xb
 	.byte	0x7e
-	.4byte	0xf32
+	.4byte	0xf48
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x3c
@@ -2356,7 +2356,7 @@ main:
 	.4byte	.LASF174
 	.byte	0xb
 	.byte	0x81
-	.4byte	0xf48
+	.4byte	0xf5e
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x5c
@@ -2364,7 +2364,7 @@ main:
 	.4byte	.LASF175
 	.byte	0xb
 	.byte	0x89
-	.4byte	0xf4e
+	.4byte	0xf64
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x60
@@ -2428,7 +2428,7 @@ main:
 	.4byte	.LASF101
 	.byte	0xb
 	.byte	0x96
-	.4byte	0xf5e
+	.4byte	0xf74
 	.byte	0x3
 	.byte	0x23
 	.uleb128 0x298
@@ -2512,7 +2512,7 @@ main:
 	.byte	0xc
 	.byte	0xb
 	.byte	0x28
-	.4byte	0xee1
+	.4byte	0xef7
 	.uleb128 0x1a
 	.4byte	.LASF191
 	.byte	0xb
@@ -2523,13 +2523,23 @@ main:
 	.byte	0xb
 	.byte	0x31
 	.4byte	0xc72
+	.uleb128 0x1a
+	.4byte	.LASF193
+	.byte	0xb
+	.byte	0x33
+	.4byte	0x9b
+	.uleb128 0x1a
+	.4byte	.LASF194
+	.byte	0xb
+	.byte	0x34
+	.4byte	0x9b
 	.byte	0x0
 	.uleb128 0x7
 	.4byte	.LASF172
 	.byte	0x20
 	.byte	0xb
 	.byte	0x1e
-	.4byte	0xf16
+	.4byte	0xf2c
 	.uleb128 0x8
 	.4byte	.LASF98
 	.byte	0xb
@@ -2539,7 +2549,7 @@ main:
 	.byte	0x23
 	.uleb128 0x0
 	.uleb128 0x8
-	.4byte	.LASF193
+	.4byte	.LASF195
 	.byte	0xb
 	.byte	0x27
 	.4byte	0x9b
@@ -2560,7 +2570,7 @@ main:
 	.4byte	0x6ab
 	.uleb128 0xc
 	.4byte	0x9b
-	.4byte	0xf2c
+	.4byte	0xf42
 	.uleb128 0xd
 	.4byte	0x165
 	.byte	0xc
@@ -2569,35 +2579,35 @@ main:
 	.byte	0x4
 	.4byte	0x6b7
 	.uleb128 0xc
-	.4byte	0xf42
-	.4byte	0xf42
+	.4byte	0xf58
+	.4byte	0xf58
 	.uleb128 0xd
 	.4byte	0x165
 	.byte	0x7
 	.byte	0x0
 	.uleb128 0x9
 	.byte	0x4
-	.4byte	0xee1
+	.4byte	0xef7
 	.uleb128 0x9
 	.byte	0x4
 	.4byte	0xb79
 	.uleb128 0xc
 	.4byte	0x9b
-	.4byte	0xf5e
+	.4byte	0xf74
 	.uleb128 0xd
 	.4byte	0x165
 	.byte	0xff
 	.byte	0x0
 	.uleb128 0xc
 	.4byte	0x972
-	.4byte	0xf6e
+	.4byte	0xf84
 	.uleb128 0xd
 	.4byte	0x165
 	.byte	0x0
 	.byte	0x0
 	.uleb128 0x1b
 	.byte	0x1
-	.4byte	.LASF200
+	.4byte	.LASF202
 	.byte	0x1
 	.byte	0x3a
 	.byte	0x1
@@ -2607,20 +2617,20 @@ main:
 	.4byte	.LLST0
 	.uleb128 0xc
 	.4byte	0x9af
-	.4byte	0xf92
+	.4byte	0xfa8
 	.uleb128 0x1c
 	.byte	0x0
 	.uleb128 0x1d
-	.4byte	.LASF194
+	.4byte	.LASF196
 	.byte	0x13
 	.byte	0x15
-	.4byte	0xf9f
+	.4byte	0xfb5
 	.byte	0x1
 	.byte	0x1
 	.uleb128 0x15
-	.4byte	0xf87
+	.4byte	0xf9d
 	.uleb128 0x1d
-	.4byte	.LASF195
+	.4byte	.LASF197
 	.byte	0x14
 	.byte	0x15
 	.4byte	0xbc
@@ -2988,8 +2998,8 @@ main:
 	.4byte	0x17
 	.2byte	0x2
 	.4byte	.Ldebug_info0
-	.4byte	0xfb2
-	.4byte	0xf6e
+	.4byte	0xfc8
+	.4byte	0xf84
 	.ascii	"main\000"
 	.4byte	0x0
 	.section	.debug_aranges,"",%progbits
@@ -3007,9 +3017,9 @@ main:
 	.section	.debug_str,"MS",%progbits,1
 .LASF118:
 	.ascii	"vcpu_dirty_cpumask\000"
-.LASF196:
+.LASF198:
 	.ascii	"GNU C 4.4.3\000"
-.LASF193:
+.LASF195:
 	.ascii	"notify_vcpu_id\000"
 .LASF141:
 	.ascii	"maptrack_order\000"
@@ -3091,11 +3101,11 @@ main:
 	.ascii	"max_pfn\000"
 .LASF91:
 	.ascii	"wc_sec\000"
-.LASF199:
+.LASF201:
 	.ascii	"rangeset\000"
 .LASF171:
 	.ascii	"rangesets_lock\000"
-.LASF194:
+.LASF196:
 	.ascii	"irq_stat\000"
 .LASF11:
 	.ascii	"long long unsigned int\000"
@@ -3129,7 +3139,7 @@ main:
 	.ascii	"__u16\000"
 .LASF52:
 	.ascii	"event_callback\000"
-.LASF197:
+.LASF199:
 	.ascii	"xen/asm-offsets.c\000"
 .LASF109:
 	.ascii	"sleep_tick\000"
@@ -3145,7 +3155,7 @@ main:
 	.ascii	"state_entry_time\000"
 .LASF131:
 	.ascii	"domid\000"
-.LASF195:
+.LASF197:
 	.ascii	"jiffies_64\000"
 .LASF122:
 	.ascii	"__nmi_count\000"
@@ -3167,6 +3177,8 @@ main:
 	.ascii	"arch_domain\000"
 .LASF160:
 	.ascii	"domain_id\000"
+.LASF193:
+	.ascii	"pirq\000"
 .LASF58:
 	.ascii	"reserved10\000"
 .LASF59:
@@ -3229,7 +3241,7 @@ main:
 	.ascii	"guest_vstart\000"
 .LASF159:
 	.ascii	"remote_dom\000"
-.LASF198:
+.LASF200:
 	.ascii	"/home/andreiw/src/xen3-arm-tegra/xen/arch/arm\000"
 .LASF45:
 	.ascii	"cpar\000"
@@ -3313,6 +3325,8 @@ main:
 	.ascii	"activated\000"
 .LASF42:
 	.ascii	"wcon\000"
+.LASF194:
+	.ascii	"virq\000"
 .LASF137:
 	.ascii	"shared\000"
 .LASF161:
@@ -3379,7 +3393,7 @@ main:
 	.ascii	"short unsigned int\000"
 .LASF185:
 	.ascii	"handle\000"
-.LASF200:
+.LASF202:
 	.ascii	"main\000"
 .LASF181:
 	.ascii	"vm_assist\000"
