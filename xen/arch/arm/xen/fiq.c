@@ -75,6 +75,8 @@ err_busy:
 	return ret;
 }
 
-
-
-
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

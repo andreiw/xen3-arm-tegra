@@ -38,3 +38,8 @@ void machine_restart(char * __unused)
 	while(1);
 }
 
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

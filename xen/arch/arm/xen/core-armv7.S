@@ -216,7 +216,7 @@ PRIVATE(v7_dma_inv_range)
 	add	r0, r0, r2
 	cmp	r0, r1
 	blo	1b
-	dsb
+   dsb
 	mov	pc, lr
 DECLARE_CPU_OP(cpu_invalidate_dma_range, v7_dma_inv_range)
 

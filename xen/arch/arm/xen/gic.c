@@ -441,3 +441,9 @@ void gic_raise_softirq(const cpumask_t *mask, unsigned int irq)
 	writel(map << 16 | irq, gic_data[0].dist_base + GIC_DIST_SOFTINT);
 }
 #endif
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

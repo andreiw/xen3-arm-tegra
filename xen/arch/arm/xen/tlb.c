@@ -4,4 +4,8 @@
 #include <xen/softirq.h>
 #include <asm/tlb.h>
 
-
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

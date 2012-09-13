@@ -27,3 +27,8 @@
 #include <xen/softirq.h>
 #include <asm/cache.h>
 
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

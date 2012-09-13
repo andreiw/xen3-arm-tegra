@@ -920,3 +920,9 @@ long arch_memory_op(int op, GUEST_HANDLE(void) arg)
 {
 	return 0;
 }
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

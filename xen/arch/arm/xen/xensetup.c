@@ -28,6 +28,7 @@
 #include <xen/console.h>
 #include <xen/serial.h>
 #include <xen/string.h>
+#include <xen/delay.h>
 #include <public/version.h>
 #include <public/sched.h>
 
@@ -234,10 +235,14 @@ static void shared_info_table_init(void)
 
 void xd_test(void *context)
 {
-  while (1) {
-    printk("Hello from a Xen domain %u!\n", current->domain->domain_id);
-    sched_yield();
-  };
+   s_time_t st = NOW();
+   while (1) {
+      if (NOW() - st > SECONDS(current->domain->domain_id * 2)) {
+         printk("Hello from a Xen domain %u!\n", current->domain->domain_id);
+         st = NOW();
+      }
+      sched_yield();
+   }
 }
 
 void start_xen(void *unused)
@@ -416,3 +421,9 @@ int create_guest_domain( dom0_op_t * dom0_op )
 	/* return DOM_CREATE_SUCCESS; */
 	return -ENXIO;
 }
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

@@ -69,3 +69,9 @@ void init_domain_time(struct domain *d)
 	spin_unlock(&wc_lock);
 }
 #endif
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

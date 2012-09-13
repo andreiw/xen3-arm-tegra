@@ -318,3 +318,9 @@ void unmap_domain_page_global(void *va)
 }
 
 #endif
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

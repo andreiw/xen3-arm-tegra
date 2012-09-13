@@ -87,3 +87,8 @@ unsigned long search_pre_extable(struct cpu_context *regs)
 	return fixup;
 }
 
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

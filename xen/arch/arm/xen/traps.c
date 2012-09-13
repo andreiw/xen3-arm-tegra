@@ -233,3 +233,8 @@ failed:
 	return -EFAULT;
 }
 
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

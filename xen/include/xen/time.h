@@ -55,10 +55,6 @@ s_time_t get_s_time(void);
 #define MILLISECS(_ms)  ((s_time_t)((_ms) * 1000000ULL))
 #define MICROSECS(_us)  ((s_time_t)((_us) * 1000ULL))
 
-/* change this if you have some constant time drift */
-#define USECS_PER_JIFFY (1000000ULL/HZ)
-#define NSECS_PER_JIFFY (1000000000ULL/HZ)
-
 extern void update_dom_time(struct vcpu *v);
 extern void do_settime(unsigned long secs, unsigned long nsecs, u64 system_time_base);
 

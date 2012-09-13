@@ -23,14 +23,16 @@
 #include <asm/atag.h>
 
 #define ATAG_NEXT(header) ((struct atag_header *) \
-	((vaddr_t) headers + \
-	 headers->size * sizeof(u32)))
+                           ((vaddr_t) headers +   \
+                            headers->size * sizeof(u32)))
 
 static int atags_check(struct atag_header *headers)
 {
-	if (headers->tag == ATAG_TYPE_CORE)
-		return 0;
-	return -EINVAL;
+   if (headers->tag == ATAG_TYPE_CORE) {
+      return 0;
+   }
+
+   return -EINVAL;
 }
 
 /*
@@ -41,27 +43,29 @@ static int atags_check(struct atag_header *headers)
  */
 struct atag_header *atag_next(struct atag_header *headers, u32 tag)
 {
-	if (!headers) {
-		headers = atag_info_ptr;
-		if (atags_check(headers))
-			return NULL;
-	}
+   if (!headers) {
+      headers = atag_info_ptr;
+      if (atags_check(headers))
+         return NULL;
+   }
 
-	if (headers->tag == ATAG_TYPE_NONE)
-		return NULL;
+   if (headers->tag == ATAG_TYPE_NONE) {
+      return NULL;
+   }
 
-	/*
-	 * Start search from the next tag, repeated calls
-	 * to atag_next can be used to enumerate tags of
-	 * a certain type.
-	 */
-	headers = ATAG_NEXT(headers);
+   /*
+    * Start search from the next tag, repeated calls
+    * to atag_next can be used to enumerate tags of
+    * a certain type.
+    */
+   headers = ATAG_NEXT(headers);
 
-	while (headers->tag != tag &&
-	       headers->tag != ATAG_TYPE_NONE)
-		headers = ATAG_NEXT(headers);
+   while (headers->tag != tag &&
+          headers->tag != ATAG_TYPE_NONE) {
+      headers = ATAG_NEXT(headers);
+   }
 
-	return headers->tag == ATAG_TYPE_NONE ? NULL : headers;
+   return headers->tag == ATAG_TYPE_NONE ? NULL : headers;
 }
 
 /*
@@ -69,10 +73,10 @@ struct atag_header *atag_next(struct atag_header *headers, u32 tag)
  */
 char *atag_cmdline(void)
 {
-	struct atag_cmdline *ac;
+   struct atag_cmdline *ac;
 
-	ac = (struct atag_cmdline *) atag_next(NULL, ATAG_TYPE_CMDLINE);
-	return ac ? ac->cmdline : NULL;
+   ac = (struct atag_cmdline *) atag_next(NULL, ATAG_TYPE_CMDLINE);
+   return ac ? ac->cmdline : NULL;
 }
 
 /*
@@ -80,13 +84,20 @@ char *atag_cmdline(void)
  */
 int atag_initrd(u32 *start, u32 *end)
 {
-	struct atag_initrd2 *ai;
+   struct atag_initrd2 *ai;
 
-	ai = (struct atag_initrd2 *) atag_next(NULL, ATAG_TYPE_INITRD2);
-	if (!ai)
-		return -ENXIO;
+   ai = (struct atag_initrd2 *) atag_next(NULL, ATAG_TYPE_INITRD2);
+   if (!ai) {
+      return -ENXIO;
+   }
 
-	*start = ai->start;
-	*end = *start + ai->size;
-	return 0;
+   *start = ai->start;
+   *end = *start + ai->size;
+   return 0;
 }
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

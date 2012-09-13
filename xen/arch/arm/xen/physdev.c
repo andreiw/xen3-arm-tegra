@@ -84,3 +84,9 @@ asmlinkage long do_physdev_op(struct physdev_op *uop)
 
 	return ret;
 }
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

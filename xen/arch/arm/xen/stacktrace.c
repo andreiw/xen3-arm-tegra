@@ -70,3 +70,9 @@ void walk_stackframe(struct stackframe *frame,
 			break;
 	}
 }
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

@@ -82,7 +82,7 @@ static struct platform_fiqdb tegra_fiqdb = {
 
 int __init tegra_fiqdb_register(void)
 {
-	if (uart_read(UART_LSR) & UART_LSR_DR)
+	while (uart_read(UART_LSR) & UART_LSR_DR)
 		uart_read(UART_RX);
 
 	/* enable rx and lsr interrupt */

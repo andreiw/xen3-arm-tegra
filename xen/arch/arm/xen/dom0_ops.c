@@ -135,7 +135,11 @@ long arch_do_dom0_op(struct dom0_op *op, GUEST_HANDLE(dom0_op_t) u_dom0_op)
 void arch_getdomaininfo_ctxt(struct vcpu *v, vcpu_guest_context_t *c)
 { 
         /* this function haven't been embodied yet. */
-	printk("arch_getdomaininfo_ctxt : Not Yet\n");
+	panic("arch_getdomaininfo_ctxt : Not Yet\n");
 }
 
-
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

@@ -549,8 +549,6 @@ void __enter_scheduler(void)
     s32                 r_time;     /* time for new dom to run */
 
     ASSERT(!in_irq());
-	
-    printk("in sched\n");
 
     spin_lock_irq(&schedule_data[cpu].schedule_lock);
 
@@ -615,9 +613,6 @@ void __enter_scheduler(void)
              prev->domain->domain_id, prev->vcpu_id,
              next->domain->domain_id, next->vcpu_id);
 
-
-    printk("switching from %x to %x\n", prev->domain->domain_id,
-           next->domain->domain_id);
     context_switch(prev, next);
 }
 

@@ -160,6 +160,8 @@ Next up:
 
 Changelog (more or less)
 ========================
+
+Sep-08-2012: Major source cleaning.
 Sep-07-2012: Added xen domains (coop threading).
 Sep-04-2012: Dom0 bring-up work.
 Apr-09-2012: Update panic/debug logic.
@@ -200,6 +202,31 @@ Nice to have:
    for debugging, although by the time I get to a PV
    kernel, a sanitized view on GPIOs will need to be
    exposed via a hypercall.
+
+Hacking away
+============
+
+You're welcome! I'd love to hear about and see your changes.
+
+I use emacs, and have a special editing mode that I tend to like.
+
+    (defun xen-c-mode ()
+      "C mode with adjusted defaults for use with my Xen source."
+      (interactive)
+      (c-mode)
+      (c-set-style "K&R")
+      (setq tab-width 3)
+      (setq indent-tabs-mode nil)
+      (setq c-basic-offset 3)
+      (setq show-trailing-whitespace t))
+
+      ;; Draw tabs with the same color as trailing whitespace  
+
+      (add-hook 'font-lock-mode-hook  
+                (lambda ()  
+                  (font-lock-add-keywords  
+                   nil  
+                   '(("\t" 0 'trailing-whitespace prepend)))))
 
 
 Contact Info

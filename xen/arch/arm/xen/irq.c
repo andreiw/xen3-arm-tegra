@@ -620,3 +620,9 @@ asmlinkage void asm_do_IRQ(unsigned int irq, struct cpu_user_regs *regs)
 	desc = irq_to_desc(irq);
 	desc->handle(irq, desc, regs);
 }
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

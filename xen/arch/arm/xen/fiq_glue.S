@@ -109,4 +109,3 @@ ENTRY(fiq_glue_setup) /* func, data, sp */
 		movne		r10, #1
 		msr		cpsr_c, r3
 		bx		lr
-

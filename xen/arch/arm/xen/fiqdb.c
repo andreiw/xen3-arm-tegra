@@ -359,3 +359,9 @@ void debugger_trap_immediate(void)
 	fiqdb_prompt();
 	while(1);
 }
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

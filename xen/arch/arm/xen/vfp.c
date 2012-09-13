@@ -89,3 +89,9 @@ asmlinkage long do_vfp_op(unsigned int cmd, unsigned int cpnum, unsigned long va
 	return -EPERM;
 }
 
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */
+

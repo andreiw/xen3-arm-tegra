@@ -115,7 +115,6 @@ struct domain *domain_create(domid_t dom_id,
 
    if (!is_idle_domain(d))
    {
-      printk("add to list\n");
       write_lock(&domlist_lock);
       pd = &domain_list; /* NB. domain_list maintained in order of dom_id. */
       for (pd = &domain_list; *pd != NULL; pd = &(*pd)->next_in_list)
