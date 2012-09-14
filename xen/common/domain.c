@@ -20,7 +20,7 @@
 #include <xen/guest_access.h>
 #include <xen/hypercall.h>
 #include <xen/delay.h>
-#include <asm/debugger.h>
+#include <xen/debugger.h>
 #include <public/dom0_ops.h>
 #include <public/sched.h>
 #include <public/vcpu.h>
@@ -31,6 +31,41 @@ struct domain *domain_hash[DOMAIN_HASH_SIZE];
 struct domain *domain_list;
 
 struct domain *dom0;
+
+void debug_list_domains(const char *cmd,
+                        debug_printf_cb print_cb)
+{
+   unsigned long flags;
+   struct domain **pd = &domain_list;
+
+   while (*pd != NULL) {
+      flags = (*pd)->domain_flags;
+      print_cb("%u: 0x%x", (*pd)->domain_id, flags);
+      if (flags & DOMF_privileged) {
+         print_cb(" priv");
+      }
+      if (flags & DOMF_shutdown) {
+         print_cb(" shtdw");
+      }
+      if (flags & DOMF_dying) {
+         print_cb(" dying");
+      }
+      if (flags & DOMF_ctrl_pause) {
+         print_cb(" cp");
+      }
+      if (flags & DOMF_debugging) {
+         print_cb(" dbg");
+      }
+      if (flags & DOMF_xen) {
+         print_cb(" xen");
+      }
+      print_cb("\n");
+
+      pd = &(*pd)->next_in_list;
+   }
+}
+
+DEBUG_COMMAND(doms, debug_list_domains, "List domains");
 
 struct domain *xen_domain_create(domid_t dom_id,
                                  xen_domain_fn fn,

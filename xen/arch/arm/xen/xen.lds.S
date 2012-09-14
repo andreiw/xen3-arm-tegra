@@ -45,6 +45,13 @@ SECTIONS
 		*(.rodata)
 		*(.rodata.*) 
 	} :text
+
+        . = ALIGN(32);
+	__debug_commands_start = .;
+	.debug_commands : {
+		*(.debug_commands)
+	} : text
+	__debug_commands_end = .;
 	_etext = .;			/* End of text section */
 
 	. = ALIGN(32);

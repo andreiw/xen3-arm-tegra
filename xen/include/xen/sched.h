@@ -154,14 +154,11 @@ struct domain
 
 	struct arch_domain arch;
 
-	void *ssid; /* sHype security subject identifier */
-
 	/* Control-plane tools handle for this domain. */
 	xen_domain_handle_t handle;
 
 	uint32_t store_port; //for xenstore kcr
 	unsigned long store_mfn; //for xenstore kcr
-
 
 	uint32_t console_port; //for console ldh
 	unsigned long console_mfn; //for console ldh
