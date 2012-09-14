@@ -14,6 +14,9 @@ I can't complain ;-).
 Once the "basics" are in, the more interesting work
 of figuring out the correct subset of hypercalls
 and porting the Tegra2 Linux kernel to be PV can begin.
+I am also musing adding self-hosting as a target - 
+certainly it would be a boon for debugging and help
+with SMP bring-up.
 
 
 Differences
@@ -21,7 +24,7 @@ Differences
 
 Compatibility with Samsung's tree (or other Xen ARM efforts) is
 not a goal. Compatibility at hypercall interface is a non-goal
-as well.
+as well. Perhaps I should rename my effort to "Nex" ;-).
 
 Current differences from Samsung's tree:
 1) ARMv7-only support.
@@ -30,7 +33,9 @@ Current differences from Samsung's tree:
    through a "boot volume".
 4) Kernel threads ("xen domains").
 5) No ACM, given likely hypercall changes.
+6) A FIQ-based extensible serial kernel debugger.
 
+Full kernel preemption is a design goal. Kernel threads are cooperative at the moment.
 
 Building
 ========
@@ -76,105 +81,46 @@ Handing off to C...
 [XEN]  http://www.cl.cam.ac.uk/netos/xen
 [XEN]  University of Cambridge Computer Laboratory
 [XEN] 
-[XEN]  Xen version 3.0.2-2 (andreiw@localdomain) (gcc version 4.4.3 (GCC) ) Fri Sep  7 19:20:40 EDT 2012
+[XEN]  Xen version 3.0.2-2 (andreiw@localdomain) (gcc version 4.4.3 (GCC) ) Thu Sep 13 22:25:27 EDT 2012
 [XEN]  Platform: arm-tegra
-[XEN]  GIT SHA: 32d9ee835326ff17a1fa7c4cf13a83d9ba285c19
+[XEN]  GIT SHA: eec91183a11fd05089b63eb8cc8a632580bdb23b
 [XEN]  Kernel command line: <NULL>
 [XEN]  Boot volume: 0x5000000-0x5022400
 [XEN] TTB PA 0x104000
 [XEN] idle_pgd VA 0xff004000
 [XEN] xen_pstart 0x0
 [XEN] xen_pend 0x40000000
-[XEN] _end 0xff04206c
-[XEN] _end VA 0x14206C
+[XEN] _end 0xff04606c
+[XEN] _end VA 0x14606C
 [XEN] nr_pages needed for all page_infos = 0x500
-[XEN] frame table is at 0xff043000-0xff543000
-[XEN] xenheap_phys_start = 0x64c000 (VA 0xff54c000)
-[XEN] xenheap_phys_end = 0x84c000 (VA 0xff74c000)
+[XEN] frame table is at 0xff047000-0xff547000
+[XEN] xenheap_phys_start = 0x650000 (VA 0xff550000)
+[XEN] xenheap_phys_end = 0x850000 (VA 0xff750000)
 [XEN] looking at bank 0
 [XEN]         base - 0x0
 [XEN]         end  - 0x40000000
-[XEN] calling init_boot_pages on 0x64c000-0x40000000
-[XEN] calling init_xenheap_pages on 0x64c000-0x84c000
+[XEN] calling init_boot_pages on 0x650000-0x40000000
+[XEN] calling init_xenheap_pages on 0x650000-0x850000
 [XEN] FIQ debugger enabled
 [XEN] Using scheduler: Simple EDF Scheduler (sedf)
-[XEN] add to list
-[XEN] add to list
-[XEN] in sched
-[XEN] switching from 7fff to 1
 [XEN] Hello from a Xen domain 1!
-[XEN] in sched
-[XEN] switching from 1 to 2
 [XEN] Hello from a Xen domain 2!
-[XEN] in sched
-[XEN] switching from 2 to 1
-[XEN] Hello from a Xen domain 1!
-[XEN] in sched
-[XEN] switching from 1 to 2
-[XEN] Hello from a Xen domain 2!
-[XEN] in sched
-[XEN] switching from 2 to 1
-[XEN] Hello from a Xen domain 1!
-[XEN] in sched
-[XEN] switching from 1 to 2
-[XEN] Hello from a Xen domain 2!
-[XEN] in sched
-[XEN] switching from 2 to 1
-[XEN] Hello from a Xen domain 1!
-[XEN] in sched
-[XEN] switching from 1 to 2
-[XEN] Hello from a Xen domain 2!
-[XEN] in sched
-[XEN] switching from 2 to 1
-[XEN] Hello from a Xen domain 1!
-[XEN] in sched
-[XEN] switching from 1 to 2
-[XEN] Hello from a Xen domain 2!
-[XEN] in sched
-[XEN] switching from 2 to 1
 [XEN] Hello from a Xen domain 1!
 
+fiqdb> bt[XEN] Hello from a Xen domain 1!
 
-Status
-======
+sp ff746fd8 fp ff746ffc pc ff026d00 (get_current+0x0/0x20)
+sp ff747000 fp 00000000 pc ff02774c (xd_test+0x0/0xdc)
+fiqdb> [XEN] Hello from a Xen domain 2!
+[XEN] Hello from a Xen domain 1!
 
-* Interrupts and timer working.
-* Fixes to memory allocators (did it ever work before?)
-* A "boot volume" passed by the bootloader (CPIO archive) is
-  expected to contain /dom0 and /initrd0, which constitute dom0
-  kernel and initrd, respectively.
-* Beginnings of a FIQ-based serial debugger which currently can
-  dump regs, version and a simple backtrace.
-* Dom0 loading code is more-or-less in place.
-* Passing control to Dom0 doesn't work yet.
-* Beginnings of cooperative threading (I call them Xen domains).
-
-Next up:
-* Fixing the wacky stuff with different regs getting
-  saved in IRQ versus ABT, and fix code in arch/arm/xen/traps.c.
-* Continue to slash and burn through existing dom0 boot code - 
-  need to figure out why non-manager DACR values don't work
-  (probably paging code).
-* Grow the threading code.
-
-
-Changelog (more or less)
-========================
-
-Sep-08-2012: Major source cleaning.
-Sep-07-2012: Added xen domains (coop threading).
-Sep-04-2012: Dom0 bring-up work.
-Apr-09-2012: Update panic/debug logic.
-Apr-08-2012: FIQ debugger some more.
-Mar-24-2012: FIQ debugger beginnings, refactored out UART.
-Mar-19-2012: Boot volume stuff and xensetup.c cleanup.
-Mar-14-2012: Timer and delay working.
-Mar-06-2012: GIC/legacy IC stuff in (except for IRQ path),
-             timer work - unfinished. Fix HIGH_VECTORS
-             and NR_IRQs. Remove unmaintained crud.
-Mar-05-2012: Wire GIC and legacy IC stuff.
-Mar-02-2012: First work since summer, fixed mm bugs.
-Jun-23-2011: Initial commit.
+fiqdb> bt
+sp ff746f08 fp ff746f74 pc ff01b980 (get_current+0x0/0x20)
+sp ff746f78 fp ff746fc4 pc ff021c18 (__enter_scheduler+0xe4/0x3ec)
+sp ff746fc8 fp ff746fd4 pc ff021604 (sched_yield+0x28/0x34)
+sp ff746fd8 fp ff746ffc pc ff027824 (xd_test+0xd8/0xdc)
+sp ff747000 fp 00000000 pc ff02774c (xd_test+0x0/0xdc)
+fiqdb> [XEN] Hello from a Xen domain 1!
 
 
 TODO
@@ -197,7 +143,7 @@ ends and which need some lovin', but not immediately.
 
 Nice to have:
 1) tegrafb for debugging
-2) GDB stubs
+2) GDB xen domain to facilitate debugging
 3) Control of GPIOs to reset, blink leds, etc. More
    for debugging, although by the time I get to a PV
    kernel, a sanitized view on GPIOs will need to be
