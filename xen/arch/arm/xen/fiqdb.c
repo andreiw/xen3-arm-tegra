@@ -23,6 +23,7 @@
 #include <xen/types.h>
 #include <xen/errno.h>
 #include <xen/lib.h>
+#include <xen/symbols.h>
 #include <xen/compile.h>
 #include <xen/shutdown.h>
 #include <asm/fiqdb.h>
@@ -207,11 +208,23 @@ static void fiqdb_xregs(struct fiq_regs *regs)
 
 static int fiqdb_bt_report(struct stackframe *frame, void *d)
 {
+   const char *name;
    unsigned int *depth = d;
+   unsigned long offset, size;
+   char namebuf[KSYM_NAME_LEN+1];
+   char buffer[sizeof("%s+%#lx/%#lx [%s]") + KSYM_NAME_LEN +
+               2*(BITS_PER_LONG*3/10) + 1];
 
    if (*depth) {
-      fiqdb_printf("pc %08x sp %08x fp %08x\n",
-                   frame->pc, frame->sp, frame->fp);
+      name = symbols_lookup(frame->pc, &size, &offset, namebuf);
+
+      fiqdb_printf("sp %08x fp %08x ", frame->sp, frame->fp);
+      if (!name) {
+         fiqdb_printf("pc %08x\n", frame->pc);
+      } else {
+         fiqdb_printf("pc %08x (%s+%#lx/%#lx)\n",
+                      frame->pc, name, offset, size);
+      }
       *depth--;
       return 0;
    }
