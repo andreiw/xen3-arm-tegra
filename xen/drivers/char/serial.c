@@ -379,13 +379,8 @@ void serial_register_uart(int idx, struct uart_driver *driver, void *uart)
     com[idx].tx_fifo_size = 1;
 }
 
-
 /*
  * Local variables:
- * mode: C
- * c-set-style: "BSD"
- * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: nil
+ * eval: (xen-c-mode)
  * End:
  */
