@@ -1,5 +1,5 @@
 include $(BASEDIR)/Rules.mk
 
-subdir-y += char video
+obj-y += fb.o cfbfillrect.o
 
 include $(BASEDIR)/Post.mk
