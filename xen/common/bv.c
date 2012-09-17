@@ -67,7 +67,7 @@ static int cpio_parse(u8 *header,
 	file->name_size = simple_strtoul(buf, NULL, 16);
 
 	file->record_size =
-		align_up(CPIO_HSZ +
+		ROUND_UP(CPIO_HSZ +
 			 file->name_size, 4) +
 		file->size;
 
@@ -98,7 +98,7 @@ int cpio_next(u8 *archive_end,
 	      struct cpio_file *current)
 {
 	u8 *h = current->header +
-		align_up(current->record_size, 4);
+		ROUND_UP(current->record_size, 4);
 	return cpio_parse(h, archive_end, current);
 }
 

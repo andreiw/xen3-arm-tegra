@@ -110,7 +110,7 @@ void *_xmalloc(size_t size, size_t align)
 
     /* Add room for header, pad to align next header. */
     size += sizeof(struct xmalloc_hdr);
-    size = align_up(size, __alignof__(struct xmalloc_hdr));
+    size = ROUND_UP(size, __alignof__(struct xmalloc_hdr));
 
     /* For big allocs, give them whole pages. */
     if ( size >= PAGE_SIZE )
