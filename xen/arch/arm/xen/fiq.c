@@ -54,7 +54,7 @@ int fiq_register_handler(struct fiq_handler *handler)
 
 	for_each_cpu(cpu) {
 		void *stack;
-		stack = alloc_xenheap_pages(STACK_ORDER);
+		stack = pages_m_alloc(STACK_ORDER);
 		if (!stack) {
 			ret = -ENOMEM;
 			goto err_alloc_fiq_stack;
@@ -68,7 +68,7 @@ int fiq_register_handler(struct fiq_handler *handler)
 
 err_alloc_fiq_stack:
 	for_each_cpu(cpu) {
-		free_xenheap_pages(per_cpu(fiq_stack, cpu), STACK_ORDER);
+		pages_m_free(per_cpu(fiq_stack, cpu), STACK_ORDER);
 		per_cpu(fiq_stack, cpu) = NULL;
 	}
 err_busy:

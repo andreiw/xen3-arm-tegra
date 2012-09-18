@@ -57,7 +57,7 @@ int arch_domain_create(struct domain *d)
    struct shared_info *shared_info;
 
    if (is_vm_domain(d)) {
-      shared_info = alloc_xenheap_page();
+      shared_info = pages_m_alloc1();
 
       if (shared_info == NULL) {
          printf("Shared Info allocation failed\n");
@@ -79,7 +79,7 @@ int arch_domain_create(struct domain *d)
    return 0;
 
 fail_nomem:
-   free_xenheap_page(shared_info);
+   pages_m_free1(shared_info);
    return -ENOMEM;
 }
 

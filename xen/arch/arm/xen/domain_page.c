@@ -229,7 +229,7 @@ void mapcache_init(void)
 	unsigned long pgd_idx;
 
 	/* Create Mapping for Mapcache */
-	mapcache.table = alloc_xenheap_page();
+	mapcache.table = pages_m_alloc1();
 	clear_page(mapcache.table);
 
 	pgd_idx = PGD_IDX(MAPCACHE_VIRT_START);

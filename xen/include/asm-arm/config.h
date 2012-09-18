@@ -5,12 +5,6 @@
 
 #define supervisor_mode_kernel	(0)
 
-#ifdef CONFIG_USE_HIGH_VECTORS
-# define VECTORS_BASE	0xFFFF0000
-#else
-# define VECTORS_BASE	0x00000000
-#endif
-
 #define ARCH_HAS_IRQ_CONTROL	1
 
 #ifndef STACK_ORDER
@@ -30,38 +24,35 @@
 
 #define OPT_CONSOLE_STR			"com1"
 
-#define IOREMAP_MBYTES			4
-#define DIRECTMAP_MBYTES		12
-#define MAPCACHE_MBYTES			4
-#define PERDOMAIN_MBYTES		8
-#define LINEARPT_MBYTES			4
-#define MACHPHYS_MBYTES			4
-#define FRAMETABLE_MBYTES		24
-
-#define IOREMAP_VIRT_END			0UL
-#define IOREMAP_VIRT_START			(IOREMAP_VIRT_END - (IOREMAP_MBYTES << 20))
-#define DIRECTMAP_VIRT_END			(IOREMAP_VIRT_START)
-#define DIRECTMAP_VIRT_START		(DIRECTMAP_VIRT_END - (DIRECTMAP_MBYTES << 20))
-#define MAPCACHE_VIRT_END			(DIRECTMAP_VIRT_START)
-#define MAPCACHE_VIRT_START			(MAPCACHE_VIRT_END - (MAPCACHE_MBYTES << 20))
-
-#define SHARED_INFO_LIMIT		(MAPCACHE_VIRT_START)
-#define SHARED_INFO_BASE		(SHARED_INFO_LIMIT -(1 << 20))
-
-#define MAX_DMADOM_PFN 				0xFFFFFUL /* 32 addressable bits */
-
 #ifndef HYPERVISOR_VIRT_START
-# define HYPERVISOR_VIRT_START   mk_unsigned_long(0xFC000000)
+#define HYPERVISOR_VIRT_START   0xFC000000
 #endif
 
+#define VECTORS_BASE		0xFFFF0000
+#define DIRECTMAP_VIRT_END	VECTORS_BASE
+#define DIRECTMAP_VIRT_START	KERNEL_VIRT_BASE
+#define DIRECTMAP_PHYS_START	KERNEL_PHYS_BASE
+
+#define MAPCACHE_VIRT_END	DIRECTMAP_VIRT_START
+#define MAPCACHE_MBYTES		4
+#define MAPCACHE_VIRT_START	(MAPCACHE_VIRT_END - (MAPCACHE_MBYTES << 20))
+
+#define SHARED_INFO_LIMIT	(MAPCACHE_VIRT_START)
+#define SHARED_INFO_BASE	(SHARED_INFO_LIMIT - (1 << 20))
+
+#define IOREMAP_VIRT_END	SHARED_INFO_BASE
+#define IOREMAP_VIRT_START	HYPERVISOR_VIRT_START
+
+#define MAX_UNMAPPED_DMA_PFN	0xFFFFFUL /* 32 addressable bits */
+
 /* Must match xen.lds.S */
-#define KERNEL_LINK_OFFSET  0x8000
+#define KERNEL_LINK_OFFSET	0x8000
 
 #ifndef __ASSEMBLY__
-extern unsigned long _end; /* standard ELF symbol */
+extern unsigned long _start; /* standard ELF symbol */
+extern unsigned long _end;   /* standard ELF symbol */
 extern unsigned long xenheap_phys_end; /* user-configurable */
 
-extern void not_yet(void);      // for just debugging
 #endif
 
 #define ELFSIZE	32

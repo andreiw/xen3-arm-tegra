@@ -648,7 +648,7 @@ static int __init debugtrace_init(void)
         return 0;
 
     order = get_order_from_bytes(bytes);
-    debugtrace_buf = alloc_xenheap_pages(order);
+    debugtrace_buf = pages_m_alloc(order);
     ASSERT(debugtrace_buf != NULL);
 
     memset(debugtrace_buf, '\0', bytes);

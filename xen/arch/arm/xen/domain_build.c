@@ -213,7 +213,7 @@ void new_thread(struct vcpu *v,
 	struct cpu_info *ci;
 	struct cpu_context *cpu_context;
 
-	domain_stack = alloc_xenheap_pages(STACK_ORDER);
+	domain_stack = pages_m_alloc(STACK_ORDER);
 	if(domain_stack == NULL) {
 		return;
 	}
@@ -249,7 +249,7 @@ void new_xen_thread(struct vcpu *v,
 	void *domain_stack;
 	struct cpu_info *ci;
 
-	domain_stack = alloc_xenheap_pages(STACK_ORDER);
+	domain_stack = pages_m_alloc(STACK_ORDER);
 	if(domain_stack == NULL) {
 		return;
 	}

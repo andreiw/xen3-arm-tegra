@@ -20,6 +20,7 @@
  */
 
 #include <xen/linkage.h>
+#include <xen/config.h>
 #include <asm/asm-macros.h>
 #include <asm/arch/hardware.h>
 

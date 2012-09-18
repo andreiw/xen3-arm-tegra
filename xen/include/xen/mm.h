@@ -37,23 +37,23 @@ struct domain;
 struct page_info;
 
 /* Boot-time allocator. Turns into generic allocator after bootstrap. */
-paddr_t init_boot_allocator(paddr_t bitmap_start);
-void init_boot_pages(paddr_t ps, paddr_t pe);
-unsigned long alloc_boot_pages(unsigned long nr_pfns, unsigned long pfn_align);
-void end_boot_allocator(void);
+paddr_t boot_allocator_init(paddr_t bitmap_start);
+void boot_pages_init(paddr_t ps, paddr_t pe);
+unsigned long boot_pages_alloc(unsigned long nr_pfns, unsigned long pfn_align);
+void boot_allocator_end(void);
 
 /* Generic allocator. These functions are *not* interrupt-safe. */
-void init_heap_pages(unsigned int zone, struct page_info *pg, unsigned long nr_pages);
-struct page_info *alloc_heap_pages(unsigned int zone, unsigned int order);
-void free_heap_pages(unsigned int zone, struct page_info *pg, unsigned int order);
-void scrub_heap_pages(void);
+void pages_init(unsigned int zone, struct page_info *pg, unsigned long nr_pages);
+struct page_info *pages_alloc(unsigned int zone, unsigned int order);
+void pages_free(unsigned int zone, struct page_info *pg, unsigned int order);
+void pages_scrub(void);
 
 /* Xen suballocator. These functions are interrupt-safe. */
-void init_xenheap_pages(paddr_t ps, paddr_t pe);
-void *alloc_xenheap_pages(unsigned int order);
-void free_xenheap_pages(void *v, unsigned int order);
-#define alloc_xenheap_page() (alloc_xenheap_pages(0))
-#define free_xenheap_page(v) (free_xenheap_pages(v,0))
+void pages_m_init(paddr_t ps, paddr_t pe);
+void *pages_m_alloc(unsigned int order);
+void pages_m_free(void *v, unsigned int order);
+#define pages_m_alloc1() (pages_m_alloc(0))
+#define pages_m_free1(v) (pages_m_free(v,0))
 
 /* Domain suballocator. These functions are *not* interrupt-safe.*/
 void init_domheap_pages(paddr_t ps, paddr_t pe);

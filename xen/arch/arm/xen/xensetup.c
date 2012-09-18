@@ -125,6 +125,17 @@ static void memory_init()
    unsigned long xen_pstart;
    unsigned long xen_pend;
 
+   printk("Virtual memory map:\n");
+   printk("===================\n");
+   printk("VECTORS_BASE:          0x%x\n", VECTORS_BASE);
+   printk("Kernel ends at:        0x%x\n", &_end);
+   printk("Kernel linked at:      0x%x\n", &_start);
+   printk("DIRECTMAP_VIRT_START:  0x%x\n", DIRECTMAP_VIRT_START);
+   printk("MAPCACHE_VIRT_START:   0x%x\n", MAPCACHE_VIRT_START);
+   printk("SHARED_INFO_BASE:      0x%x\n", SHARED_INFO_BASE);
+   printk("IOREMAP_VIRT_START:    0x%x\n", IOREMAP_VIRT_START);
+   printk("HYPERVISOR_VIRT_START: 0x%x\n", HYPERVISOR_VIRT_START);
+
    /* set page table base */
    idle_pgd = (pde_t *) (ma_to_va(cpu_get_ttb()));
    printk("TTB PA 0x%x\n", cpu_get_ttb());
@@ -154,7 +165,7 @@ static void memory_init()
 
    memset(frame_table, 0, nr_pages << PAGE_SHIFT);
 
-   xenheap_phys_start = init_boot_allocator(va_to_ma(frame_table) + (nr_pages << PAGE_SHIFT));
+   xenheap_phys_start = boot_allocator_init(va_to_ma(frame_table) + (nr_pages << PAGE_SHIFT));
    xenheap_phys_end   = xenheap_phys_start + KERNEL_HEAP_SIZE;
    printk("xenheap_phys_start = 0x%x (VA 0x%x)\n", xenheap_phys_start, ma_to_va(xenheap_phys_start));
    printk("xenheap_phys_end = 0x%x (VA 0x%x)\n", xenheap_phys_end, ma_to_va(xenheap_phys_end));
@@ -175,12 +186,12 @@ static void memory_init()
          s = xenheap_phys_start;
       if( e > xen_pend )
          e = xen_pend;
-      printk("calling init_boot_pages on 0x%x-0x%x\n", s, e);
-      init_boot_pages(s, e);
+      printk("calling boot_pages_init on 0x%x-0x%x\n", s, e);
+      boot_pages_init(s, e);
    }
 
    total_pages = nr_pages;
-   end_boot_allocator();
+   boot_allocator_end();
 
    /* Initialise the Xen heap, skipping RAM holes. */
    nr_pages = 0;
@@ -193,8 +204,8 @@ static void memory_init()
          e = xenheap_phys_end;
       if ( s < e ) {
          nr_pages += (e - s) >> PAGE_SHIFT;
-         printk("calling init_xenheap_pages on 0x%x-0x%x\n", s, e);
-         init_xenheap_pages(s, e);
+         printk("calling pages_m_init on 0x%x-0x%x\n", s, e);
+         pages_m_init(s, e);
       }
    }
 }
@@ -205,9 +216,9 @@ void trap_init(void)
    void *vectors;
 
    /* Create Mapping for Exception vector table */
-   table = alloc_xenheap_page();
+   table = pages_m_alloc1();
    clear_page(table);
-   vectors = alloc_xenheap_page();
+   vectors = pages_m_alloc1();
    clear_page(vectors);
 
    cpu_flush_cache_range((unsigned long)table, (unsigned long) table + PAGE_SIZE);
@@ -225,7 +236,7 @@ pte_t *shared_info_table;
 
 static void shared_info_table_init(void)
 {
-   shared_info_table = alloc_xenheap_page();
+   shared_info_table = pages_m_alloc1();
    clear_page(shared_info_table);
 
    cpu_flush_cache_range((unsigned long)shared_info_table, (unsigned long)shared_info_table + PAGE_SIZE);

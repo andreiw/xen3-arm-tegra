@@ -75,7 +75,7 @@ static int alloc_trace_bufs(void)
     nr_recs  = (opt_tbuf_size * PAGE_SIZE - sizeof(struct t_buf)) /
         sizeof(struct t_rec);
     
-    if ( (rawbuf = alloc_xenheap_pages(order)) == NULL )
+    if ( (rawbuf = pages_m_alloc(order)) == NULL )
     {
         printk("Xen trace buffers: memory allocation failed\n");
         return -EINVAL;
