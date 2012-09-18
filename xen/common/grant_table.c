@@ -616,7 +616,7 @@ static long gnttab_transfer(GUEST_HANDLE(gnttab_transfer_t) uop, unsigned int co
 
         mfn = gmfn_to_mfn(d, gop.mfn);
         page = mfn_to_page(mfn);
-        if ( unlikely(IS_XEN_HEAP_FRAME(page)) )
+        if ( unlikely(IS_M_FRAME(page)) )
         { 
             DPRINTK("gnttab_transfer: xen frame %lx\n",
                     (unsigned long)gop.mfn);
@@ -635,7 +635,7 @@ static long gnttab_transfer(GUEST_HANDLE(gnttab_transfer_t) uop, unsigned int co
         {
             DPRINTK("gnttab_transfer: can't find domain %d\n", gop.domid);
             page->count_info &= ~(PGC_count_mask|PGC_allocated);
-            free_domheap_page(page);
+            pages_u_free1(page);
             gop.status = GNTST_bad_domain;
             goto copyback;
         }
@@ -659,7 +659,7 @@ static long gnttab_transfer(GUEST_HANDLE(gnttab_transfer_t) uop, unsigned int co
             spin_unlock(&e->page_alloc_lock);
             put_domain(e);
             page->count_info &= ~(PGC_count_mask|PGC_allocated);
-            free_domheap_page(page);
+            pages_u_free1(page);
             gop.status = GNTST_general_error;
             goto copyback;
         }

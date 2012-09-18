@@ -17,8 +17,8 @@
  *  Copyright (C) ARM Limited 1998. All rights reserved.
  */
 
-#ifndef __sizes_h
-#define __sizes_h                       1
+#ifndef XEN_SIZES_H
+#define XEN_SIZES_H
 
 /* handy sizes */
 #define SZ_16				0x00000010

@@ -31,7 +31,7 @@ jiffies = jiffies_64;
 
 SECTIONS
 {
-	. = 0xFF008000;
+	. = KERNEL_VIRT_LINKED;
 
 	_start = .;
 	_stext = .;			/* Text and read-only data */

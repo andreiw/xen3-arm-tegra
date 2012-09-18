@@ -506,7 +506,7 @@ void pages_scrub(void)
 
       /* Re-check page status with lock held. */
       if (!allocated_in_map(pfn)) {
-         if (IS_XEN_HEAP_FRAME(mfn_to_page(pfn))) {
+         if (IS_M_FRAME(mfn_to_page(pfn))) {
             p = page_to_virt(mfn_to_page(pfn));
             memguard_unguard_range(p, PAGE_SIZE);
             clear_page(p);
@@ -542,13 +542,14 @@ void pages_m_init(physaddr_t ps, physaddr_t pe)
    memguard_guard_range(phys_to_virt(ps), pe - ps);
 
    /*
-    * Yuk! Ensure there is a one-page buffer between Xen and Dom zones, to
-    * prevent merging of power-of-two blocks across the zone boundary.
+    * Yuk! Ensure there is a one-page buffer between mapped and unmapped
+    * zones, to prevent merging of power-of-two blocks across the zone
+    * boundary.
     *
     * AndreiW: Needs to be rewritten. *sigh*.
     */
 
-   if (!IS_XEN_HEAP_FRAME(phys_to_page(pe))) {
+   if (!IS_M_FRAME(phys_to_page(pe))) {
       pe -= PAGE_SIZE;
    }
 
@@ -621,7 +622,7 @@ void pages_m_free(void *v, unsigned int order)
  * DOMAIN-HEAP SUB-ALLOCATOR
  */
 
-void init_domheap_pages(physaddr_t ps, physaddr_t pe)
+void pages_u_init(physaddr_t ps, physaddr_t pe)
 {
    unsigned long s_tot, e_tot, s_dma, e_dma, s_nrm, e_nrm;
 
@@ -644,9 +645,9 @@ void init_domheap_pages(physaddr_t ps, physaddr_t pe)
 }
 
 
-struct page_info *alloc_domheap_pages(struct domain *d,
-                                      unsigned int order,
-                                      unsigned int flags)
+struct page_info *pages_u_alloc(struct domain *d,
+                                unsigned int order,
+                                unsigned int flags)
 {
    struct page_info *pg = NULL;
    /* cpumask_t mask; */
@@ -730,14 +731,14 @@ struct page_info *alloc_domheap_pages(struct domain *d,
 }
 
 
-void free_domheap_pages(struct page_info *pg, unsigned int order)
+void pages_u_free(struct page_info *pg, unsigned int order)
 {
    int            i, drop_dom_ref;
    struct domain *d = page_get_owner(pg);
 
    ASSERT(!in_irq());
 
-   if (unlikely(IS_XEN_HEAP_FRAME(pg))) {
+   if (unlikely(IS_M_FRAME(pg))) {
 
       /* NB. May recursively lock from relinquish_memory(). */
       spin_lock_recursive(&d->page_alloc_lock);
@@ -807,7 +808,7 @@ void free_domheap_pages(struct page_info *pg, unsigned int order)
 }
 
 
-unsigned long avail_domheap_pages(void)
+unsigned long pages_u_avail(void)
 {
    return avail[MEMZONE_UNMAPPED] + avail[MEMZONE_UNMAPPED_DMA];
 }

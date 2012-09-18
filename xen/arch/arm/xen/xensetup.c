@@ -59,8 +59,7 @@ struct vcpu *idle_vcpu[NR_CPUS];
 struct domain *idle_domain;
 struct meminfo system_memory = {0,};
 
-unsigned long xenheap_phys_start;
-unsigned long xenheap_phys_end;
+unsigned long pages_m_phys_end;
 
 cpumask_t cpu_online_map;
 
@@ -120,26 +119,14 @@ static unsigned long find_highest_pfn(struct meminfo *mi)
 
 static void memory_init()
 {
-   unsigned long nr_pages = 0;
    unsigned long i, s, e;
+   unsigned long pages_m_phys_start;
    unsigned long xen_pstart;
    unsigned long xen_pend;
-
-   printk("Virtual memory map:\n");
-   printk("===================\n");
-   printk("VECTORS_BASE:          0x%x\n", VECTORS_BASE);
-   printk("Kernel ends at:        0x%x\n", &_end);
-   printk("Kernel linked at:      0x%x\n", &_start);
-   printk("DIRECTMAP_VIRT_START:  0x%x\n", DIRECTMAP_VIRT_START);
-   printk("MAPCACHE_VIRT_START:   0x%x\n", MAPCACHE_VIRT_START);
-   printk("SHARED_INFO_BASE:      0x%x\n", SHARED_INFO_BASE);
-   printk("IOREMAP_VIRT_START:    0x%x\n", IOREMAP_VIRT_START);
-   printk("HYPERVISOR_VIRT_START: 0x%x\n", HYPERVISOR_VIRT_START);
+   unsigned long nr_pages = 0;
 
    /* set page table base */
    idle_pgd = (pde_t *) (ma_to_va(cpu_get_ttb()));
-   printk("TTB PA 0x%x\n", cpu_get_ttb());
-   printk("idle_pgd VA 0x%x\n", idle_pgd);
 
    /*
     * Memory holes will be reserved during
@@ -147,28 +134,43 @@ static void memory_init()
     */
    min_page = find_lowest_pfn(&system_memory);
    max_page = find_highest_pfn(&system_memory);
-
    xen_pstart = min_page << PAGE_SHIFT;
    xen_pend = max_page << PAGE_SHIFT;
-   printk("xen_pstart 0x%x\n", xen_pstart);
-   printk("xen_pend 0x%x\n", xen_pend);
 
    /* Initialise boot-time allocator with all RAM situated after modules. */
-   printk("_end 0x%x\n", &_end);
-   printk("_end VA 0x%X\n", va_to_ma(&_end));
    frame_table = (struct page_info *)(round_pgup(((unsigned long)(&_end))));
    nr_pages = PFN_UP((max_page - min_page) * sizeof(struct page_info));
-   printk("nr_pages needed for all page_infos = 0x%x\n", nr_pages);
-   printk("frame table is at 0x%x-0x%x\n",
-          frame_table,
-          (unsigned) frame_table + (nr_pages << PAGE_SHIFT));
-
    memset(frame_table, 0, nr_pages << PAGE_SHIFT);
 
-   xenheap_phys_start = boot_allocator_init(va_to_ma(frame_table) + (nr_pages << PAGE_SHIFT));
-   xenheap_phys_end   = xenheap_phys_start + KERNEL_HEAP_SIZE;
-   printk("xenheap_phys_start = 0x%x (VA 0x%x)\n", xenheap_phys_start, ma_to_va(xenheap_phys_start));
-   printk("xenheap_phys_end = 0x%x (VA 0x%x)\n", xenheap_phys_end, ma_to_va(xenheap_phys_end));
+   pages_m_phys_start = boot_allocator_init(va_to_ma(frame_table) + (nr_pages << PAGE_SHIFT));
+   pages_m_phys_end = va_to_ma(DIRECTMAP_VIRT_END);
+
+
+   printk("Virtual memory map:\n");
+   printk("===============================================\n");
+   printk("VECTORS_BASE:          0x%08x\n", VECTORS_BASE);
+   printk("DIRECTMAP_VIRT_END:    0x%08x (PA 0x%08x)\n",
+          DIRECTMAP_VIRT_END,
+          va_to_ma(DIRECTMAP_VIRT_END));
+   printk("M pages end:           0x%08x (PA 0x%08x)\n",
+          ma_to_va(pages_m_phys_end),
+          pages_m_phys_end);
+   printk("M pages start:         0x%08x (PA 0x%08x)\n",
+          ma_to_va(pages_m_phys_start),
+          pages_m_phys_start);
+   printk("Frame table end:       0x%08x (PA 0x%08x)\n",
+          frame_table, va_to_ma(frame_table));
+   printk("Frame table start:     0x%08x (PA 0x%08x)\n",
+          (unsigned) frame_table + (nr_pages << PAGE_SHIFT),
+          va_to_ma((unsigned) frame_table + (nr_pages << PAGE_SHIFT)));
+   printk("Kernel ends at:        0x%08x (PA 0x%08x)\n", &_end, va_to_ma(&_end));
+   printk("Kernel linked at:      0x%08x (PA 0x%08x)\n", &_start, va_to_ma(&_start));
+   printk("Idle page tables:      0x%08x (PA 0x%08x)\n", idle_pgd, cpu_get_ttb());
+   printk("DIRECTMAP_VIRT_START:  0x%08x\n", DIRECTMAP_VIRT_START);
+   printk("MAPCACHE_VIRT_START:   0x%08x\n", MAPCACHE_VIRT_START);
+   printk("SHARED_INFO_BASE:      0x%08x\n", SHARED_INFO_BASE);
+   printk("IOREMAP_VIRT_START:    0x%08x\n", IOREMAP_VIRT_START);
+   printk("HYPERVISOR_VIRT_START: 0x%08x\n", HYPERVISOR_VIRT_START);
 
    /* Initialise the DOM heap, skipping RAM holes. */
    nr_pages = 0;
@@ -182,11 +184,10 @@ static void memory_init()
       printk("        base - 0x%x\n", s);
       printk("        end  - 0x%x\n", e);
 
-      if ( s < xenheap_phys_start )
-         s = xenheap_phys_start;
+      if ( s < pages_m_phys_start )
+         s = pages_m_phys_start;
       if( e > xen_pend )
          e = xen_pend;
-      printk("calling boot_pages_init on 0x%x-0x%x\n", s, e);
       boot_pages_init(s, e);
    }
 
@@ -198,13 +199,12 @@ static void memory_init()
    for ( i = 0; i < system_memory.nr_banks; i++ ) {
       s = system_memory.banks[i].base;
       e = s + system_memory.banks[i].size;
-      if ( s < xenheap_phys_start )
-         s = xenheap_phys_start;
-      if ( e > xenheap_phys_end )
-         e = xenheap_phys_end;
+      if ( s < pages_m_phys_start )
+         s = pages_m_phys_start;
+      if ( e > pages_m_phys_end )
+         e = pages_m_phys_end;
       if ( s < e ) {
          nr_pages += (e - s) >> PAGE_SHIFT;
-         printk("calling pages_m_init on 0x%x-0x%x\n", s, e);
          pages_m_init(s, e);
       }
    }
@@ -213,20 +213,21 @@ static void memory_init()
 void trap_init(void)
 {
    pte_t *table;
-   void *vectors;
+   struct page_info *pg;
 
    /* Create Mapping for Exception vector table */
    table = pages_m_alloc1();
    clear_page(table);
-   vectors = pages_m_alloc1();
-   clear_page(vectors);
 
+   pg = pages_u_alloc1(NULL);
    cpu_flush_cache_range((unsigned long)table, (unsigned long) table + PAGE_SIZE);
 
-   consistent_write((void *)&table[PGT_IDX(VECTORS_BASE)], pte_val(MK_PTE(va_to_ma(vectors), PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)));
+   consistent_write((void *)&table[PGT_IDX(VECTORS_BASE)], pte_val(MK_PTE(page_to_pfn(pg), PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)));
    consistent_write((void *)&idle_pgd[PGD_IDX(VECTORS_BASE)], pde_val(MK_PDE(va_to_ma(table), PDE_TYPE_COARSE | PDE_DOMAIN_HYPERVISOR)));
 
-   memcpy((void *)VECTORS_BASE, exception_vectors_table, sizeof(unsigned long) * 16);
+   clear_page(VECTORS_BASE);
+   memcpy((void *)VECTORS_BASE, exception_vectors_table,
+          sizeof(unsigned long) * 16);
 
    cpu_flush_cache_range(VECTORS_BASE, VECTORS_BASE + PAGE_SIZE);
    cpu_trap_init();

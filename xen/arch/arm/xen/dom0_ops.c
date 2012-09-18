@@ -87,7 +87,7 @@ long arch_do_dom0_op(struct dom0_op *op, GUEST_HANDLE(dom0_op_t) u_dom0_op)
 			pi->cores_per_socket = 1; // FIXME
 			pi->sockets_per_node = num_online_cpus() / (pi->threads_per_core * pi->cores_per_socket);
 			pi->nr_nodes         = 1;
-			pi->free_pages       = avail_domheap_pages();
+			pi->free_pages       = pages_u_avail();
 			pi->cpu_khz          = 266000;
 			ret              = 0;
 

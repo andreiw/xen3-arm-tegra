@@ -63,10 +63,9 @@ Assuming you have a Xoom with the serial port through the headphone h^Hjack.
 
 $ sudo fastboot boot  /home/andreiw/src/xen3-arm-tegra/dist/install/boot/xen-bin-3.0.2-2 bootvol.img
 
-ATAG    (P): 0x00000100
-Linked  (V): 0xff008000
+Linked  (V): 0xff004000
 Actual  (P): 0x00a00800
-Desired (P): 0x00108000
+Desired (P): 0x00104000
 
 Handing off to C...
 [XEN]  __  __            _____  ___   ____    ____  
@@ -81,46 +80,50 @@ Handing off to C...
 [XEN]  http://www.cl.cam.ac.uk/netos/xen
 [XEN]  University of Cambridge Computer Laboratory
 [XEN] 
-[XEN]  Xen version 3.0.2-2 (andreiw@localdomain) (gcc version 4.4.3 (GCC) ) Thu Sep 13 22:25:27 EDT 2012
+[XEN]  Xen version 3.0.2-2 (andreiw@localdomain) (gcc version 4.4.3 (GCC) ) Tue Sep 18 00:16:36 EDT 2012
 [XEN]  Platform: arm-tegra
-[XEN]  GIT SHA: eec91183a11fd05089b63eb8cc8a632580bdb23b
+[XEN]  GIT SHA: cbfc78acef60c1ae070076e44f500b921dd2c4ff
 [XEN]  Kernel command line: <NULL>
 [XEN]  Boot volume: 0x5000000-0x5022400
-[XEN] TTB PA 0x104000
-[XEN] idle_pgd VA 0xff004000
-[XEN] xen_pstart 0x0
-[XEN] xen_pend 0x40000000
-[XEN] _end 0xff04606c
-[XEN] _end VA 0x14606C
-[XEN] nr_pages needed for all page_infos = 0x500
-[XEN] frame table is at 0xff047000-0xff547000
-[XEN] xenheap_phys_start = 0x650000 (VA 0xff550000)
-[XEN] xenheap_phys_end = 0x850000 (VA 0xff750000)
+[XEN] Virtual memory map:
+[XEN] ===============================================
+[XEN] VECTORS_BASE:          0xffff0000
+[XEN] DIRECTMAP_VIRT_END:    0xfff00000 (PA 0x01000000)
+[XEN] M pages end:           0xfff00000 (PA 0x01000000)
+[XEN] M pages start:         0xff54d000 (PA 0x0064d000)
+[XEN] Frame table end:       0xff044000 (PA 0x00144000)
+[XEN] Frame table start:     0xff544000 (PA 0x00644000)
+[XEN] Kernel ends at:        0xff043070 (PA 0x00143070)
+[XEN] Kernel linked at:      0xff004000 (PA 0x00104000)
+[XEN] Idle page tables:      0xff000000 (PA 0x00100000)
+[XEN] DIRECTMAP_VIRT_START:  0xff000000
+[XEN] MAPCACHE_VIRT_START:   0xfec00000
+[XEN] SHARED_INFO_BASE:      0xfeb00000
+[XEN] IOREMAP_VIRT_START:    0xfc000000
+[XEN] HYPERVISOR_VIRT_START: 0xfc000000
 [XEN] looking at bank 0
 [XEN]         base - 0x0
 [XEN]         end  - 0x40000000
-[XEN] calling init_boot_pages on 0x650000-0x40000000
-[XEN] calling init_xenheap_pages on 0x650000-0x850000
 [XEN] FIQ debugger enabled
 [XEN] Using scheduler: Simple EDF Scheduler (sedf)
-[XEN] Hello from a Xen domain 1!
+[XEN] fb: no framebuffer support
+
+fiqdb> [XEN] Hello from a Xen domain 1!
 [XEN] Hello from a Xen domain 2!
 [XEN] Hello from a Xen domain 1!
-
-fiqdb> bt[XEN] Hello from a Xen domain 1!
-
-sp ff746fd8 fp ff746ffc pc ff026d00 (get_current+0x0/0x20)
-sp ff747000 fp 00000000 pc ff02774c (xd_test+0x0/0xdc)
-fiqdb> [XEN] Hello from a Xen domain 2!
-[XEN] Hello from a Xen domain 1!
-
-fiqdb> bt
-sp ff746f08 fp ff746f74 pc ff01b980 (get_current+0x0/0x20)
-sp ff746f78 fp ff746fc4 pc ff021c18 (__enter_scheduler+0xe4/0x3ec)
-sp ff746fc8 fp ff746fd4 pc ff021604 (sched_yield+0x28/0x34)
-sp ff746fd8 fp ff746ffc pc ff027824 (xd_test+0xd8/0xdc)
-sp ff747000 fp 00000000 pc ff02774c (xd_test+0x0/0xdc)
+bt
+sp ffefbda8 fp ffefbe6c pc ff00f9d8 (__qdivrem+0x380/0x8c8)
+sp ffefbe70 fp ffefbeb4 pc ff00ffe8 (__divdi3+0xc8/0x104)
+sp ffefbeb8 fp ffefbf04 pc ff019af4 (desched_extra_dom+0x258/0x47c)
+sp ffefbf08 fp ffefbf74 pc ff01a248 (sedf_do_schedule+0x160/0x520)
+sp ffefbf78 fp ffefbfc4 pc ff01dc10 (__enter_scheduler+0xe4/0x3ec)
+sp ffefbfc8 fp ffefbfd4 pc ff01d5fc (sched_yield+0x28/0x34)
+sp ffefbfd8 fp ffefbffc pc ff02381c (xd_test+0xd8/0xdc)
+sp ffefc000 fp 00000000 pc ff023744 (xd_test+0x0/0xdc)
 fiqdb> [XEN] Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 2!
+[XEN] Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 1!
 
 
 TODO
@@ -129,17 +132,9 @@ TODO
 Here goes various stuff that consitutes braindead design
 that came from Samsung's EmbeddedXen, and various odds and
 ends and which need some lovin', but not immediately.
-1) Instead of placing pgd 16K below load address, put it
-   after the loaded image.
-2) EmbeddedXen put the IVT at PHYS_OFFSET (another 16k
-   below pgd, really). I fixed that nonsense by using
-   a heap page, but that seems wasteful - just use
-   an existing kernel page and map it again.
-3) Think about frame table location. Currently after
-   kernel image.
-4) Fix the link address being 0x8000 - with pgd moved
-   should have no reason for this nonsense.
-5) Fix percpu to support SMP.
+1) Initialize mapcache before traps to avoid using
+   a heap page for pte table.
+2) Fix percpu to support SMP.
 
 Nice to have:
 1) tegrafb for debugging

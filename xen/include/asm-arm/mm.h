@@ -90,7 +90,8 @@
 
 #define write_ptbase(v)		cpu_switch_ttb((v)->arch.guest_table, 1);
 
-#define IS_XEN_HEAP_FRAME(_pfn) (page_to_phys(_pfn) < xenheap_phys_end)
+#define IS_M_FRAME(_pfn) (page_to_phys(_pfn) < pages_m_phys_end)
+extern unsigned long pages_m_phys_end;
 
 /*
  * Per-page-frame information.
@@ -173,7 +174,7 @@ static inline void put_page(struct page_info *page)
 	} while ( unlikely((y = cmpxchg(&page->count_info, x, nx)) != x) );
 
 	if ( unlikely((nx & PGC_count_mask) == 0) ) {
-		free_domheap_page(page);
+		pages_u_free1(page);
 	}
 
 }

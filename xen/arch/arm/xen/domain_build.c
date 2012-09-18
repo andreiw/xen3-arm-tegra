@@ -359,14 +359,14 @@ int construct_dom0(struct domain *d,
 		}
 	}
 
-	page = (struct page_info *) alloc_domheap_pages(d,
-                                                        get_order_from_bytes(guest_size),
-                                                        ~ALLOC_DOM_DMA);
+	page = (struct page_info *) pages_u_alloc(d,
+                                             get_order_from_bytes(guest_size),
+                                             ~ALLOC_DOM_DMA);
 
 	if (page == NULL) {
           printk("Not enough RAM for domain %d allocation (%u pages available)\n",
                  d->domain_id,
-                 avail_domheap_pages());
+                 pages_u_avail());
 		return -ENOMEM;
 	}
 
@@ -526,9 +526,9 @@ int construct_guest_dom(struct domain *d,
 		}
 	}
 
-	page = (struct page_info *) alloc_domheap_pages(d,
-                                                        get_order_from_bytes(guest_size),
-                                                        ~ALLOC_DOM_DMA);
+	page = (struct page_info *) pages_u_alloc(d,
+                                             get_order_from_bytes(guest_size),
+                                             ~ALLOC_DOM_DMA);
 	if (page == NULL) {
 		printk("Not enough RAM for domain %d allocation.\n", d->domain_id);
 		return -ENOMEM;

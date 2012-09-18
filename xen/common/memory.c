@@ -57,7 +57,7 @@ increase_reservation(
         }
 
 
-        if ( unlikely((page = alloc_domheap_pages(
+        if ( unlikely((page = pages_u_alloc(
             d, extent_order, flags)) == NULL) )
         {
             DPRINTK(3,"Could not allocate order=%d extent: "
@@ -108,7 +108,7 @@ populate_physmap(
         if ( unlikely(__copy_from_guest_offset(&gpfn, extent_list, i, 1)) )
             goto out;
 
-        if ( unlikely((page = alloc_domheap_pages(
+        if ( unlikely((page = pages_u_alloc(
             d, extent_order, flags)) == NULL) )
         {
             DPRINTK(3,"Could not allocate order=%d extent: "

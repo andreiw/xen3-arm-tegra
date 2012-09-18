@@ -1,6 +1,7 @@
 #ifndef __ARM_CONFIG_H__
 #define __ARM_CONFIG_H__
 
+#include <xen/sizes.h>
 #include <asm/arch/config.h>
 
 #define supervisor_mode_kernel	(0)
@@ -29,7 +30,18 @@
 #endif
 
 #define VECTORS_BASE		0xFFFF0000
-#define DIRECTMAP_VIRT_END	VECTORS_BASE
+
+/*
+ * We used 1M sections to map, so we'll actually
+ * leave the last 1M alone, otherwise things are
+ * going to get weird. Wasteful, yes. Maybe later
+ * we can 4k map in the rest if we care.
+ */
+
+#define DIRECTMAP_VIRT_END	(VECTORS_BASE & ~(SZ_1M - 1))
+
+/* The first 4k is the idle PGD. */
+#define KERNEL_VIRT_LINKED	(KERNEL_VIRT_BASE + 0x4000)
 #define DIRECTMAP_VIRT_START	KERNEL_VIRT_BASE
 #define DIRECTMAP_PHYS_START	KERNEL_PHYS_BASE
 
@@ -45,14 +57,9 @@
 
 #define MAX_UNMAPPED_DMA_PFN	0xFFFFFUL /* 32 addressable bits */
 
-/* Must match xen.lds.S */
-#define KERNEL_LINK_OFFSET	0x8000
-
 #ifndef __ASSEMBLY__
 extern unsigned long _start; /* standard ELF symbol */
 extern unsigned long _end;   /* standard ELF symbol */
-extern unsigned long xenheap_phys_end; /* user-configurable */
-
 #endif
 
 #define ELFSIZE	32

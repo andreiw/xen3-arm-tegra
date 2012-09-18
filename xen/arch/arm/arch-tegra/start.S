@@ -58,7 +58,7 @@ ENTRY(text)
         bl      printhex8
         adr     r0, str_p3
         bl      printascii
-        ldr     r0, =(KERNEL_PHYS_BASE + KERNEL_LINK_OFFSET)
+        ldr     r0, =(KERNEL_VIRT_LINKED - KERNEL_VIRT_BASE + KERNEL_PHYS_BASE)
         bl      printhex8
         adr     r0, str_n
         bl      printascii

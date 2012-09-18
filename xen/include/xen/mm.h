@@ -56,12 +56,12 @@ void pages_m_free(void *v, unsigned int order);
 #define pages_m_free1(v) (pages_m_free(v,0))
 
 /* Domain suballocator. These functions are *not* interrupt-safe.*/
-void init_domheap_pages(paddr_t ps, paddr_t pe);
-struct page_info *alloc_domheap_pages(struct domain *d, unsigned int order, unsigned int flags);
-void free_domheap_pages(struct page_info *pg, unsigned int order);
-unsigned long avail_domheap_pages(void);
-#define alloc_domheap_page(d) (alloc_domheap_pages(d,0,0))
-#define free_domheap_page(p)  (free_domheap_pages(p,0))
+void pages_u_init(paddr_t ps, paddr_t pe);
+struct page_info *pages_u_alloc(struct domain *d, unsigned int order, unsigned int flags);
+void pages_u_free(struct page_info *pg, unsigned int order);
+unsigned long pages_u_avail(void);
+#define pages_u_alloc1(d) (pages_u_alloc(d,0,0))
+#define pages_u_free1(p)  (pages_u_free(p,0))
 
 #define ALLOC_DOM_DMA 1
 

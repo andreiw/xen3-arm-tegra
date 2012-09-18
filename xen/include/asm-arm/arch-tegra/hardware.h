@@ -21,7 +21,7 @@
 #ifndef __ASM_ARCH_HARDWARE_H
 #define __ASM_ARCH_HARDWARE_H
 
-#include <asm/sizes.h>
+#include <xen/sizes.h>
 #include <asm/arch/tegra-regs.h>
 
 #define TEGRA_RAM_PHYS     0x0
