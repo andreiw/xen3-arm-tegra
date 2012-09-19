@@ -188,7 +188,7 @@
 
 #define local_irq_is_enabled()	(!irqs_disabled())
 
-#define isb() __asm__ __volatile__ ("" : : : "memory")
+#define isb() __asm__ __volatile__ ("isb" : : : "memory")
 
 static inline unsigned int get_cr(void)
 {

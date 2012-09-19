@@ -26,6 +26,7 @@ obj-y += xmalloc.o
 obj-y += bv.o
 obj-y += panic.o
 obj-y += debugger.o
+obj-y += hexdump.o
 
 obj-$(perfc)       += perfc.o
 obj-$(crash_debug) += gdbstub.o

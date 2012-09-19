@@ -32,7 +32,8 @@ struct domain *domain_list;
 
 struct domain *dom0;
 
-void debug_list_domains(const char *cmd,
+void debug_list_domains(struct debug_command *command,
+                        const char *arg,
                         debug_printf_cb print_cb)
 {
    unsigned long flags;
@@ -65,7 +66,7 @@ void debug_list_domains(const char *cmd,
    }
 }
 
-DEBUG_COMMAND(doms, debug_list_domains, "List domains");
+DEBUG_COMMAND(doms, debug_list_domains, "list domains");
 
 struct domain *xen_domain_create(domid_t dom_id,
                                  xen_domain_fn fn,

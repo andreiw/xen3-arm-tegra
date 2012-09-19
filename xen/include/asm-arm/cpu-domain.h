@@ -39,7 +39,6 @@
 	 DOMAIN_VALUE(DOMAIN_USER,     DOMAIN_CLIENT))
 
 #ifndef __ASSEMBLY__
-#define isb() __asm__ __volatile__ ("" : : : "memory")
 
 #define set_domain(x)					\
 	do {								\

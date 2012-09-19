@@ -55,5 +55,6 @@
 
 #define flush_tlb_mask(mask)		local_flush_tlb()
 
+bool tlb_check(vaddr_t va, vaddr_t end, bool priviledged, bool write);
 
 #endif /* __ASM_TLB_H__ */

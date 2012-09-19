@@ -220,9 +220,10 @@ void trap_init(void)
    clear_page(table);
 
    pg = pages_u_alloc1(NULL);
+   printk("IVT page is PA 0x%08x\n", page_to_phys(pg));
    cpu_flush_cache_range((unsigned long)table, (unsigned long) table + PAGE_SIZE);
 
-   consistent_write((void *)&table[PGT_IDX(VECTORS_BASE)], pte_val(MK_PTE(page_to_pfn(pg), PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)));
+   consistent_write((void *)&table[PGT_IDX(VECTORS_BASE)], pte_val(MK_PTE(page_to_phys(pg), PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)));
    consistent_write((void *)&idle_pgd[PGD_IDX(VECTORS_BASE)], pde_val(MK_PDE(va_to_ma(table), PDE_TYPE_COARSE | PDE_DOMAIN_HYPERVISOR)));
 
    clear_page(VECTORS_BASE);
@@ -326,6 +327,9 @@ void start_xen(void *unused)
    idle_vcpu[0] = current;
    idle_vcpu[0]->arch.guest_table = va_to_ma(&idle_pgd[0]);
 
+   /* While we're not stable... */
+   debugger_trap_immediate();
+
 #if 0
    dom0 = domain_create(0, 0, 0);
 
@@ -341,11 +345,6 @@ void start_xen(void *unused)
    if (!bv_find(&bv, "initrd0", &initrd0_data))
       printk("Dom0 initrd 0x%x-0x%x\n",
              initrd0_data.start, initrd0_data.end);
-
-   /* { */
-   /*    local_irq_enable(); */
-   /*    while(1); */
-   /* } */
 
    /*
     * Hardcoding stuff in.

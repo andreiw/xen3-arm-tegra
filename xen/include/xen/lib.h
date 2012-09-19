@@ -43,6 +43,10 @@ extern void debugtrace_printk(const char *fmt, ...);
 #define debugtrace_printk(_f, ...) ((void)0)
 #endif
 
+void hex_dump_to_buffer(const void *buf, size_t len, int rowsize,
+                        int groupsize, char *linebuf, size_t linebuflen,
+                        bool ascii);
+
 /* Allows us to use '%p' as general-purpose machine-word format char. */
 #define _p(_x) ((void *)(unsigned long)(_x))
 #define printk(_f , _a...) printf( _f , ## _a )
@@ -66,6 +70,9 @@ extern int scnprintf(char * buf, size_t size, const char * fmt, ...)
 extern int vscnprintf(char *buf, size_t size, const char *fmt, va_list args)
     __attribute__ ((format (printf, 3, 0)));
 
+int vsscanf(const char *buf, const char *fmt, va_list args);
+int sscanf(const char *buf, const char *fmt, ...);
+
 long simple_strtol(
     const char *cp,char **endp, unsigned int base);
 unsigned long simple_strtoul(
@@ -86,3 +93,9 @@ extern char *print_tainted(char *str);
 extern void add_taint(unsigned);
 
 #endif /* __LIB_H__ */
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

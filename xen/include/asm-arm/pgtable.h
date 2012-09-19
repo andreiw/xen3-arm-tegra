@@ -56,7 +56,7 @@
 #define PGD_SHIFT               (20)
 #define PGT_SHIFT               (12)
 
-#define PGD_SIZE				(PAGE_SIZE * 4)
+#define PGD_SIZE		(PAGE_SIZE * 4)
 
 #define PGD_ALIGN(x)			((x + (0x4000 - 1)) & ~(0x4000 - 1))
 #define PGT_ALIGN(x)			((x + (0x1000 - 1)) & ~(0x1000 - 1))

@@ -24,7 +24,6 @@
 #include <xen/errno.h>
 #include <xen/lib.h>
 #include <xen/symbols.h>
-#include <xen/compile.h>
 #include <xen/shutdown.h>
 #include <asm/fiqdb.h>
 #include <asm/irq.h>
@@ -155,6 +154,33 @@ struct mode_regs {
    unsigned long spsr_fiq;
 };
 
+
+static bool in_debugger;
+
+/*
+ * Called from panic() or elsewhere.
+ */
+void debugger_trap_immediate(void)
+{
+   printk("Waiting for FIQDB\n");
+   in_debugger = true;
+
+   /*
+    * FIQ could be disabled.
+    */
+
+   local_fiq_enable();
+   fiqdb_prompt();
+   while(1) {
+      mb();
+      if (!in_debugger) {
+         break;
+      }
+   }
+   printk("\nContinuing...\n");
+}
+
+
 static void __naked get_mode_regs(struct mode_regs *regs)
 {
    asm volatile (
@@ -178,6 +204,7 @@ static void __naked get_mode_regs(struct mode_regs *regs)
       "msr  cpsr_c, r1\n"
       "bx   lr\n");
 }
+
 
 static void fiqdb_xregs(struct fiq_regs *regs)
 {
@@ -206,6 +233,7 @@ static void fiqdb_xregs(struct fiq_regs *regs)
                 mode_regs.spsr_fiq, mode_name(mode_regs.spsr_fiq));
 }
 
+
 static int fiqdb_bt_report(struct stackframe *frame, void *d)
 {
    const char *name;
@@ -232,6 +260,7 @@ static int fiqdb_bt_report(struct stackframe *frame, void *d)
    return *depth == 0;
 }
 
+
 static void fiqdb_bt(struct fiq_regs *regs,
                      unsigned int depth, void *ssp)
 {
@@ -249,6 +278,7 @@ static void fiqdb_bt(struct fiq_regs *regs,
    walk_stackframe(&frame, fiqdb_bt_report, &d);
 }
 
+
 static void fiqdb_exec(char *command,
                        struct fiq_regs *regs,
                        void *svc_sp)
@@ -262,30 +292,26 @@ static void fiqdb_exec(char *command,
       fiqdb_regs(regs);
    } else if (!strcmp(command, "xregs")) {
       fiqdb_xregs(regs);
-   } else if (!strcmp(command, "version")) {
-      fiqdb_printf("Xen version %d.%d%s (%s@%s) (%s) %s\n",
-                   XEN_VERSION, XEN_SUBVERSION,
-                   XEN_EXTRAVERSION,
-                   XEN_COMPILE_BY, XEN_COMPILE_DOMAIN,
-                   XEN_COMPILER, XEN_COMPILE_DATE);
-      fiqdb_printf("Platform: %s\n", XEN_PLATFORM);
-      fiqdb_printf("GIT SHA: %s\n", XEN_CHANGESET);
    } else if (!strcmp(command, "reset")) {
       machine_restart(0);
+   } else if (!strcmp(command, "continue")) {
+      in_debugger = false;
+      mb();
    } else {
       err = debug_handle_command(command, fiqdb_printf);
       if (err != 0) {
          fiqdb_printf("\nFIQ debugger commands:\n");
          fiqdb_printf("bt - backtrace\n");
          fiqdb_printf("regs - register dump\n");
-         fiqdb_printf("regs - extended register dump\n");
-         fiqdb_printf("version - kernel version\n");
+         fiqdb_printf("xregs - extended register dump\n");
          fiqdb_printf("reset - reset\n");
+         fiqdb_printf("continue - continue execution after trap\n");
          debug_list_commands(fiqdb_printf);
       }
    }
    debug_indent--;
 }
+
 
 static void handle_fiq(struct fiq_handler *h,
                        struct fiq_regs *regs,
@@ -333,6 +359,7 @@ struct fiq_handler fiq_handler = {
    .fiq = handle_fiq,
 };
 
+
 /*
  * Initializes the FIQ debugger.
  */
@@ -358,26 +385,13 @@ int fiqdb_init(void)
    return 0;
 }
 
+
 /*
  * Registers platform FIQDB operations with the debugger.
  */
 void fiqdb_register(struct platform_fiqdb *platform_fiqdb)
 {
    pfiqdb = platform_fiqdb;
-}
-
-/*
- * Called from panic().
- */
-void debugger_trap_immediate(void)
-{
-
-   /*
-    * FIQ could be disabled.
-    */
-   local_fiq_enable();
-   fiqdb_prompt();
-   while(1);
 }
 
 /*

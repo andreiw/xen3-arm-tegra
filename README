@@ -33,7 +33,8 @@ Current differences from Samsung's tree:
    through a "boot volume".
 4) Kernel threads ("xen domains").
 5) No ACM, given likely hypercall changes.
-6) A FIQ-based extensible serial kernel debugger.
+6) A FIQ-based extensible serial kernel debugger with useful commands to help
+   debugging and bring-up.
 
 Full kernel preemption is a design goal. Kernel threads are cooperative at the moment.
 
@@ -63,6 +64,7 @@ Assuming you have a Xoom with the serial port through the headphone h^Hjack.
 
 $ sudo fastboot boot  /home/andreiw/src/xen3-arm-tegra/dist/install/boot/xen-bin-3.0.2-2 bootvol.img
 
+ATAG    (P): 0x00000100
 Linked  (V): 0xff004000
 Actual  (P): 0x00a00800
 Desired (P): 0x00104000
@@ -80,9 +82,9 @@ Handing off to C...
 [XEN]  http://www.cl.cam.ac.uk/netos/xen
 [XEN]  University of Cambridge Computer Laboratory
 [XEN] 
-[XEN]  Xen version 3.0.2-2 (andreiw@localdomain) (gcc version 4.4.3 (GCC) ) Tue Sep 18 00:16:36 EDT 2012
+[XEN]  Xen version 3.0.2-2 (andreiw@localdomain) (gcc version 4.4.3 (GCC) ) Wed Sep 19 17:15:46 EDT 2012
 [XEN]  Platform: arm-tegra
-[XEN]  GIT SHA: cbfc78acef60c1ae070076e44f500b921dd2c4ff
+[XEN]  GIT SHA: ab918d38f19258b8a03f8871d3dacbac45dab161
 [XEN]  Kernel command line: <NULL>
 [XEN]  Boot volume: 0x5000000-0x5022400
 [XEN] Virtual memory map:
@@ -90,10 +92,10 @@ Handing off to C...
 [XEN] VECTORS_BASE:          0xffff0000
 [XEN] DIRECTMAP_VIRT_END:    0xfff00000 (PA 0x01000000)
 [XEN] M pages end:           0xfff00000 (PA 0x01000000)
-[XEN] M pages start:         0xff54d000 (PA 0x0064d000)
-[XEN] Frame table end:       0xff044000 (PA 0x00144000)
-[XEN] Frame table start:     0xff544000 (PA 0x00644000)
-[XEN] Kernel ends at:        0xff043070 (PA 0x00143070)
+[XEN] M pages start:         0xff54f000 (PA 0x0064f000)
+[XEN] Frame table end:       0xff046000 (PA 0x00146000)
+[XEN] Frame table start:     0xff546000 (PA 0x00646000)
+[XEN] Kernel ends at:        0xff045074 (PA 0x00145074)
 [XEN] Kernel linked at:      0xff004000 (PA 0x00104000)
 [XEN] Idle page tables:      0xff000000 (PA 0x00100000)
 [XEN] DIRECTMAP_VIRT_START:  0xff000000
@@ -104,27 +106,103 @@ Handing off to C...
 [XEN] looking at bank 0
 [XEN]         base - 0x0
 [XEN]         end  - 0x40000000
+[XEN] IVT page is PA 0x01fff000
 [XEN] FIQ debugger enabled
 [XEN] Using scheduler: Simple EDF Scheduler (sedf)
 [XEN] fb: no framebuffer support
+[XEN] Waiting for FIQDB
+fiqdb> 
+fiqdb> 
+fiqdb> ?
 
+FIQ debugger commands:
+bt - backtrace
+regs - register dump
+xregs - extended register dump
+reset - reset
+continue - continue execution after trap
+
+Xen debugger commands:
+doms - List domains
+ver - hypervisor version
+hexdump - hexdump VA
+v2p - VA to PA translation
+fiqdb> bt
+sp ff03cf98 fp ff03cfac pc ff02e788 (debugger_trap_immediate+0x44/0x70)
+sp ff03cfb0 fp ff03cffc pc ff024f50 (start_xen+0x218/0x2e4)
+sp ff03d000 fp 0000c090 pc 00000000
+fiqdb> regs
+r0 00000020  r1 00000000  r2  ff036dbc  r3 00000001
+r4 001042d0  r5 000000df  r6  00c5107f  r7 00335e84
+r8 00000003  r9 00a00800  r10 0000c090  fp ff03cfac
+ip ff03cf48  sp ff03cf98  lr  ff024018  pc ff02e788
+cpsr 20000093 mode SVC
+spsr 00000000 mode ???
+fiqdb> xregs
+r0 00000020  r1 00000000  r2  ff036dbc  r3 00000001
+r4 001042d0  r5 000000df  r6  00c5107f  r7 00335e84
+r8 00000003  r9 00a00800  r10 0000c090  fp ff03cfac
+ip ff03cf48  sp ff03cf98  lr  ff024018  pc ff02e798
+cpsr 20000093 mode SVC
+spsr 00000000 mode ???
+svc: sp ffefeed0  lr ff02e828  spsr 00000000  mode ???
+abt: sp ff03f000  lr 00000000  spsr 00000000  mode ???
+und: sp ff040000  lr 00000000  spsr 00000000  mode ???
+irq: sp ff03e000  lr 00156c83  spsr 6000001f  mode SYS
+fiq: r8 ff02ec8c  r9 ff03b8ac  r10  00000000  r11  ff02e798 r12 20000093
+fiq: sp ffefefb8  lr ff02e79c  spsr 20000093  mode SVC
+fiqdb> ver
+Xen version 3.0.2-2 (andreiw@localdomain) (gcc version 4.4.3 (GCC) ) Wed Sep 19 17:17:39 EDT 2012
+Platform: arm-tegra
+GIT SHA: ab918d38f19258b8a03f8871d3dacbac45dab161
+fiqdb> hexdump  
+Usage: hexdump 1|2|4|8 <hex size>@<hex VA address>
+fiqdb> hexdump 1 0x100@0xff546000
+ff546000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................................
+ff546020: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................................
+ff546040: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................................
+ff546060: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................................
+ff546080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................................
+ff5460a0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................................
+ff5460c0: ff ff ff ff ff ff ff ff ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+ff5460e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+fiqdb> v2p
+Usage: v2p u|p r|w <hex VA address>
+fiqdb> v2p u r 0xffff0000
+Unpriviledged read VA 0xffff0000 to PA: 0x01fff000
+PAR: 0x081fff0f4 flags: shareable 
+Outer: write-back, write-allocate
+Inner: write-back, no write-allocate
+fiqdb> continue
+fiqdb> 
+[XEN] Continuing...
+Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 2!
+[XEN] Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 2!
+[XEN] Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 2!
+[XEN] Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 2!
+[XEN] Hello from a Xen domain 1!
+
+fiqdb> 
+fiqdb> 
+fiqdb> doms
+1: 0x21 priv xen
+2: 0x21 priv xen
 fiqdb> [XEN] Hello from a Xen domain 1!
 [XEN] Hello from a Xen domain 2!
 [XEN] Hello from a Xen domain 1!
-bt
-sp ffefbda8 fp ffefbe6c pc ff00f9d8 (__qdivrem+0x380/0x8c8)
-sp ffefbe70 fp ffefbeb4 pc ff00ffe8 (__divdi3+0xc8/0x104)
-sp ffefbeb8 fp ffefbf04 pc ff019af4 (desched_extra_dom+0x258/0x47c)
-sp ffefbf08 fp ffefbf74 pc ff01a248 (sedf_do_schedule+0x160/0x520)
-sp ffefbf78 fp ffefbfc4 pc ff01dc10 (__enter_scheduler+0xe4/0x3ec)
-sp ffefbfc8 fp ffefbfd4 pc ff01d5fc (sched_yield+0x28/0x34)
-sp ffefbfd8 fp ffefbffc pc ff02381c (xd_test+0xd8/0xdc)
-sp ffefc000 fp 00000000 pc ff023744 (xd_test+0x0/0xdc)
-fiqdb> [XEN] Hello from a Xen domain 1!
+[XEN] Hello from a Xen domain 1!
 [XEN] Hello from a Xen domain 2!
 [XEN] Hello from a Xen domain 1!
 [XEN] Hello from a Xen domain 1!
-
+[XEN] Hello from a Xen domain 2!
+[XEN] Hello from a Xen domain 1!
 
 TODO
 ====
@@ -137,7 +215,8 @@ ends and which need some lovin', but not immediately.
 2) Fix percpu to support SMP.
 
 Nice to have:
-1) tegrafb for debugging
+1) tegrafb for debugging and use by people with regular Xooms
+   and other Tegra2 hardware.
 2) GDB xen domain to facilitate debugging
 3) Control of GPIOs to reset, blink leds, etc. More
    for debugging, although by the time I get to a PV
