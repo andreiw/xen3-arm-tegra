@@ -1,7 +1,6 @@
 #ifndef __ASM_TIME_H__
 #define __ASM_TIME_H__
 
-#include <xen/types.h>
 #include <xen/cache.h>
 #include <xen/softirq.h>
 #include <asm/page.h>

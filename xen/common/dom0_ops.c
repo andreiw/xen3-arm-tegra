@@ -11,9 +11,8 @@
  * for supporting ARM processor by Samsung Electronics.
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/types.h>
-#include <xen/lib.h>
 #include <xen/mm.h>
 #include <xen/sched.h>
 #include <xen/domain.h>

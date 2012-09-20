@@ -26,7 +26,6 @@
 #ifndef __XEN_TIME_H__
 #define __XEN_TIME_H__
 
-#include <xen/types.h>
 #include <public/xen.h>
 #include <asm/time.h>
 

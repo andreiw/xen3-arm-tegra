@@ -19,8 +19,6 @@
  */
 
 #include <xen/kernel.h>
-#include <xen/init.h>
-#include <xen/lib.h>
 #include <xen/fb.h>
 #include <asm/io.h>
 

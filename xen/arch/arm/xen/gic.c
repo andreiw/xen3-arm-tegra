@@ -25,14 +25,12 @@
  *
  */
 
+#include <xen/kernel.h>
 #include <asm/io.h>
-#include <xen/init.h>
-#include <xen/types.h>
 #include <asm/irq.h>
 #include <xen/smp.h>
 #include <xen/cpumask.h>
 #include <xen/spinlock.h>
-#include <xen/errno.h>
 #include <asm/gic.h>
 
 /*

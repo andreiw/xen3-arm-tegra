@@ -1,5 +1,4 @@
 #include <xen/kernel.h>
-#include <xen/lib.h>
 #include <xen/debugger.h>
 #include <asm/page.h>
 #include <asm/tlb.h>

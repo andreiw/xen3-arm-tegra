@@ -9,8 +9,8 @@
  * Copyright (c) 1992, Linus Torvalds
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/init.h>
 #include <xen/mm.h>
 #include <xen/sched.h>
 #include <xen/softirq.h>

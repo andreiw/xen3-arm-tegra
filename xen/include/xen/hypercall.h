@@ -6,7 +6,6 @@
 #define __XEN_HYPERCALL_H__
 
 #include <xen/config.h>
-#include <xen/types.h>
 #include <xen/time.h>
 #include <public/xen.h>
 #include <public/event_channel.h>

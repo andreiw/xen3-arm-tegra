@@ -15,8 +15,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/init.h>
 #include <asm/current.h>
 #include <asm/uaccess.h>
 

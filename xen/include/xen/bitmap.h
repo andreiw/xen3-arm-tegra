@@ -3,9 +3,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/lib.h>
-#include <xen/types.h>
 #include <xen/bitops.h>
 
 /*

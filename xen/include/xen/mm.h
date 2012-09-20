@@ -29,7 +29,6 @@
 #define __XEN_MM_H__
 
 #include <xen/config.h>
-#include <xen/types.h>
 #include <xen/list.h>
 #include <xen/spinlock.h>
 

@@ -111,8 +111,6 @@
 #define SHARED_INFO_SHADOW_PTE_FLAGS	(PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)
 #ifndef __ASSEMBLY__
 
-#include <asm/types.h>
-
 #define MK_PTE(x, flags)	((pte_t) { ((x) & (~PTE_FLAG_MASK)) | flags } )
 #define MK_PDE(x, flags)	((pde_t) { ((x) & (~PDE_FLAG_MASK)) | flags } )
 

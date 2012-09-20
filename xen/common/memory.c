@@ -7,9 +7,8 @@
  * Copyright (c) 2003-2005, K A Fraser
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/types.h>
-#include <xen/lib.h>
 #include <xen/mm.h>
 #include <xen/perfc.h>
 #include <xen/sched.h>

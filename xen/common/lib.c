@@ -1,9 +1,5 @@
+#include <xen/kernel.h>
 
-#include <xen/ctype.h>
-#include <xen/lib.h>
-
-
-/* for inc/ctype.h */
 unsigned char _ctype[] = {
 _C,_C,_C,_C,_C,_C,_C,_C,                        /* 0-7 */
 _C,_C|_S,_C|_S,_C|_S,_C|_S,_C|_S,_C,_C,         /* 8-15 */
@@ -438,24 +434,6 @@ s64 __moddi3(s64 a, s64 b)
 }
 
 #endif /* BITS_PER_LONG == 32 */
-
-unsigned long long parse_size_and_unit(char *s)
-{
-	unsigned long long ret = simple_strtoull(s, &s, 0);
-
-	switch (*s) {
-	case 'G': case 'g':
-		ret <<= 10;
-	case 'M': case 'm':
-		ret <<= 10;
-	case 'K': case 'k': default:
-		ret <<= 10;
-	case 'B': case 'b':
-		break;
-	}
-
-	return ret;
-}
 
 /*
  * Local variables:

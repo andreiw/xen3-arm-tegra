@@ -16,7 +16,6 @@
 
 #include <xen/config.h>
 #include <xen/linkage.h>
-#include <xen/lib.h>
 #include <xen/smp.h>
 #include <asm/bitops.h>
 #include <asm/current.h>

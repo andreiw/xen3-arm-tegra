@@ -4,7 +4,6 @@
 
 #ifdef PERF_COUNTERS
 
-#include <xen/lib.h>
 #include <asm/atomic.h>
 
 /* 

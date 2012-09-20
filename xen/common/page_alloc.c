@@ -21,13 +21,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/lib.h>
 #include <xen/spinlock.h>
 #include <asm/io.h>
 #include <xen/list.h>
 #include <xen/compiler.h>
-#include <xen/types.h>
 #include <xen/cpumask.h>
 #include <xen/mm.h>
 #include <asm/system.h>
@@ -40,7 +39,6 @@
 #include <xen/irq_cpustat.h>
 #include <xen/softirq.h>
 #include <xen/domain_page.h>
-#include <xen/init.h>
 
 /*
  * Comma-separated list of hexadecimal page numbers containing bad bytes.

@@ -1,6 +1,5 @@
 #ifndef _LINUX_BITOPS_H
 #define _LINUX_BITOPS_H
-#include <asm/types.h>
 
 /*
  * ffs: find first bit set. This is defined the same way as

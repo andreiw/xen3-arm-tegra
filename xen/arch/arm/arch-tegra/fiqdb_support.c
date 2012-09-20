@@ -17,11 +17,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <xen/lib.h>
+#include <xen/kernel.h>
 #include <asm/irq.h>
 #include <asm/io.h>
 #include <asm/fiqdb.h>
-#include <xen/init.h>
 #include <asm/termbits.h>
 #include <asm/serial_reg.h>
 #include <asm/arch/hardware.h>

@@ -8,8 +8,6 @@
  */
 
 #include <xen/kernel.h>
-#include <xen/types.h>
-#include <xen/ctype.h>
 
 /**
  * hex_dump_to_buffer - convert a blob of data to "hex ASCII" in memory

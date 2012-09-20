@@ -14,9 +14,6 @@
 
 #include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/string.h>
-#include <xen/errno.h>
-#include <xen/lib.h>
 #include <xen/bv.h>
 
 #define C_MAGIC    (0)

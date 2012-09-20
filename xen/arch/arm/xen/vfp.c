@@ -21,14 +21,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <xen/init.h>
-#include <xen/types.h>
-#include <xen/errno.h>
+#include <xen/kernel.h>
 #include <xen/spinlock.h>
-#include <xen/lib.h>
-#include <xen/types.h>
-#include <xen/init.h>
-#include <xen/errno.h>
 #include <xen/spinlock.h>
 #include <public/arch-arm.h>
 #include <xen/bitmap.h>
@@ -37,7 +31,6 @@
 #include <xen/linkage.h>
 #include <asm/hardirq.h>
 #include <asm/uaccess.h>
-#include <asm/string.h>
 
 #define FPEXC           cr8
 #define FPINST          cr9

@@ -10,7 +10,6 @@
 #include <xen/autoconf.h>
 #include <asm/config.h>
 
-#define EXPORT_SYMBOL(var)
 #define offsetof(_p,_f) ((unsigned long)&(((_p *)0)->_f))
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 

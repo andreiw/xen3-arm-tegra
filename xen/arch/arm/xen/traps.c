@@ -21,13 +21,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
 #include <xen/linkage.h>
 #include <xen/compile.h>
 #include <xen/domain_page.h>
-#include <xen/init.h>
 #include <xen/sched.h>
-#include <xen/lib.h>
 #include <xen/console.h>
 #include <xen/mm.h>
 #include <xen/irq.h>

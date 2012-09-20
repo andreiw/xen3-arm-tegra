@@ -6,7 +6,7 @@
  * Copyright (c) 2002-2006, K Fraser
  */
 
-#include <xen/types.h>
+#include <xen/kernel.h>
 #include <xen/event.h>
 #include <public/xen.h>
 #include <public/sysctl.h>

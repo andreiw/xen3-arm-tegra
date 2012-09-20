@@ -2,9 +2,8 @@
  * multicall.c
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/types.h>
-#include <xen/lib.h>
 #include <xen/mm.h>
 #include <xen/perfc.h>
 #include <xen/sched.h>

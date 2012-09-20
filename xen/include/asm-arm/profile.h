@@ -1,8 +1,6 @@
 #ifndef __PROFILER_H__
 #define __PROFILER_H__
 
-#include <asm/types.h>
-
 #define MAX_LOG_ENTRIES				8192
 
 #define LOG_ORIGIN_RESET_ENTRY		0

@@ -22,7 +22,6 @@
  */
 
 #include <xen/kernel.h>
-#include <xen/lib.h>
 #include <xen/fb.h>
 #include <asm/bitops.h>
 #include "fb_draw.h"

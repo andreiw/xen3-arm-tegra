@@ -21,7 +21,7 @@
 	.global	main
 	.type	main, %function
 main:
-.LFB105:
+.LFB107:
 	.file 1 "xen/asm-offsets.c"
 	.loc 1 59 0
 	@ args = 0, pretend = 0, frame = 0
@@ -372,7 +372,7 @@ main:
 	.loc 1 132 0
 	mov	r0, r3
 	ldmfd	sp, {fp, sp, pc}
-.LFE105:
+.LFE107:
 	.size	main, .-main
 	.section	.debug_frame,"",%progbits
 .Lframe0:
@@ -393,10 +393,10 @@ main:
 	.4byte	.LEFDE0-.LASFDE0
 .LASFDE0:
 	.4byte	.Lframe0
-	.4byte	.LFB105
-	.4byte	.LFE105-.LFB105
+	.4byte	.LFB107
+	.4byte	.LFE107-.LFB107
 	.byte	0x4
-	.4byte	.LCFI0-.LFB105
+	.4byte	.LCFI0-.LFB107
 	.byte	0xd
 	.uleb128 0xc
 	.byte	0x4
@@ -422,7 +422,7 @@ main:
 	.section	.debug_loc,"",%progbits
 .Ldebug_loc0:
 .LLST0:
-	.4byte	.LFB105-.Ltext0
+	.4byte	.LFB107-.Ltext0
 	.4byte	.LCFI0-.Ltext0
 	.2byte	0x2
 	.byte	0x7d
@@ -433,7 +433,7 @@ main:
 	.byte	0x7c
 	.sleb128 0
 	.4byte	.LCFI2-.Ltext0
-	.4byte	.LFE105-.Ltext0
+	.4byte	.LFE107-.Ltext0
 	.2byte	0x2
 	.byte	0x7b
 	.sleb128 4
@@ -456,18 +456,19 @@ main:
 	.file 16 "/home/andreiw/src/xen3-arm-tegra/xen/include/xen/grant_table.h"
 	.file 17 "/home/andreiw/src/xen3-arm-tegra/xen/include/asm/domain.h"
 	.file 18 "/home/andreiw/src/xen3-arm-tegra/xen/include/asm/atomic.h"
-	.file 19 "/home/andreiw/src/xen3-arm-tegra/xen/include/xen/irq_cpustat.h"
-	.file 20 "/home/andreiw/src/xen3-arm-tegra/xen/include/asm/time.h"
+	.file 19 "/home/andreiw/src/xen3-arm-tegra/xen/include/xen/ctype.h"
+	.file 20 "/home/andreiw/src/xen3-arm-tegra/xen/include/xen/irq_cpustat.h"
+	.file 21 "/home/andreiw/src/xen3-arm-tegra/xen/include/asm/time.h"
 	.section	.debug_info
-	.4byte	0xfb5
+	.4byte	0xfcd
 	.2byte	0x2
 	.4byte	.Ldebug_abbrev0
 	.byte	0x4
 	.uleb128 0x1
-	.4byte	.LASF197
-	.byte	0x1
 	.4byte	.LASF198
+	.byte	0x1
 	.4byte	.LASF199
+	.4byte	.LASF200
 	.4byte	.Ltext0
 	.4byte	.Letext0
 	.4byte	.Ldebug_line0
@@ -579,77 +580,77 @@ main:
 	.4byte	0x82
 	.uleb128 0x6
 	.byte	0x4
+	.uleb128 0x3
+	.byte	0x1
+	.byte	0x6
+	.4byte	.LASF18
 	.uleb128 0x7
 	.4byte	.LASF25
 	.byte	0x8
 	.byte	0x4
 	.byte	0x10
-	.4byte	0x129
-	.uleb128 0x8
-	.4byte	.LASF18
-	.byte	0x4
-	.byte	0x11
-	.4byte	0x129
-	.byte	0x2
-	.byte	0x23
-	.uleb128 0x0
+	.4byte	0x130
 	.uleb128 0x8
 	.4byte	.LASF19
 	.byte	0x4
 	.byte	0x11
-	.4byte	0x129
+	.4byte	0x130
+	.byte	0x2
+	.byte	0x23
+	.uleb128 0x0
+	.uleb128 0x8
+	.4byte	.LASF20
+	.byte	0x4
+	.byte	0x11
+	.4byte	0x130
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x4
 	.byte	0x0
 	.uleb128 0x9
 	.byte	0x4
-	.4byte	0x100
+	.4byte	0x107
 	.uleb128 0xa
 	.byte	0x0
 	.byte	0x5
 	.byte	0x2c
 	.uleb128 0x2
-	.4byte	.LASF20
+	.4byte	.LASF21
 	.byte	0x5
 	.byte	0x2c
-	.4byte	0x12f
+	.4byte	0x136
 	.uleb128 0xb
 	.byte	0x4
 	.byte	0x6
 	.byte	0x50
-	.4byte	0x155
+	.4byte	0x15c
 	.uleb128 0x8
-	.4byte	.LASF21
+	.4byte	.LASF22
 	.byte	0x6
 	.byte	0x50
-	.4byte	0x155
+	.4byte	0x15c
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x0
 	.byte	0x0
 	.uleb128 0xc
 	.4byte	0x94
-	.4byte	0x165
+	.4byte	0x16c
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0x0
 	.byte	0x0
 	.uleb128 0xe
 	.byte	0x4
 	.byte	0x7
 	.uleb128 0x2
-	.4byte	.LASF22
+	.4byte	.LASF23
 	.byte	0x6
 	.byte	0x50
-	.4byte	0x13e
+	.4byte	0x145
 	.uleb128 0x9
 	.byte	0x4
 	.4byte	0x94
-	.uleb128 0x3
-	.byte	0x1
-	.byte	0x6
-	.4byte	.LASF23
 	.uleb128 0x3
 	.byte	0x4
 	.byte	0x5
@@ -1329,7 +1330,7 @@ main:
 	.4byte	0xd2
 	.4byte	0x646
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0x2
 	.byte	0x0
 	.uleb128 0x11
@@ -1496,21 +1497,21 @@ main:
 	.4byte	0x6ab
 	.4byte	0x794
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0x0
 	.byte	0x0
 	.uleb128 0xc
 	.4byte	0x94
 	.4byte	0x7a4
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0x1f
 	.byte	0x0
 	.uleb128 0xc
 	.4byte	0x94
 	.4byte	0x7b4
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0x3
 	.byte	0x0
 	.uleb128 0x11
@@ -1522,7 +1523,7 @@ main:
 	.4byte	0xc7
 	.4byte	0x7d0
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0xf
 	.byte	0x0
 	.uleb128 0x7
@@ -1562,7 +1563,7 @@ main:
 	.4byte	0xf3
 	.4byte	0x81c
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0x3
 	.byte	0x0
 	.uleb128 0x7
@@ -1621,7 +1622,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF104
 	.byte	0xb
-	.byte	0x3d
+	.byte	0x3c
 	.4byte	0x62
 	.byte	0x2
 	.byte	0x23
@@ -1629,7 +1630,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF105
 	.byte	0xb
-	.byte	0x3f
+	.byte	0x3e
 	.4byte	0x62
 	.byte	0x2
 	.byte	0x23
@@ -1637,7 +1638,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF78
 	.byte	0xb
-	.byte	0x41
+	.byte	0x40
 	.4byte	0xf1d
 	.byte	0x2
 	.byte	0x23
@@ -1645,7 +1646,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF106
 	.byte	0xb
-	.byte	0x43
+	.byte	0x42
 	.4byte	0xead
 	.byte	0x2
 	.byte	0x23
@@ -1653,7 +1654,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF107
 	.byte	0xb
-	.byte	0x45
+	.byte	0x44
 	.4byte	0x972
 	.byte	0x2
 	.byte	0x23
@@ -1661,7 +1662,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF108
 	.byte	0xb
-	.byte	0x47
+	.byte	0x46
 	.4byte	0x9c5
 	.byte	0x2
 	.byte	0x23
@@ -1669,7 +1670,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF109
 	.byte	0xb
-	.byte	0x48
+	.byte	0x47
 	.4byte	0x94
 	.byte	0x2
 	.byte	0x23
@@ -1677,7 +1678,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF110
 	.byte	0xb
-	.byte	0x4a
+	.byte	0x49
 	.4byte	0x9c5
 	.byte	0x2
 	.byte	0x23
@@ -1685,7 +1686,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF111
 	.byte	0xb
-	.byte	0x4c
+	.byte	0x4b
 	.4byte	0xfe
 	.byte	0x2
 	.byte	0x23
@@ -1693,7 +1694,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF112
 	.byte	0xb
-	.byte	0x4e
+	.byte	0x4d
 	.4byte	0x7d0
 	.byte	0x2
 	.byte	0x23
@@ -1701,7 +1702,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF113
 	.byte	0xb
-	.byte	0x50
+	.byte	0x4f
 	.4byte	0x94
 	.byte	0x3
 	.byte	0x23
@@ -1709,7 +1710,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF114
 	.byte	0xb
-	.byte	0x52
+	.byte	0x51
 	.4byte	0xf23
 	.byte	0x3
 	.byte	0x23
@@ -1717,7 +1718,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF115
 	.byte	0xb
-	.byte	0x54
+	.byte	0x53
 	.4byte	0xc42
 	.byte	0x3
 	.byte	0x23
@@ -1725,15 +1726,15 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF116
 	.byte	0xb
-	.byte	0x57
-	.4byte	0x168
+	.byte	0x56
+	.4byte	0x16f
 	.byte	0x3
 	.byte	0x23
 	.uleb128 0xbc
 	.uleb128 0x8
 	.4byte	.LASF117
 	.byte	0xb
-	.byte	0x59
+	.byte	0x58
 	.4byte	0x94
 	.byte	0x3
 	.byte	0x23
@@ -1741,15 +1742,15 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF118
 	.byte	0xb
-	.byte	0x5b
-	.4byte	0x168
+	.byte	0x5a
+	.4byte	0x16f
 	.byte	0x3
 	.byte	0x23
 	.uleb128 0xc4
 	.uleb128 0x8
 	.4byte	.LASF82
 	.byte	0xb
-	.byte	0x5d
+	.byte	0x5c
 	.4byte	0xbab
 	.byte	0x3
 	.byte	0x23
@@ -1797,18 +1798,18 @@ main:
 	.uleb128 0x2
 	.4byte	.LASF124
 	.byte	0xd
-	.byte	0x31
+	.byte	0x30
 	.4byte	0xb1
 	.uleb128 0x7
 	.4byte	.LASF108
 	.byte	0x20
 	.byte	0xe
-	.byte	0x10
+	.byte	0xe
 	.4byte	0xa26
 	.uleb128 0x8
 	.4byte	.LASF125
 	.byte	0xe
-	.byte	0x12
+	.byte	0x10
 	.4byte	0x9ba
 	.byte	0x2
 	.byte	0x23
@@ -1816,7 +1817,7 @@ main:
 	.uleb128 0xf
 	.ascii	"cpu\000"
 	.byte	0xe
-	.byte	0x14
+	.byte	0x12
 	.4byte	0x74
 	.byte	0x2
 	.byte	0x23
@@ -1824,7 +1825,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF126
 	.byte	0xe
-	.byte	0x16
+	.byte	0x14
 	.4byte	0xa32
 	.byte	0x2
 	.byte	0x23
@@ -1832,7 +1833,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF127
 	.byte	0xe
-	.byte	0x17
+	.byte	0x15
 	.4byte	0xfe
 	.byte	0x2
 	.byte	0x23
@@ -1840,15 +1841,15 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF128
 	.byte	0xe
-	.byte	0x19
+	.byte	0x17
 	.4byte	0x62
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x14
 	.uleb128 0x8
-	.4byte	.LASF18
+	.4byte	.LASF19
 	.byte	0xe
-	.byte	0x1a
+	.byte	0x18
 	.4byte	0xa38
 	.byte	0x2
 	.byte	0x23
@@ -2029,7 +2030,7 @@ main:
 	.4byte	.LASF144
 	.byte	0x10
 	.byte	0x54
-	.4byte	0x133
+	.4byte	0x13a
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x1c
@@ -2064,7 +2065,7 @@ main:
 	.uleb128 0x0
 	.byte	0x0
 	.uleb128 0x18
-	.4byte	.LASF200
+	.4byte	.LASF201
 	.byte	0x1
 	.uleb128 0x9
 	.byte	0x4
@@ -2095,7 +2096,7 @@ main:
 	.4byte	.LASF150
 	.byte	0x11
 	.byte	0x43
-	.4byte	0x173
+	.4byte	0x17a
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x8
@@ -2136,7 +2137,7 @@ main:
 	.4byte	0x94
 	.4byte	0xc2b
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0x7
 	.byte	0x0
 	.uleb128 0xb
@@ -2161,12 +2162,12 @@ main:
 	.uleb128 0xb
 	.byte	0x8
 	.byte	0xb
-	.byte	0x29
+	.byte	0x28
 	.4byte	0xc72
 	.uleb128 0x8
 	.4byte	.LASF157
 	.byte	0xb
-	.byte	0x2a
+	.byte	0x29
 	.4byte	0x5c2
 	.byte	0x2
 	.byte	0x23
@@ -2174,7 +2175,7 @@ main:
 	.uleb128 0xf
 	.ascii	"use\000"
 	.byte	0xb
-	.byte	0x2b
+	.byte	0x2a
 	.4byte	0xa6
 	.byte	0x2
 	.byte	0x23
@@ -2183,12 +2184,12 @@ main:
 	.uleb128 0xb
 	.byte	0xc
 	.byte	0xb
-	.byte	0x2d
+	.byte	0x2c
 	.4byte	0xca5
 	.uleb128 0x8
 	.4byte	.LASF158
 	.byte	0xb
-	.byte	0x2e
+	.byte	0x2d
 	.4byte	0x9b
 	.byte	0x2
 	.byte	0x23
@@ -2196,7 +2197,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF159
 	.byte	0xb
-	.byte	0x2f
+	.byte	0x2e
 	.4byte	0xead
 	.byte	0x2
 	.byte	0x23
@@ -2204,7 +2205,7 @@ main:
 	.uleb128 0xf
 	.ascii	"use\000"
 	.byte	0xb
-	.byte	0x30
+	.byte	0x2f
 	.4byte	0xa6
 	.byte	0x2
 	.byte	0x23
@@ -2219,7 +2220,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF160
 	.byte	0xb
-	.byte	0x66
+	.byte	0x65
 	.4byte	0x5c2
 	.byte	0x2
 	.byte	0x23
@@ -2227,7 +2228,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF85
 	.byte	0xb
-	.byte	0x68
+	.byte	0x67
 	.4byte	0xf33
 	.byte	0x2
 	.byte	0x23
@@ -2235,39 +2236,39 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF161
 	.byte	0xb
-	.byte	0x6a
-	.4byte	0x133
+	.byte	0x69
+	.4byte	0x13a
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x8
 	.uleb128 0x8
 	.4byte	.LASF162
 	.byte	0xb
-	.byte	0x6c
-	.4byte	0x133
+	.byte	0x6b
+	.4byte	0x13a
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x8
 	.uleb128 0x8
 	.4byte	.LASF163
 	.byte	0xb
-	.byte	0x6d
-	.4byte	0x100
+	.byte	0x6c
+	.4byte	0x107
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x8
 	.uleb128 0x8
 	.4byte	.LASF164
 	.byte	0xb
-	.byte	0x6e
-	.4byte	0x100
+	.byte	0x6d
+	.4byte	0x107
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x10
 	.uleb128 0x8
 	.4byte	.LASF165
 	.byte	0xb
-	.byte	0x6f
+	.byte	0x6e
 	.4byte	0x74
 	.byte	0x2
 	.byte	0x23
@@ -2275,7 +2276,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF166
 	.byte	0xb
-	.byte	0x70
+	.byte	0x6f
 	.4byte	0x74
 	.byte	0x2
 	.byte	0x23
@@ -2283,7 +2284,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF167
 	.byte	0xb
-	.byte	0x71
+	.byte	0x70
 	.4byte	0x74
 	.byte	0x2
 	.byte	0x23
@@ -2291,7 +2292,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF168
 	.byte	0xb
-	.byte	0x74
+	.byte	0x73
 	.4byte	0x62
 	.byte	0x2
 	.byte	0x23
@@ -2299,7 +2300,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF111
 	.byte	0xb
-	.byte	0x75
+	.byte	0x74
 	.4byte	0xfe
 	.byte	0x2
 	.byte	0x23
@@ -2307,7 +2308,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF107
 	.byte	0xb
-	.byte	0x77
+	.byte	0x76
 	.4byte	0xead
 	.byte	0x2
 	.byte	0x23
@@ -2315,7 +2316,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF169
 	.byte	0xb
-	.byte	0x78
+	.byte	0x77
 	.4byte	0xead
 	.byte	0x2
 	.byte	0x23
@@ -2323,23 +2324,23 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF170
 	.byte	0xb
-	.byte	0x7a
-	.4byte	0x100
+	.byte	0x79
+	.4byte	0x107
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x34
 	.uleb128 0x8
 	.4byte	.LASF171
 	.byte	0xb
-	.byte	0x7b
-	.4byte	0x133
+	.byte	0x7a
+	.4byte	0x13a
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x3c
 	.uleb128 0x8
 	.4byte	.LASF172
 	.byte	0xb
-	.byte	0x7e
+	.byte	0x7d
 	.4byte	0xf39
 	.byte	0x2
 	.byte	0x23
@@ -2347,15 +2348,15 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF173
 	.byte	0xb
-	.byte	0x7f
-	.4byte	0x133
+	.byte	0x7e
+	.4byte	0x13a
 	.byte	0x2
 	.byte	0x23
 	.uleb128 0x5c
 	.uleb128 0x8
 	.4byte	.LASF174
 	.byte	0xb
-	.byte	0x81
+	.byte	0x80
 	.4byte	0xf4f
 	.byte	0x2
 	.byte	0x23
@@ -2363,7 +2364,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF175
 	.byte	0xb
-	.byte	0x89
+	.byte	0x88
 	.4byte	0xf55
 	.byte	0x2
 	.byte	0x23
@@ -2371,7 +2372,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF176
 	.byte	0xb
-	.byte	0x8a
+	.byte	0x89
 	.4byte	0xc1b
 	.byte	0x3
 	.byte	0x23
@@ -2379,7 +2380,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF177
 	.byte	0xb
-	.byte	0x8d
+	.byte	0x8c
 	.4byte	0xba5
 	.byte	0x3
 	.byte	0x23
@@ -2387,7 +2388,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF178
 	.byte	0xb
-	.byte	0x8e
+	.byte	0x8d
 	.4byte	0xba5
 	.byte	0x3
 	.byte	0x23
@@ -2395,7 +2396,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF179
 	.byte	0xb
-	.byte	0x8f
+	.byte	0x8e
 	.4byte	0xba5
 	.byte	0x3
 	.byte	0x23
@@ -2403,7 +2404,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF180
 	.byte	0xb
-	.byte	0x91
+	.byte	0x90
 	.4byte	0x94
 	.byte	0x3
 	.byte	0x23
@@ -2411,7 +2412,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF181
 	.byte	0xb
-	.byte	0x92
+	.byte	0x91
 	.4byte	0x94
 	.byte	0x3
 	.byte	0x23
@@ -2419,7 +2420,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF182
 	.byte	0xb
-	.byte	0x94
+	.byte	0x93
 	.4byte	0xc42
 	.byte	0x3
 	.byte	0x23
@@ -2427,7 +2428,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF101
 	.byte	0xb
-	.byte	0x96
+	.byte	0x95
 	.4byte	0xf65
 	.byte	0x3
 	.byte	0x23
@@ -2435,15 +2436,15 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF183
 	.byte	0xb
-	.byte	0x99
-	.4byte	0x168
+	.byte	0x98
+	.4byte	0x16f
 	.byte	0x3
 	.byte	0x23
 	.uleb128 0x29c
 	.uleb128 0x8
 	.4byte	.LASF82
 	.byte	0xb
-	.byte	0x9b
+	.byte	0x9a
 	.4byte	0xb84
 	.byte	0x3
 	.byte	0x23
@@ -2451,7 +2452,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF184
 	.byte	0xb
-	.byte	0x9e
+	.byte	0x9d
 	.4byte	0x7b4
 	.byte	0x3
 	.byte	0x23
@@ -2459,7 +2460,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF185
 	.byte	0xb
-	.byte	0xa0
+	.byte	0x9f
 	.4byte	0xe8
 	.byte	0x3
 	.byte	0x23
@@ -2467,7 +2468,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF186
 	.byte	0xb
-	.byte	0xa1
+	.byte	0xa0
 	.4byte	0x94
 	.byte	0x3
 	.byte	0x23
@@ -2475,7 +2476,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF187
 	.byte	0xb
-	.byte	0xa3
+	.byte	0xa2
 	.4byte	0xe8
 	.byte	0x3
 	.byte	0x23
@@ -2483,7 +2484,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF188
 	.byte	0xb
-	.byte	0xa4
+	.byte	0xa3
 	.4byte	0x94
 	.byte	0x3
 	.byte	0x23
@@ -2491,7 +2492,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF189
 	.byte	0xb
-	.byte	0xa6
+	.byte	0xa5
 	.4byte	0xe8
 	.byte	0x3
 	.byte	0x23
@@ -2503,39 +2504,39 @@ main:
 	.uleb128 0x19
 	.byte	0xc
 	.byte	0xb
-	.byte	0x28
+	.byte	0x27
 	.4byte	0xee8
 	.uleb128 0x1a
 	.4byte	.LASF190
 	.byte	0xb
-	.byte	0x2c
+	.byte	0x2b
 	.4byte	0xc4d
 	.uleb128 0x1a
 	.4byte	.LASF191
 	.byte	0xb
-	.byte	0x31
+	.byte	0x30
 	.4byte	0xc72
 	.uleb128 0x1a
 	.4byte	.LASF192
 	.byte	0xb
-	.byte	0x33
+	.byte	0x32
 	.4byte	0x9b
 	.uleb128 0x1a
 	.4byte	.LASF193
 	.byte	0xb
-	.byte	0x34
+	.byte	0x33
 	.4byte	0x9b
 	.byte	0x0
 	.uleb128 0x7
 	.4byte	.LASF172
 	.byte	0x20
 	.byte	0xb
-	.byte	0x1e
+	.byte	0x1d
 	.4byte	0xf1d
 	.uleb128 0x8
 	.4byte	.LASF98
 	.byte	0xb
-	.byte	0x26
+	.byte	0x25
 	.4byte	0x9b
 	.byte	0x2
 	.byte	0x23
@@ -2543,7 +2544,7 @@ main:
 	.uleb128 0x8
 	.4byte	.LASF194
 	.byte	0xb
-	.byte	0x27
+	.byte	0x26
 	.4byte	0x9b
 	.byte	0x2
 	.byte	0x23
@@ -2551,7 +2552,7 @@ main:
 	.uleb128 0xf
 	.ascii	"u\000"
 	.byte	0xb
-	.byte	0x35
+	.byte	0x34
 	.4byte	0xeb3
 	.byte	0x2
 	.byte	0x23
@@ -2564,7 +2565,7 @@ main:
 	.4byte	0x9b
 	.4byte	0xf33
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0xc
 	.byte	0x0
 	.uleb128 0x9
@@ -2574,7 +2575,7 @@ main:
 	.4byte	0xf49
 	.4byte	0xf49
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0x7
 	.byte	0x0
 	.uleb128 0x9
@@ -2587,44 +2588,56 @@ main:
 	.4byte	0x9b
 	.4byte	0xf65
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0xff
 	.byte	0x0
 	.uleb128 0xc
 	.4byte	0x972
 	.4byte	0xf75
 	.uleb128 0xd
-	.4byte	0x165
+	.4byte	0x16c
 	.byte	0x0
 	.byte	0x0
 	.uleb128 0x1b
 	.byte	0x1
-	.4byte	.LASF201
+	.4byte	.LASF202
 	.byte	0x1
 	.byte	0x3a
 	.byte	0x1
 	.4byte	0x62
-	.4byte	.LFB105
-	.4byte	.LFE105
+	.4byte	.LFB107
+	.4byte	.LFE107
 	.4byte	.LLST0
 	.uleb128 0xc
-	.4byte	0x9af
+	.4byte	0x42
 	.4byte	0xf99
 	.uleb128 0x1c
 	.byte	0x0
 	.uleb128 0x1d
 	.4byte	.LASF195
 	.byte	0x13
-	.byte	0x15
-	.4byte	0xfa6
-	.byte	0x1
-	.byte	0x1
-	.uleb128 0x15
+	.byte	0x12
 	.4byte	0xf8e
+	.byte	0x1
+	.byte	0x1
+	.uleb128 0xc
+	.4byte	0x9af
+	.4byte	0xfb1
+	.uleb128 0x1c
+	.byte	0x0
 	.uleb128 0x1d
 	.4byte	.LASF196
 	.byte	0x14
 	.byte	0x15
+	.4byte	0xfbe
+	.byte	0x1
+	.byte	0x1
+	.uleb128 0x15
+	.4byte	0xfa6
+	.uleb128 0x1d
+	.4byte	.LASF197
+	.byte	0x15
+	.byte	0x14
 	.4byte	0xbc
 	.byte	0x1
 	.byte	0x1
@@ -2990,7 +3003,7 @@ main:
 	.4byte	0x17
 	.2byte	0x2
 	.4byte	.Ldebug_info0
-	.4byte	0xfb9
+	.4byte	0xfd1
 	.4byte	0xf75
 	.ascii	"main\000"
 	.4byte	0x0
@@ -3009,7 +3022,7 @@ main:
 	.section	.debug_str,"MS",%progbits,1
 .LASF118:
 	.ascii	"vcpu_dirty_cpumask\000"
-.LASF197:
+.LASF198:
 	.ascii	"GNU C 4.4.3\000"
 .LASF194:
 	.ascii	"notify_vcpu_id\000"
@@ -3039,7 +3052,7 @@ main:
 	.ascii	"unsigned int\000"
 .LASF55:
 	.ascii	"trap\000"
-.LASF18:
+.LASF19:
 	.ascii	"next\000"
 .LASF71:
 	.ascii	"version\000"
@@ -3057,7 +3070,7 @@ main:
 	.ascii	"cpu_user_regs\000"
 .LASF176:
 	.ascii	"pirq_mask\000"
-.LASF19:
+.LASF20:
 	.ascii	"prev\000"
 .LASF119:
 	.ascii	"irq_cpu_stat\000"
@@ -3093,11 +3106,11 @@ main:
 	.ascii	"max_pfn\000"
 .LASF91:
 	.ascii	"wc_sec\000"
-.LASF200:
+.LASF201:
 	.ascii	"rangeset\000"
 .LASF171:
 	.ascii	"rangesets_lock\000"
-.LASF195:
+.LASF196:
 	.ascii	"irq_stat\000"
 .LASF11:
 	.ascii	"long long unsigned int\000"
@@ -3131,7 +3144,7 @@ main:
 	.ascii	"__u16\000"
 .LASF52:
 	.ascii	"event_callback\000"
-.LASF198:
+.LASF199:
 	.ascii	"xen/asm-offsets.c\000"
 .LASF109:
 	.ascii	"sleep_tick\000"
@@ -3147,7 +3160,7 @@ main:
 	.ascii	"state_entry_time\000"
 .LASF131:
 	.ascii	"domid\000"
-.LASF196:
+.LASF197:
 	.ascii	"jiffies_64\000"
 .LASF122:
 	.ascii	"__nmi_count\000"
@@ -3161,7 +3174,7 @@ main:
 	.ascii	"ticks\000"
 .LASF162:
 	.ascii	"page_alloc_lock\000"
-.LASF23:
+.LASF18:
 	.ascii	"char\000"
 .LASF146:
 	.ascii	"arch_domain\000"
@@ -3191,7 +3204,7 @@ main:
 	.ascii	"__u32\000"
 .LASF157:
 	.ascii	"remote_domid\000"
-.LASF21:
+.LASF22:
 	.ascii	"bits\000"
 .LASF63:
 	.ascii	"arch_vcpu_info_t\000"
@@ -3231,7 +3244,7 @@ main:
 	.ascii	"guest_vstart\000"
 .LASF159:
 	.ascii	"remote_dom\000"
-.LASF199:
+.LASF200:
 	.ascii	"/home/andreiw/src/xen3-arm-tegra/xen/arch/arm\000"
 .LASF45:
 	.ascii	"cpar\000"
@@ -3267,7 +3280,7 @@ main:
 	.ascii	"__u64\000"
 .LASF0:
 	.ascii	"__s8\000"
-.LASF20:
+.LASF21:
 	.ascii	"spinlock_t\000"
 .LASF4:
 	.ascii	"short int\000"
@@ -3281,7 +3294,7 @@ main:
 	.ascii	"vcpu_id\000"
 .LASF185:
 	.ascii	"store_port\000"
-.LASF22:
+.LASF23:
 	.ascii	"cpumask_t\000"
 .LASF186:
 	.ascii	"store_mfn\000"
@@ -3343,6 +3356,8 @@ main:
 	.ascii	"function\000"
 .LASF154:
 	.ascii	"guest_context\000"
+.LASF195:
+	.ascii	"_ctype\000"
 .LASF112:
 	.ascii	"runstate\000"
 .LASF27:
@@ -3383,7 +3398,7 @@ main:
 	.ascii	"short unsigned int\000"
 .LASF184:
 	.ascii	"handle\000"
-.LASF201:
+.LASF202:
 	.ascii	"main\000"
 .LASF181:
 	.ascii	"vm_assist\000"

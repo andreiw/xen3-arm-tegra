@@ -18,8 +18,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <xen/types.h>
-#include <xen/errno.h>
+#include <xen/kernel.h>
 #include <asm/atag.h>
 
 #define ATAG_NEXT(header) ((struct atag_header *) \

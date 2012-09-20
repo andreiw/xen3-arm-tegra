@@ -13,10 +13,8 @@
  *              (see Duda & Cheriton SOSP'99)
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/init.h>
-#include <xen/errno.h>
-#include <xen/lib.h>
 #include <xen/sched.h>
 #include <xen/delay.h>
 #include <xen/event.h>

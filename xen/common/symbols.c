@@ -10,11 +10,9 @@
  *      compression (see tools/symbols.c for a more complete description)
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
 #include <xen/symbols.h>
-#include <xen/init.h>
-#include <xen/lib.h>
-#include <xen/string.h>
 
 /* These will be re-linked against their real values during the second link stage */
 extern unsigned long symbols_addresses[] __attribute__((weak));

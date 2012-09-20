@@ -21,13 +21,11 @@
  */
 
 #include <xen/config.h>
-#include <xen/init.h>
 #include <xen/sched.h>
 #include <xen/mm.h>
 #include <xen/compile.h>
 #include <xen/console.h>
 #include <xen/serial.h>
-#include <xen/string.h>
 #include <xen/delay.h>
 #include <public/version.h>
 #include <public/sched.h>

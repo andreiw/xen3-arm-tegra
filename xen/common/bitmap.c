@@ -5,9 +5,9 @@
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
  */
+
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/types.h>
-#include <xen/errno.h>
 #include <xen/bitmap.h>
 #include <xen/bitops.h>
 
@@ -50,7 +50,7 @@ int __bitmap_empty(const unsigned long *bitmap, int bits)
 
 	return 1;
 }
-EXPORT_SYMBOL(__bitmap_empty);
+
 
 int __bitmap_full(const unsigned long *bitmap, int bits)
 {
@@ -65,7 +65,7 @@ int __bitmap_full(const unsigned long *bitmap, int bits)
 
 	return 1;
 }
-EXPORT_SYMBOL(__bitmap_full);
+
 
 int __bitmap_equal(const unsigned long *bitmap1,
 		const unsigned long *bitmap2, int bits)
@@ -81,7 +81,7 @@ int __bitmap_equal(const unsigned long *bitmap1,
 
 	return 1;
 }
-EXPORT_SYMBOL(__bitmap_equal);
+
 
 void __bitmap_complement(unsigned long *dst, const unsigned long *src, int bits)
 {
@@ -92,7 +92,7 @@ void __bitmap_complement(unsigned long *dst, const unsigned long *src, int bits)
 	if (bits % BITS_PER_LONG)
 		dst[k] = ~src[k] & BITMAP_LAST_WORD_MASK(bits);
 }
-EXPORT_SYMBOL(__bitmap_complement);
+
 
 /*
  * __bitmap_shift_right - logical right shift of the bits in a bitmap
@@ -135,7 +135,6 @@ void __bitmap_shift_right(unsigned long *dst,
 	if (off)
 		memset(&dst[lim - off], 0, off*sizeof(unsigned long));
 }
-EXPORT_SYMBOL(__bitmap_shift_right);
 
 
 /*
@@ -176,7 +175,7 @@ void __bitmap_shift_left(unsigned long *dst,
 	if (off)
 		memset(dst, 0, off*sizeof(unsigned long));
 }
-EXPORT_SYMBOL(__bitmap_shift_left);
+
 
 void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
 				const unsigned long *bitmap2, int bits)
@@ -187,7 +186,7 @@ void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
 	for (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & bitmap2[k];
 }
-EXPORT_SYMBOL(__bitmap_and);
+
 
 void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
 				const unsigned long *bitmap2, int bits)
@@ -198,7 +197,7 @@ void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
 	for (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] | bitmap2[k];
 }
-EXPORT_SYMBOL(__bitmap_or);
+
 
 void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
 				const unsigned long *bitmap2, int bits)
@@ -209,7 +208,7 @@ void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
 	for (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] ^ bitmap2[k];
 }
-EXPORT_SYMBOL(__bitmap_xor);
+
 
 void __bitmap_andnot(unsigned long *dst, const unsigned long *bitmap1,
 				const unsigned long *bitmap2, int bits)
@@ -220,7 +219,7 @@ void __bitmap_andnot(unsigned long *dst, const unsigned long *bitmap1,
 	for (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & ~bitmap2[k];
 }
-EXPORT_SYMBOL(__bitmap_andnot);
+
 
 int __bitmap_intersects(const unsigned long *bitmap1,
 				const unsigned long *bitmap2, int bits)
@@ -235,7 +234,7 @@ int __bitmap_intersects(const unsigned long *bitmap1,
 			return 1;
 	return 0;
 }
-EXPORT_SYMBOL(__bitmap_intersects);
+
 
 int __bitmap_subset(const unsigned long *bitmap1,
 				const unsigned long *bitmap2, int bits)
@@ -250,7 +249,7 @@ int __bitmap_subset(const unsigned long *bitmap1,
 			return 0;
 	return 1;
 }
-EXPORT_SYMBOL(__bitmap_subset);
+
 
 #if BITS_PER_LONG == 32
 int __bitmap_weight(const unsigned long *bitmap, int bits)
@@ -279,7 +278,7 @@ int __bitmap_weight(const unsigned long *bitmap, int bits)
 	return w;
 }
 #endif
-EXPORT_SYMBOL(__bitmap_weight);
+
 
 /*
  * Bitmap printing & parsing functions: first version by Bill Irwin,
@@ -328,7 +327,7 @@ int bitmap_scnprintf(char *buf, unsigned int buflen,
 	}
 	return len;
 }
-EXPORT_SYMBOL(bitmap_scnprintf);
+
 
 /*
  * bscnl_emit(buf, buflen, rbot, rtop, bp)
@@ -384,7 +383,7 @@ int bitmap_scnlistprintf(char *buf, unsigned int buflen,
 	}
 	return len;
 }
-EXPORT_SYMBOL(bitmap_scnlistprintf);
+
 
 /**
  *	bitmap_find_free_region - find a contiguous aligned mem region
@@ -426,7 +425,7 @@ int bitmap_find_free_region(unsigned long *bitmap, int bits, int order)
 	}
 	return -ENOMEM;
 }
-EXPORT_SYMBOL(bitmap_find_free_region);
+
 
 /**
  *	bitmap_release_region - release allocated bitmap region
@@ -446,7 +445,7 @@ void bitmap_release_region(unsigned long *bitmap, int pos, int order)
 	mask += mask - 1;
 	bitmap[index] &= ~(mask << offset);
 }
-EXPORT_SYMBOL(bitmap_release_region);
+
 
 int bitmap_allocate_region(unsigned long *bitmap, int pos, int order)
 {
@@ -466,4 +465,4 @@ int bitmap_allocate_region(unsigned long *bitmap, int pos, int order)
 	bitmap[index] |= (mask << offset);
 	return 0;
 }
-EXPORT_SYMBOL(bitmap_allocate_region);
+

@@ -9,7 +9,6 @@
 #ifndef __ELFCOREC_H__
 #define __ELFCOREC_H__
 
-#include <xen/types.h>
 #include <xen/elf.h>
 #include <asm/elf.h>
 #include <public/xen.h>

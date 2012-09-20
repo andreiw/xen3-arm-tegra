@@ -7,27 +7,27 @@
  */
 
 #define __HAVE_ARCH_STRRCHR
-extern char * strrchr(const char * s, int c);
+char * strrchr(const char * s, int c);
 
 #define __HAVE_ARCH_STRCHR
-extern char * strchr(const char * s, int c);
+char * strchr(const char * s, int c);
 
 #define __HAVE_ARCH_MEMCPY
-extern void * memcpy(void *, const void *, __kernel_size_t);
+void * memcpy(void *, const void *, size_t);
 
 #define __HAVE_ARCH_MEMMOVE
-extern void * memmove(void *, const void *, __kernel_size_t);
+void * memmove(void *, const void *, size_t);
 
 #define __HAVE_ARCH_MEMCHR
-extern void * memchr(const void *, int, __kernel_size_t);
+void * memchr(const void *, int, size_t);
 
 #define __HAVE_ARCH_MEMZERO
 #define __HAVE_ARCH_MEMSET
-extern void * memset(void *, int, __kernel_size_t);
+void * memset(void *, int, size_t);
 
 #define __HAVE_ARCH_BCOPY
 
-extern void __memzero(void *ptr, __kernel_size_t n);
+void __memzero(void *ptr, size_t n);
 
 #define memset(p,v,n)							\
 	({								\

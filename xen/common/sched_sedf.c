@@ -5,8 +5,7 @@
  * based on code by Mark Williamson (C) 2004 Intel Research Cambridge
  */
 
-#include <xen/errno.h>
-#include <xen/lib.h>
+#include <xen/kernel.h>
 #include <xen/sched.h>
 #include <xen/sched-if.h>
 #include <xen/timer.h>

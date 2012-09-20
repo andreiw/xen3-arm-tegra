@@ -19,15 +19,12 @@
  * include/public/dom0_ops.h
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <asm/types.h>
 #include <asm/io.h>
-#include <xen/lib.h>
 #include <xen/sched.h>
 #include <xen/smp.h>
 #include <xen/trace.h>
-#include <xen/errno.h>
-#include <xen/init.h>
 #include <asm/atomic.h>
 #include <public/dom0_ops.h>
 

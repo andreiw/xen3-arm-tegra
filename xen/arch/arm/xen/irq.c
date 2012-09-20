@@ -21,12 +21,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <xen/kernel.h>
 #include <asm/config.h>
-#include <xen/lib.h>
 #include <asm/irq.h>
-#include <xen/types.h>
-#include <xen/init.h>
-#include <xen/errno.h>
 #include <xen/spinlock.h>
 #include <public/event_channel.h>
 #include <public/physdev.h>

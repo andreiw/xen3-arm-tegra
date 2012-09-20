@@ -6,12 +6,9 @@
  * Copyright (c) 2002-2004, K A Fraser.
  */
 
-#include <stdarg.h>
+#include <xen/kernel.h>
 #include <xen/config.h>
 #include <xen/compile.h>
-#include <xen/init.h>
-#include <xen/lib.h>
-#include <xen/errno.h>
 #include <xen/event.h>
 #include <xen/spinlock.h>
 #include <xen/console.h>

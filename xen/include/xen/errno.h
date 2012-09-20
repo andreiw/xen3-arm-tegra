@@ -1,5 +1,5 @@
-#ifndef __XEN_ERRNO_H__
-#define __XEN_ERRNO_H__
+#ifndef XEN_ERRNO_H
+#define XEN_ERRNO_H
 
 #define	EPERM		 1	/* Operation not permitted */
 #define	ENOENT		 2	/* No such file or directory */
@@ -129,4 +129,4 @@
 #define	ENOMEDIUM	123	/* No medium found */
 #define	EMEDIUMTYPE	124	/* Wrong medium type */
 
-#endif
+#endif /* XEN_ERRNO_H */

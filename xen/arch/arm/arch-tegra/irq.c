@@ -15,9 +15,8 @@
  *
  */
 
+#include <xen/kernel.h>
 #include <asm/io.h>
-#include <xen/init.h>
-#include <xen/types.h>
 #include <xen/bitops.h>
 #include <asm/irq.h>
 #include <asm/gic.h>

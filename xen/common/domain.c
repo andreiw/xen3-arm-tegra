@@ -1,13 +1,11 @@
 /******************************************************************************
  * domain.c
- * 
+ *
  * Generic domain-handling functions.
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/init.h>
-#include <xen/lib.h>
-#include <xen/errno.h>
 #include <xen/sched.h>
 #include <xen/domain.h>
 #include <xen/mm.h>

@@ -22,13 +22,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <xen/lib.h>
-#include <xen/types.h>
+#include <xen/kernel.h>
 #include <xen/cpumask.h>
 #include <xen/list.h>
 #include <xen/kernel.h>
-#include <xen/string.h>
-#include <xen/errno.h>
 #include <xen/sched.h>
 #include <xen/mm.h>
 #include <xen/domain_page.h>

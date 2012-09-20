@@ -1,7 +1,7 @@
 #ifndef _LINUX_LIST_H
 #define _LINUX_LIST_H
 
-#include <xen/lib.h>
+#include <xen/kernel.h>
 
 /*
  * Simple doubly linked list implementation.

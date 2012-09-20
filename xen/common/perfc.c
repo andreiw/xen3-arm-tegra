@@ -1,5 +1,4 @@
-
-#include <xen/lib.h>
+#include <xen/kernel.h>
 #include <xen/smp.h>
 #include <xen/time.h>
 #include <xen/perfc.h>

@@ -9,9 +9,7 @@
  * Wirzenius wrote this portably, Torvalds fucked it up :-)
  */
 
-#include <stdarg.h>
-#include <xen/ctype.h>
-#include <xen/lib.h>
+#include <xen/kernel.h>
 #include <asm/div64.h>
 #include <asm/page.h>
 
@@ -49,7 +47,6 @@ unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
    return result;
 }
 
-EXPORT_SYMBOL(simple_strtoul);
 
 /**
  * simple_strtol - convert a string to a signed long
@@ -64,7 +61,6 @@ long simple_strtol(const char *cp,char **endp,unsigned int base)
    return simple_strtoul(cp,endp,base);
 }
 
-EXPORT_SYMBOL(simple_strtol);
 
 /**
  * simple_strtoull - convert a string to an unsigned long long
@@ -100,7 +96,6 @@ unsigned long long simple_strtoull(const char *cp,char **endp,unsigned int base)
    return result;
 }
 
-EXPORT_SYMBOL(simple_strtoull);
 
 /**
  * simple_strtoll - convert a string to a signed long long
@@ -475,7 +470,6 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
    return str-buf;
 }
 
-EXPORT_SYMBOL(vsnprintf);
 
 /**
  * vscnprintf - Format a string and place it in a buffer
@@ -499,7 +493,6 @@ int vscnprintf(char *buf, size_t size, const char *fmt, va_list args)
    return (i >= size) ? (size - 1) : i;
 }
 
-EXPORT_SYMBOL(vscnprintf);
 
 /**
  * snprintf - Format a string and place it in a buffer
@@ -524,7 +517,6 @@ int snprintf(char * buf, size_t size, const char *fmt, ...)
    return i;
 }
 
-EXPORT_SYMBOL(snprintf);
 
 /**
  * scnprintf - Format a string and place it in a buffer
@@ -548,7 +540,7 @@ int scnprintf(char * buf, size_t size, const char *fmt, ...)
    va_end(args);
    return (i >= size) ? (size - 1) : i;
 }
-EXPORT_SYMBOL(scnprintf);
+
 
 /**
  * vsprintf - Format a string and place it in a buffer
@@ -568,7 +560,6 @@ int vsprintf(char *buf, const char *fmt, va_list args)
    return vsnprintf(buf, INT_MAX, fmt, args);
 }
 
-EXPORT_SYMBOL(vsprintf);
 
 /**
  * sprintf - Format a string and place it in a buffer
@@ -591,7 +582,6 @@ int sprintf(char * buf, const char *fmt, ...)
    return i;
 }
 
-EXPORT_SYMBOL(sprintf);
 
 /**
  * vsscanf - Unformat a buffer into a list of arguments

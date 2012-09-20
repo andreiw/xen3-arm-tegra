@@ -26,4 +26,6 @@ extern void dump_pageframe_info(struct domain *d);
 
 extern void arch_dump_domain_info(struct domain *d);
 
+extern long vm_assist(struct domain *, unsigned int, unsigned int);
+
 #endif /* __XEN_DOMAIN_H__ */

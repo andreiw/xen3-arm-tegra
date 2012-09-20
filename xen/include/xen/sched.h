@@ -2,7 +2,6 @@
 #define __SCHED_H__
 
 #include <xen/config.h>
-#include <xen/types.h>
 #include <xen/spinlock.h>
 #include <xen/smp.h>
 #include <public/xen.h>

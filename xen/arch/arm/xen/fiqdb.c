@@ -20,9 +20,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <xen/types.h>
-#include <xen/errno.h>
-#include <xen/lib.h>
+#include <xen/kernel.h>
 #include <xen/symbols.h>
 #include <xen/shutdown.h>
 #include <asm/fiqdb.h>

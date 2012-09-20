@@ -2,7 +2,6 @@
 #define __ASM_PAGE_H__
 
 #include <asm/config.h>
-#include <asm/types.h>
 #include <asm/pgtable.h>
 
 /* PAGE_SHIFT determines the page size */
@@ -27,7 +26,6 @@
 #define PFN_UP(x)	(((x)+PAGE_SIZE-1) >> PAGE_SHIFT)
 
 #ifndef __ASSEMBLY__
-#include <xen/lib.h>
 
 extern pde_t *idle_pgd;
 

@@ -13,9 +13,6 @@
  */
 #include <xen/kernel.h>
 #include <xen/compile.h>
-#include <xen/errno.h>
-#include <xen/lib.h>
-#include <xen/string.h>
 #include <xen/debugger.h>
 #include <asm/page.h>
 #include <asm/tlb.h>

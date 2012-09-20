@@ -1,10 +1,7 @@
+#include <xen/kernel.h>
 #include <xen/config.h>
 #include <xen/spinlock.h>
-#include <xen/init.h>
-#include <xen/types.h>
-#include <xen/errno.h>
 #include <xen/sched.h>
-#include <xen/lib.h>
 #include <xen/time.h>
 #include <xen/softirq.h>
 #include <xen/timer.h>

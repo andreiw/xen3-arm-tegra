@@ -7,15 +7,14 @@
  *        File: common/schedule.c
  *      Author: Rolf Neugebauer & Keir Fraser
  *              Updated for generic API by Mark Williamson
- * 
+ *
  * Description: Generic CPU scheduling code
  *              implements support functionality for the Xen scheduler API.
  *
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/init.h>
-#include <xen/lib.h>
 #include <xen/sched.h>
 #include <xen/domain.h>
 #include <xen/delay.h>

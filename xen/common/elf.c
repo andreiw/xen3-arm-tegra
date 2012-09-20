@@ -4,13 +4,11 @@
  * Generic Elf-loading routines.
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
-#include <xen/init.h>
-#include <xen/lib.h>
 #include <xen/mm.h>
 #include <xen/elf.h>
 #include <xen/sched.h>
-#include <xen/errno.h>
 
 static void loadelfsymtab(struct domain_setup_info *dsi, int doload);
 static inline int is_loadable_phdr(Elf_Phdr *phdr)

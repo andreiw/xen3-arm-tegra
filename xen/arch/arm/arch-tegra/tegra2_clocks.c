@@ -15,7 +15,7 @@
  *
  */
 
-#include <xen/lib.h>
+#include <xen/kernel.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 

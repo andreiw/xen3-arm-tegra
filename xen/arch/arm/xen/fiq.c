@@ -13,9 +13,9 @@
  *
  */
 
+#include <xen/kernel.h>
 #include <xen/config.h>
 #include <xen/errno.h>
-#include <xen/lib.h>
 #include <xen/mm.h>
 #include <xen/smp.h>
 #include <xen/cpumask.h>

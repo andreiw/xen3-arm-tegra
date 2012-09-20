@@ -6,7 +6,7 @@
  * 
  * Copyright (c) 2005, K A Fraser
  */
-#include <xen/errno.h>
+#include <xen/kernel.h>
 #include <xen/sched.h>
 #include <xen/rangeset.h>
 

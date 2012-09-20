@@ -4,9 +4,7 @@
  *  Copyright (C) 1991, 1992  Linus Torvalds
  */
 
-#include <xen/types.h>
-#include <xen/string.h>
-#include <xen/ctype.h>
+#include <xen/kernel.h>
 
 #ifndef __HAVE_ARCH_STRNICMP
 /**
@@ -102,7 +100,6 @@ size_t strlcpy(char *dest, const char *src, size_t size)
 	}
 	return ret;
 }
-EXPORT_SYMBOL(strlcpy);
 #endif
 
 #ifndef __HAVE_ARCH_STRCAT

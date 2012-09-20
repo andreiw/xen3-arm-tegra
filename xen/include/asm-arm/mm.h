@@ -27,7 +27,6 @@
 #include <xen/mm.h>
 #include <asm/system.h>
 #include <asm/io.h>
-#include <asm/types.h>
 #include <asm/pgtable.h>
 #include <asm/page.h>
 #include <asm/tlb.h>

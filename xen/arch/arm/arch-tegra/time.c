@@ -1,6 +1,5 @@
 #include <xen/sched.h>
 #include <xen/irq.h>
-#include <xen/init.h>
 #include <xen/softirq.h>
 #include <xen/spinlock.h>
 #include <asm/time.h>

@@ -24,7 +24,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <xen/lib.h>
+#include <xen/kernel.h>
 #include <xen/sched.h>
 #include <xen/shadow.h>
 #include <xen/mm.h>

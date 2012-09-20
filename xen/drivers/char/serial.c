@@ -6,12 +6,10 @@
  * Copyright (c) 2003-2005, K A Fraser
  */
 
+#include <xen/kernel.h>
 #include <xen/spinlock.h>
-#include <xen/types.h>
 #include <xen/config.h>
-#include <xen/init.h>
 #include <xen/serial.h>
-#include <xen/string.h>
 
 static struct serial_port com[2] = {
     { .rx_lock = SPIN_LOCK_UNLOCKED, .tx_lock = SPIN_LOCK_UNLOCKED }, 

@@ -1,8 +1,6 @@
 #ifndef __ASM_UACCESS_H__
 #define __ASM_UACCESS_H__
 
-#include <xen/errno.h>
-
 #define VERIFY_READ			0
 #define VERIFY_WRITE		1	
 
