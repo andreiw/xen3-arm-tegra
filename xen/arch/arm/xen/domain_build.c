@@ -170,9 +170,9 @@ unsigned long build_guest_tables(struct vcpu *v, struct domain_setup_info *dsi)
 
 	copy_page(pg, GET_HVT_PAGE());
 
-	pgt[PGT_IDX(VECTORS_BASE)] = MK_PTE(pg, PTE_VECTOR_PAGE);
+	pgt[PGT_IDX(VECTORS_VIRT_BASE)] = MK_PTE(pg, PTE_VECTOR_PAGE);
 
-	pgd[PGD_IDX(VECTORS_BASE)] = MK_PDE((unsigned long)&pgt[0], PDE_VECTOR_TABLE);
+	pgd[PGD_IDX(VECTORS_VIRT_BASE)] = MK_PDE((unsigned long)&pgt[0], PDE_VECTOR_TABLE);
 
 	/* 
 	 * For Fixmap Region.

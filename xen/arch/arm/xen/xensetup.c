@@ -31,6 +31,7 @@
 #include <public/sched.h>
 
 #include <asm/trap.h>
+#include <asm/pt.h>
 #include <asm/memory.h>
 #include <asm/uaccess.h>
 #include <asm/cpu-ops.h>
@@ -145,8 +146,8 @@ static void memory_init()
 
 
    printk("Virtual memory map:\n");
-   printk("===============================================\n");
-   printk("VECTORS_BASE:          0x%08x\n", VECTORS_BASE);
+   printk("=================================================\n");
+   printk("SPECIAL_VIRT_START:    0x%08x\n", SPECIAL_VIRT_START);
    printk("DIRECTMAP_VIRT_END:    0x%08x (PA 0x%08x)\n",
           DIRECTMAP_VIRT_END,
           va_to_ma(DIRECTMAP_VIRT_END));
@@ -167,6 +168,7 @@ static void memory_init()
    printk("DIRECTMAP_VIRT_START:  0x%08x\n", DIRECTMAP_VIRT_START);
    printk("MAPCACHE_VIRT_START:   0x%08x\n", MAPCACHE_VIRT_START);
    printk("SHARED_INFO_BASE:      0x%08x\n", SHARED_INFO_BASE);
+   printk("PAGE_TABLE_VIRT_START: 0x%08x\n", PAGE_TABLE_VIRT_START);
    printk("IOREMAP_VIRT_START:    0x%08x\n", IOREMAP_VIRT_START);
    printk("HYPERVISOR_VIRT_START: 0x%08x\n", HYPERVISOR_VIRT_START);
 
@@ -221,14 +223,14 @@ void trap_init(void)
    printk("IVT page is PA 0x%08x\n", page_to_phys(pg));
    cpu_flush_cache_range((unsigned long)table, (unsigned long) table + PAGE_SIZE);
 
-   consistent_write((void *)&table[PGT_IDX(VECTORS_BASE)], pte_val(MK_PTE(page_to_phys(pg), PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)));
-   consistent_write((void *)&idle_pgd[PGD_IDX(VECTORS_BASE)], pde_val(MK_PDE(va_to_ma(table), PDE_TYPE_COARSE | PDE_DOMAIN_HYPERVISOR)));
+   consistent_write((void *)&table[PGT_IDX(VECTORS_VIRT_BASE)], pte_val(MK_PTE(page_to_phys(pg), PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)));
+   consistent_write((void *)&idle_pgd[PGD_IDX(VECTORS_VIRT_BASE)], pde_val(MK_PDE(va_to_ma(table), PDE_TYPE_COARSE | PDE_DOMAIN_HYPERVISOR)));
 
-   clear_page(VECTORS_BASE);
-   memcpy((void *)VECTORS_BASE, exception_vectors_table,
+   clear_page(VECTORS_VIRT_BASE);
+   memcpy((void *)VECTORS_VIRT_BASE, exception_vectors_table,
           sizeof(unsigned long) * 16);
 
-   cpu_flush_cache_range(VECTORS_BASE, VECTORS_BASE + PAGE_SIZE);
+   cpu_flush_cache_range(VECTORS_VIRT_BASE, VECTORS_VIRT_BASE + PAGE_SIZE);
    cpu_trap_init();
 }
 
@@ -287,6 +289,7 @@ void start_xen(void *unused)
    printk(" Boot volume: 0x%x-0x%x\n", bv.start, bv.end);
 
    memory_init();
+   pt_init(idle_pgd);
 
    sort_extables();
 

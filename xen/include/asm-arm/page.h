@@ -78,8 +78,8 @@ static inline int get_order_from_pages(unsigned long nr_pages)
 ({                              \
 	unsigned long pa;           \
 	unsigned long page;			\
-	pa = pde_val(idle_pgd[PGD_IDX(VECTORS_BASE)]) & PAGE_MASK;						\
-	page = *(unsigned long *)(pa + (PGT_IDX(VECTORS_BASE) * sizeof(unsigned long))) & PAGE_MASK;       \
+	pa = pde_val(idle_pgd[PGD_IDX(VECTORS_VIRT_BASE)]) & PAGE_MASK;						\
+	page = *(unsigned long *)(pa + (PGT_IDX(VECTORS_VIRT_BASE) * sizeof(unsigned long))) & PAGE_MASK;       \
 	page;\
 })
 

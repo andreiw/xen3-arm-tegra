@@ -29,16 +29,11 @@
 #define HYPERVISOR_VIRT_START   0xFC000000
 #endif
 
-#define VECTORS_BASE		0xFFFF0000
+#define PAGE_DIRECTORY_VIRT     0xFFFFC000
+#define VECTORS_VIRT_BASE       0xFFFF0000
+#define SPECIAL_VIRT_START      0xFFF00000
 
-/*
- * We used 1M sections to map, so we'll actually
- * leave the last 1M alone, otherwise things are
- * going to get weird. Wasteful, yes. Maybe later
- * we can 4k map in the rest if we care.
- */
-
-#define DIRECTMAP_VIRT_END	(VECTORS_BASE & ~(SZ_1M - 1))
+#define DIRECTMAP_VIRT_END      SPECIAL_VIRT_START
 
 /* The first 4k is the idle PGD. */
 #define KERNEL_VIRT_LINKED	(KERNEL_VIRT_BASE + 0x4000)
@@ -52,7 +47,10 @@
 #define SHARED_INFO_LIMIT	(MAPCACHE_VIRT_START)
 #define SHARED_INFO_BASE	(SHARED_INFO_LIMIT - (1 << 20))
 
-#define IOREMAP_VIRT_END	SHARED_INFO_BASE
+#define PAGE_TABLE_VIRT_END	SHARED_INFO_BASE
+#define PAGE_TABLE_VIRT_START	(PAGE_TABLE_VIRT_END - (4 << 20))
+
+#define IOREMAP_VIRT_END	PAGE_TABLE_VIRT_START
 #define IOREMAP_VIRT_START	HYPERVISOR_VIRT_START
 
 #define MAX_UNMAPPED_DMA_PFN	0xFFFFFUL /* 32 addressable bits */

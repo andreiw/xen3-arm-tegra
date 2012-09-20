@@ -2,7 +2,7 @@
  * start.S
  *
  * Copyright (C) 2008 Samsung Electronics
- *          ChanJu Park  <bestworld@samsung.com>
+ * Copyrigjt (C) 2008 ChanJu Park  <bestworld@samsung.com>
  * Copyright (C) 2011 Andrei Warkentin <andreiw@msalumni.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@
 #include <asm/page.h>
 #include <asm/system.h>
 #include <asm/arch/hardware.h>
+#include <asm/pt.h>
 
         .type   text, %function
 ENTRY(text)
@@ -77,6 +78,8 @@ str_n:  .asciz  "\r\n"
         bic     r0, r0, #0x00000005     @ clear bits 0, 2 (---- -C-M)
         orr     r0, r0, #0x00000002     @ set bit 1 (A) Align
         orr     r0, r0, #0x00001000     @ set bit 12 (I) enable I-Cache
+        orr     r0, r0, #0x00020000     @ set bit 17 (HA)
+        orr     r0, r0, #0x20000000     @ set bit 29 (AFE) access flag
         mcr     p15, 0, r0, c1, c0, 0
         mcr     p15, 0, r10, c8, c7, 0  @ invalidate I + D TLBs
         
@@ -146,9 +149,9 @@ pgd_setup:
         bne     1b
 
 dac_setup:
-        mov     r5, #(DOMAIN_VALUE(DOMAIN_SUPERVISOR, DOMAIN_MANAGER)   | \
-                DOMAIN_VALUE(DOMAIN_HYPERVISOR, DOMAIN_MANAGER) | \
-                DOMAIN_VALUE(DOMAIN_USER, DOMAIN_MANAGER)               | \
+        mov     r5, #(DOMAIN_VALUE(DOMAIN_SUPERVISOR, DOMAIN_CLIENT)   | \
+                DOMAIN_VALUE(DOMAIN_HYPERVISOR, DOMAIN_CLIENT)         | \
+                DOMAIN_VALUE(DOMAIN_USER, DOMAIN_CLIENT)               | \
                 DOMAIN_VALUE(DOMAIN_IO, DOMAIN_CLIENT))
 
         mcr     p15, 0, r5, c3, c0, 0   @ Load DAC
@@ -217,32 +220,32 @@ mem_map_table:
         MAP_ENTRY(TEGRA_RAM_VIRT,
         TEGRA_RAM_PHYS,
         1024,
-        PDE_TYPE_HYPERVISOR)
+        PDE_ENTRY_HV)
 
         /* Kernel. */
         MAP_ENTRY(DIRECTMAP_VIRT_START,
         DIRECTMAP_PHYS_START,
         (DIRECTMAP_VIRT_END -
         DIRECTMAP_VIRT_START) >> 20,
-        PDE_TYPE_HYPERVISOR)
+        PDE_ENTRY_HV)
 
         /* CPU. */
         MAP_ENTRY(TEGRA_CPU_VIRT,
         TEGRA_CPU_PHYS,
         TEGRA_CPU_SIZE >> 20,
-        PDE_TYPE_IO)
+        PDE_ENTRY_IO)
 
         /* PPSB. */
         MAP_ENTRY(TEGRA_PPSB_VIRT,
         TEGRA_PPSB_PHYS,
         TEGRA_PPSB_SIZE >> 20,
-        PDE_TYPE_IO)
+        PDE_ENTRY_IO)
 
         /* APB. */
         MAP_ENTRY(TEGRA_APB_VIRT,
         TEGRA_APB_PHYS,
         TEGRA_APB_SIZE >> 20,
-        PDE_TYPE_IO)
+        PDE_ENTRY_IO)
 
         /* The end. */
         MAP_ENTRY(0,0,0,0)
