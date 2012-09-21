@@ -15,6 +15,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/serial_reg.h>
 #include <xen/linkage.h>
+#include <xen/sizes.h>
 
 #define UART_SHIFT 2
 	

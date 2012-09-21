@@ -8,6 +8,7 @@
 #include <xen/xmalloc.h>
 #include <xen/init.h>
 #include <xen/ctype.h>
+#include <xen/sizes.h>
 
 /*
  * 'kernel.h' contains some often-used function prototypes, and

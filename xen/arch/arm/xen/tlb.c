@@ -70,7 +70,7 @@ bool tlb_check(vaddr_t va, vaddr_t end, bool priviledged, bool write)
    return true;
 }
 
-static void debug_tlb_v2p(struct debug_command *cmd,
+void debug_tlb_v2p(struct debug_command *cmd,
                           const char *arg,
                           debug_printf_cb cb)
 {

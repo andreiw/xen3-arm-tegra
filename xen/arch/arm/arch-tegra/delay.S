@@ -23,6 +23,7 @@
 #include <xen/config.h>
 #include <asm/asm-macros.h>
 #include <asm/arch/hardware.h>
+#include <xen/sizes.h>
 
 ENTRY(udelay)
 	mov32 r3, (TEGRA_PPSB_VIRT + TEGRA_TMRUS_BASE - TEGRA_PPSB_PHYS)

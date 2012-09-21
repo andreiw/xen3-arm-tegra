@@ -215,22 +215,16 @@ void trap_init(void)
    pte_t *table;
    struct page_info *pg;
 
-   /* Create Mapping for Exception vector table */
-   table = pages_m_alloc1();
-   clear_page(table);
-
    pg = pages_u_alloc1(NULL);
    printk("IVT page is PA 0x%08x\n", page_to_phys(pg));
-   cpu_flush_cache_range((unsigned long)table, (unsigned long) table + PAGE_SIZE);
 
-   consistent_write((void *)&table[PGT_IDX(VECTORS_VIRT_BASE)], pte_val(MK_PTE(page_to_phys(pg), PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_UNO_SRW)));
-   consistent_write((void *)&idle_pgd[PGD_IDX(VECTORS_VIRT_BASE)], pde_val(MK_PDE(va_to_ma(table), PDE_TYPE_COARSE | PDE_DOMAIN_HYPERVISOR)));
+   BUG_ON(pt_map(SPECIAL_VECTORS, page_to_phys(pg), PAGE_SIZE, PTE_ENTRY_HV) != 0);
 
-   clear_page(VECTORS_VIRT_BASE);
-   memcpy((void *)VECTORS_VIRT_BASE, exception_vectors_table,
+   clear_page((void *) SPECIAL_VECTORS);
+   memcpy((void *) SPECIAL_VECTORS, exception_vectors_table,
           sizeof(unsigned long) * 16);
 
-   cpu_flush_cache_range(VECTORS_VIRT_BASE, VECTORS_VIRT_BASE + PAGE_SIZE);
+   cpu_clean_cache_range(SPECIAL_VECTORS, SPECIAL_VECTORS + PAGE_SIZE);
    cpu_trap_init();
 }
 
@@ -289,7 +283,7 @@ void start_xen(void *unused)
    printk(" Boot volume: 0x%x-0x%x\n", bv.start, bv.end);
 
    memory_init();
-   pt_init(idle_pgd);
+   pt_init((vaddr_t) idle_pgd);
 
    sort_extables();
 

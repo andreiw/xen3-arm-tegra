@@ -1,7 +1,6 @@
 #ifndef __ARM_CONFIG_H__
 #define __ARM_CONFIG_H__
 
-#include <xen/sizes.h>
 #include <asm/arch/config.h>
 
 #define supervisor_mode_kernel	(0)
@@ -29,8 +28,10 @@
 #define HYPERVISOR_VIRT_START   0xFC000000
 #endif
 
-#define PAGE_DIRECTORY_VIRT     0xFFFFC000
-#define VECTORS_VIRT_BASE       0xFFFF0000
+#define SPECIAL_PAGE_DIR        0xFFFFC000
+#define SPECIAL_MAP1            0xFFFFB000
+#define SPECIAL_MAP0            0xFFFFA000
+#define SPECIAL_VECTORS         0xFFFF0000
 #define SPECIAL_VIRT_START      0xFFF00000
 
 #define DIRECTMAP_VIRT_END      SPECIAL_VIRT_START
@@ -47,8 +48,15 @@
 #define SHARED_INFO_LIMIT	(MAPCACHE_VIRT_START)
 #define SHARED_INFO_BASE	(SHARED_INFO_LIMIT - (1 << 20))
 
+/*
+ * There is a maximum of 4K page tables, each of which is 1K and
+ * stored 4 per page. So a total of 4MB worth of pages are used
+ * to store all PTs. Thus, the virtual region containing all
+ * PTs is 4MB, which is 1024 pages, which would need 4 PTs
+ * to map (at 256 entries per PT).
+ */
 #define PAGE_TABLE_VIRT_END	SHARED_INFO_BASE
-#define PAGE_TABLE_VIRT_START	(PAGE_TABLE_VIRT_END - (4 << 20))
+#define PAGE_TABLE_VIRT_START	(PAGE_TABLE_VIRT_END - SZ_4M)
 
 #define IOREMAP_VIRT_END	PAGE_TABLE_VIRT_START
 #define IOREMAP_VIRT_START	HYPERVISOR_VIRT_START

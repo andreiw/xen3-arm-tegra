@@ -74,8 +74,8 @@ str_n:  .asciz  "\r\n"
 
         @ Enable Strict alignment checking & Instruction cache.
         mrc     p15, 0, r0, c1, c0, 0
-        bic     r0, r0, #0x00002300     @ clear bits 13, 9:8 (--V- --RS)
-        bic     r0, r0, #0x00000005     @ clear bits 0, 2 (---- -C-M)
+        bic     r0, r0, #0x00002000     @ clear bits 13 (V)
+        bic     r0, r0, #0x00000005     @ clear bits 0 (M), 2 (C)
         orr     r0, r0, #0x00000002     @ set bit 1 (A) Align
         orr     r0, r0, #0x00001000     @ set bit 12 (I) enable I-Cache
         orr     r0, r0, #0x00020000     @ set bit 17 (HA)
@@ -122,7 +122,7 @@ str_n:  .asciz  "\r\n"
 reloc_done:
         
 
-        /* PGD is set up 16K below the load address. */
+        @ PGD is set up 16K below the load address.
 pgd_setup:
         adr     r0, text
         mov     r1, r0
@@ -216,38 +216,38 @@ ENTRY(arch_context_switch)
 
 mem_map_table:
 
-        /* XXX: Identity mapped 1GB, temporary. */
+        @ XXX: Identity mapped 1GB, temporary.
         MAP_ENTRY(TEGRA_RAM_VIRT,
         TEGRA_RAM_PHYS,
         1024,
-        PDE_ENTRY_HV)
+        PDE_SECTION_HV)
 
-        /* Kernel. */
+        @ Kernel.
         MAP_ENTRY(DIRECTMAP_VIRT_START,
         DIRECTMAP_PHYS_START,
         (DIRECTMAP_VIRT_END -
         DIRECTMAP_VIRT_START) >> 20,
-        PDE_ENTRY_HV)
+        PDE_SECTION_HV)
 
-        /* CPU. */
+        @ CPU.
         MAP_ENTRY(TEGRA_CPU_VIRT,
         TEGRA_CPU_PHYS,
         TEGRA_CPU_SIZE >> 20,
-        PDE_ENTRY_IO)
+        PDE_SECTION_IO)
 
-        /* PPSB. */
+        @ PPSB.
         MAP_ENTRY(TEGRA_PPSB_VIRT,
         TEGRA_PPSB_PHYS,
         TEGRA_PPSB_SIZE >> 20,
-        PDE_ENTRY_IO)
+        PDE_SECTION_IO)
 
-        /* APB. */
+        @ APB.
         MAP_ENTRY(TEGRA_APB_VIRT,
         TEGRA_APB_PHYS,
         TEGRA_APB_SIZE >> 20,
-        PDE_ENTRY_IO)
+        PDE_SECTION_IO)
 
-        /* The end. */
+        @ The end.
         MAP_ENTRY(0,0,0,0)
 
 LC0:
@@ -263,8 +263,11 @@ __ATAG_INFO:
 
 boot_vectors_loc:
         .long boot_vectors
+
+        @ According to ARM ARM, VBAR has lower 5 bits wired to 0.
+        .align 5
 boot_vectors:
-        b dead_loop        @ RESET, never taken since it always goes to 0x0
+        b dead_loop        @ RESET, never taken
         b boot_und_vector  @ UND
         b boot_swi_vector  @ SWI
         b boot_pabt_vector @ PABT
@@ -274,41 +277,74 @@ boot_vectors:
         b boot_fiq_vector  @ FIQ
 boot_und_vector:
         adr     r0, str_und
-        b       dead_loop
-str_und:        .asciz  "\r\Undefined Exception!\r\n"
+        b       dead_print_loop
+str_und:        .asciz  "\r\Undefined Exception!"
         .align
 boot_swi_vector:
         adr     r0, str_swi
-        b       dead_loop
-str_swi:        .asciz  "\r\SWI Exception!\r\n"
+        b       dead_print_loop
+str_swi:        .asciz  "\r\SWI Exception!"
         .align
 boot_pabt_vector:
         adr     r0, str_pabt
+        bl      printascii
+        adr     r0, str_ifsr
+        bl      printascii
+        mrc     p15, 0, r0, c5, c0, 1
+        bl      printhex8
+        adr     r0, str_aifsr
+        bl      printascii
+        mrc     p15, 0, r0, c5, c1, 1
+        bl      printhex8
+        adr     r0, str_ifar
+        bl      printascii
+        mrc     p15, 0, r0, c6, c0, 2
+        bl      printhex8
         b       dead_loop
-str_pabt:       .asciz  "\r\PABT Exception!\r\n"
+str_pabt:       .asciz  "\r\nPABT Exception!"
+str_ifsr:       .asciz  "\r\nIFSR  0x"
+str_aifsr:      .asciz  "\r\nAIFSR 0x"
+str_ifar:       .asciz  "\r\nIFAR  0x"
         .align
 boot_dabt_vector:
         adr     r0, str_dabt
+        bl      printascii
+        adr     r0, str_dfsr
+        bl      printascii
+        mrc     p15, 0, r0, c5, c0, 0
+        bl      printhex8
+        adr     r0, str_adfsr
+        bl      printascii
+        mrc     p15, 0, r0, c5, c1, 0
+        bl      printhex8
+        adr     r0, str_dfar
+        bl      printascii
+        mrc     p15, 0, r0, c6, c0, 0
+        bl      printhex8
         b       dead_loop
-str_dabt:       .asciz  "\r\DABT Exception!\r\n"
+str_dabt:       .asciz  "\r\DABT Exception!"
+str_dfsr:       .asciz  "\r\nDFSR  0x"
+str_adfsr:      .asciz  "\r\nADFSR 0x"
+str_dfar:       .asciz  "\r\nDFAR  0x"
         .align
 boot_unk_vector:
         adr     r0, str_unk
-        b       dead_loop
-str_unk:        .asciz  "\r\Unknown Exception!\r\n"
+        b       dead_print_loop
+str_unk:        .asciz  "\r\Unknown Exception!"
         .align
 boot_irq_vector:
         adr     r0, str_irq
-        b       dead_loop
-str_irq:        .asciz  "\r\IRQ Exception!\r\n"
+        b       dead_print_loop
+str_irq:        .asciz  "\r\IRQ Exception!"
         .align
 boot_fiq_vector:
         adr     r0, str_fiq
-        b       dead_loop
-str_fiq:        .asciz  "\r\FIQ Exception!\r\n"
+        b       dead_print_loop
+str_fiq:        .asciz  "\r\FIQ Exception!"
         .align
-dead_loop:
+dead_print_loop:
         bl      printascii
+dead_loop:
 1:      b       1b
         
         .section        .bss.stack_aligned,"w"

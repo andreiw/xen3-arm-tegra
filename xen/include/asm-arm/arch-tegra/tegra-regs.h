@@ -1,8 +1,6 @@
 #ifndef TEGRA_REGS_H
 #define TEGRA_REGS_H
 
-#include <xen/sizes.h>
-
 #define TEGRA_ARM_PERIF_BASE		0x50040000
 #define TEGRA_ARM_PERIF_SIZE		SZ_8K
 

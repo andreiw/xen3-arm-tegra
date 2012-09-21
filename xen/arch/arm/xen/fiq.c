@@ -30,7 +30,7 @@ extern void fiq_glue_setup(void *func, void *data, void *sp);
 static void fiq_set_handler(void *handler)
 {
 	unsigned long *fiq_slot = (unsigned long *)
-		(VECTORS_VIRT_BASE + (exception_vectors_jump_fiq -
+		(SPECIAL_VECTORS + (exception_vectors_jump_fiq -
 				 exception_vectors_table));
 	*fiq_slot = (u32) handler;
 	cpu_coherent_range(fiq_slot, fiq_slot + 1);
