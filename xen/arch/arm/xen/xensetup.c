@@ -278,7 +278,7 @@ void start_xen(void *unused)
           XEN_COMPILER, XEN_COMPILE_DATE);
    printk(" Platform: %s\n", XEN_PLATFORM);
    printk(" GIT SHA: %s\n", XEN_CHANGESET);
-   printk(" Kernel command line: %s\n", cmdline);
+   printk(" Kernel command line: %S\n", cmdline);
    atag_initrd((u32 *) &bv.start, (u32 *) &bv.end);
    printk(" Boot volume: 0x%x-0x%x\n", bv.start, bv.end);
 
