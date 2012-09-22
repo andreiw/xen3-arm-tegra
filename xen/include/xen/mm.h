@@ -38,7 +38,7 @@ struct page_info;
 /* Boot-time allocator. Turns into generic allocator after bootstrap. */
 paddr_t boot_allocator_init(paddr_t bitmap_start);
 void boot_pages_init(paddr_t ps, paddr_t pe);
-unsigned long boot_pages_alloc(unsigned long nr_pfns, unsigned long pfn_align);
+void boot_pages_reserve(paddr_t ps, paddr_t pe);
 void boot_allocator_end(void);
 
 /* Generic allocator. These functions are *not* interrupt-safe. */

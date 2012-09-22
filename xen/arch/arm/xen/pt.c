@@ -193,6 +193,8 @@ void pt_init(vaddr_t initial_pd_va)
     * page which we need for MAP0 mapping other items.
     */
    spt_va = (vaddr_t) pages_m_alloc1();
+   BUG_ON(spt_va == NULL);
+
    spt = (pt_entry_t *)
       (spt_va +
        CURRENT_PAGE_TABLE_OFFSET(SPECIAL_VIRT_START));
@@ -212,6 +214,8 @@ void pt_init(vaddr_t initial_pd_va)
     */
 
    cpt_page = pages_u_alloc1(NULL);
+   BUG_ON(cpt_page == NULL);
+
    cpt = (pt_entry_t *) SPECIAL_MAP0;
    spt[PTE_INDEX((vaddr_t) cpt)] =
       page_to_phys(cpt_page) | PTE_ENTRY_HV;

@@ -116,13 +116,13 @@ static unsigned long find_highest_pfn(struct meminfo *mi)
    return end >> PAGE_SHIFT;
 }
 
-static void memory_init()
+static void memory_init(struct bv *boot_volume)
 {
    unsigned long i, s, e;
    unsigned long pages_m_phys_start;
-   unsigned long xen_pstart;
-   unsigned long xen_pend;
-   unsigned long nr_pages = 0;
+   unsigned long phys_lowest_pa;
+   unsigned long phys_highest_pa;
+   unsigned long nr_pages;
 
    /* set page table base */
    idle_pgd = (pde_t *) (ma_to_va(cpu_get_ttb()));
@@ -133,8 +133,8 @@ static void memory_init()
     */
    min_page = find_lowest_pfn(&system_memory);
    max_page = find_highest_pfn(&system_memory);
-   xen_pstart = min_page << PAGE_SHIFT;
-   xen_pend = max_page << PAGE_SHIFT;
+   phys_lowest_pa = min_page << PAGE_SHIFT;
+   phys_highest_pa = max_page << PAGE_SHIFT;
 
    /* Initialise boot-time allocator with all RAM situated after modules. */
    frame_table = (struct page_info *)(round_pgup(((unsigned long)(&_end))));
@@ -143,7 +143,6 @@ static void memory_init()
 
    pages_m_phys_start = boot_allocator_init(va_to_ma(frame_table) + (nr_pages << PAGE_SHIFT));
    pages_m_phys_end = va_to_ma(DIRECTMAP_VIRT_END);
-
 
    printk("Virtual memory map:\n");
    printk("=================================================\n");
@@ -172,43 +171,42 @@ static void memory_init()
    printk("IOREMAP_VIRT_START:    0x%08x\n", IOREMAP_VIRT_START);
    printk("HYPERVISOR_VIRT_START: 0x%08x\n", HYPERVISOR_VIRT_START);
 
-   /* Initialise the DOM heap, skipping RAM holes. */
-   nr_pages = 0;
-   for ( i = 0; i < system_memory.nr_banks; i++ ) {
-      nr_pages += system_memory.banks[i].size >> PAGE_SHIFT;
-
-      /* Initialise boot heap, skipping Xen heap and dom0 modules. */
+   /* Initialize boot allocator with available RAM. */
+   for (i = 0; i < system_memory.nr_banks; i++) {
       s = system_memory.banks[i].base;
       e = s + system_memory.banks[i].size;
       printk("looking at bank %d\n", i);
       printk("        base - 0x%x\n", s);
       printk("        end  - 0x%x\n", e);
 
-      if ( s < pages_m_phys_start )
+      if (s < pages_m_phys_start) {
          s = pages_m_phys_start;
-      if( e > xen_pend )
-         e = xen_pend;
+      }
+      if(e > phys_highest_pa) {
+         e = phys_highest_pa;
+      }
+
       boot_pages_init(s, e);
    }
 
-   total_pages = nr_pages;
+   boot_pages_reserve(boot_volume->start, boot_volume->end);
    boot_allocator_end();
 
-   /* Initialise the Xen heap, skipping RAM holes. */
-   nr_pages = 0;
-   for ( i = 0; i < system_memory.nr_banks; i++ ) {
+   for (i = 0; i < system_memory.nr_banks; i++) {
       s = system_memory.banks[i].base;
       e = s + system_memory.banks[i].size;
-      if ( s < pages_m_phys_start )
+      if (s < pages_m_phys_start) {
          s = pages_m_phys_start;
-      if ( e > pages_m_phys_end )
+      }
+      if (e > pages_m_phys_end) {
          e = pages_m_phys_end;
-      if ( s < e ) {
-         nr_pages += (e - s) >> PAGE_SHIFT;
+      }
+      if (s < e) {
          pages_m_init(s, e);
       }
    }
 }
+
 
 void trap_init(void)
 {
@@ -216,6 +214,7 @@ void trap_init(void)
    struct page_info *pg;
 
    pg = pages_u_alloc1(NULL);
+   BUG_ON(pg == NULL);
    printk("IVT page is PA 0x%08x\n", page_to_phys(pg));
 
    BUG_ON(pt_map(SPECIAL_VECTORS, page_to_phys(pg), PAGE_SIZE, PTE_ENTRY_HV) != 0);
@@ -282,7 +281,7 @@ void start_xen(void *unused)
    atag_initrd((u32 *) &bv.start, (u32 *) &bv.end);
    printk(" Boot volume: 0x%x-0x%x\n", bv.start, bv.end);
 
-   memory_init();
+   memory_init(&bv);
    pt_init((vaddr_t) idle_pgd);
 
    sort_extables();

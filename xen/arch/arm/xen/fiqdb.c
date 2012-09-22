@@ -152,14 +152,19 @@ struct mode_regs {
    unsigned long spsr_fiq;
 };
 
-
 static bool in_debugger;
+static bool debugger_available;
 
 /*
  * Called from panic() or elsewhere.
  */
 void debugger_trap_immediate(void)
 {
+   if (!debugger_available) {
+      printk("FIQDB not available\n");
+      return;
+   }
+
    printk("Waiting for FIQDB\n");
    in_debugger = true;
 
@@ -379,6 +384,8 @@ int fiqdb_init(void)
 
    fiq_register_handler(&fiq_handler);
    local_fiq_enable();
+   debugger_available = true;
+
    printk("FIQ debugger enabled\n");
    return 0;
 }

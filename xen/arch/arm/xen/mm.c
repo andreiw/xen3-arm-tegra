@@ -66,7 +66,7 @@ static struct domain *dom_xen, *dom_io;
 
 /* Frame table and its size in pages. */
 struct page_info *frame_table;
-unsigned long min_page, max_page, total_pages;
+unsigned long min_page, max_page;
 
 pde_t *idle_pgd;
 

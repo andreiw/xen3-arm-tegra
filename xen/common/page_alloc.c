@@ -191,35 +191,15 @@ void boot_pages_init(physaddr_t ps, physaddr_t pe)
 }
 
 
-/**
- * \brief allocated "contiguous" boot pages
- * \param nr_pfns: number of page frames to allocate
- * \param pfn_align: alignment
- * \return 0 on failure
- * \return page number which is the first of the allocated pages on success.
- */
-unsigned long boot_pages_alloc(unsigned long nr_pfns, unsigned long pfn_align)
+void boot_pages_reserve(paddr_t start, paddr_t end)
 {
-   unsigned long pg, i;
-
-   /* TOCHECK: if min_page is not aligned with pfn_align, what happen? */
-   for (pg = min_page; (pg + nr_pfns) < max_page; pg += pfn_align) {
-
-      /* try to allocate all nr_pfns */
-      for (i = 0; i < nr_pfns; i++) {
-         if (allocated_in_map(pg + i)) {
-            break;
-         }
-      }
-
-      if (i == nr_pfns) { /* if none of the pages is mapped */
-         map_alloc(pg, nr_pfns);
-
-         return pg;
-      }
+   start = ROUND_UP(start, PAGE_SIZE);
+   end = ROUND_DOWN(end, PAGE_SIZE);
+   if (end <= start) {
+      return;
    }
 
-   return 0;
+   map_alloc(start >> PAGE_SHIFT, (end - start) >> PAGE_SHIFT);
 }
 
 
@@ -227,7 +207,7 @@ unsigned long boot_pages_alloc(unsigned long nr_pfns, unsigned long pfn_align)
  * BINARY BUDDY ALLOCATOR
  */
 
-#define MEMZONE_MAPPED          0
+#define MEMZONE_MAPPED       0
 #define MEMZONE_UNMAPPED     1
 #define MEMZONE_UNMAPPED_DMA 2
 #define NR_ZONES             (MEMZONE_UNMAPPED_DMA + 1)
@@ -297,7 +277,9 @@ void boot_allocator_end(void)
       }
    }
 
-   /* Pages that are free now go to the domain sub-allocator. */
+   /*
+    * Pages that are free now go to the domain sub-allocator.
+    */
    next_free = !allocated_in_map(min_page);
    for (i = min_page; i < max_page; i++) {
       curr_free = next_free;
@@ -318,8 +300,8 @@ void boot_allocator_end(void)
 
 /* Hand the specified arbitrary page range to the specified heap zone. */
 void pages_init(unsigned int zone,
-                     struct page_info *pg,
-                     unsigned long nr_pages)
+                struct page_info *pg,
+                unsigned long nr_pages)
 {
    unsigned long i;
 

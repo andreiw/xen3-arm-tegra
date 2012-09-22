@@ -146,7 +146,6 @@ extern pde_t *idle_pgd;
 
 extern struct page_info *frame_table;
 extern unsigned long min_page, max_page;
-extern unsigned long total_pages;
 
 void init_frametable(void);
 
