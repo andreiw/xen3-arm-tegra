@@ -2,8 +2,7 @@ Xen3 ARMv7/Tegra2 work
 ======================
 
 This is a an effort to bring up Samsung's Xen3 tree on
-Tegra2. It's meant as a stepping stone to the Xen4 port.
-Or maybe not. We'll see.
+Tegra2.
 
 "Bring up" is a very relative word... most of the code
 I end up having to (re)write isn't platform specific.
@@ -17,6 +16,23 @@ and porting the Tegra2 Linux kernel to be PV can begin.
 I am also musing adding self-hosting as a target - 
 certainly it would be a boon for debugging and help
 with SMP bring-up.
+
+
+Status
+======
+
+The current TODO, in probable order:
+
+* Finish framebuffer console.
+* Rewrite dom0 bring-up code and switching to VM and back.
+* Better crash debugger.
+* L2 cache integration.
+* Synchronizing hypervisor mappings across different address spaces.
+* Blocking synchronization primitives.
+* USB ACM gadget support.
+* Full preemption for xen domains.
+* Hypercall definitions.
+* Tickless operation.
 
 
 Differences
@@ -36,6 +52,7 @@ Current differences from Samsung's tree:
 6) A FIQ-based extensible serial kernel debugger with useful commands to help
    debugging and bring-up.
 7) In progress work on a framebuffer debug console.
+8) VMSAv7-driven rework of page table management.
 
 Full kernel preemption is a design goal. Kernel threads are cooperative at the moment.
 
@@ -205,24 +222,6 @@ fiqdb> [XEN] Hello from a Xen domain 1!
 [XEN] Hello from a Xen domain 2!
 [XEN] Hello from a Xen domain 1!
 
-TODO
-====
-
-Here goes various stuff that consitutes braindead design
-that came from Samsung's EmbeddedXen, and various odds and
-ends and which need some lovin', but not immediately.
-1) Initialize mapcache before traps to avoid using
-   a heap page for pte table.
-2) Fix percpu to support SMP.
-
-Nice to have:
-1) tegrafb for debugging and use by people with regular Xooms
-   and other Tegra2 hardware.
-2) GDB xen domain to facilitate debugging
-3) Control of GPIOs to reset, blink leds, etc. More
-   for debugging, although by the time I get to a PV
-   kernel, a sanitized view on GPIOs will need to be
-   exposed via a hypercall.
 
 Hacking away
 ============
