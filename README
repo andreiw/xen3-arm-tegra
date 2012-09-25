@@ -35,6 +35,7 @@ Current differences from Samsung's tree:
 5) No ACM, given likely hypercall changes.
 6) A FIQ-based extensible serial kernel debugger with useful commands to help
    debugging and bring-up.
+7) In progress work on a framebuffer debug console.
 
 Full kernel preemption is a design goal. Kernel threads are cooperative at the moment.
 

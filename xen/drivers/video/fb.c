@@ -31,6 +31,7 @@ void fb_register(struct fb_info *fb_info)
    fb_current = fb_info;
 }
 
+
 static int fb_init(void)
 {
    if (!fb_current) {
@@ -40,12 +41,36 @@ static int fb_init(void)
 
    printk("fb: %s\n", fb_current->name);
    if (fb_current->ops.init) {
-      fb_current->ops.init(fb_current);
+      if (!fb_current->ops.init(fb_current)) {
+         fb_current->flags |= FB_FLAGS_ACTIVE;
+      }
    } else {
       fb_current->flags |= FB_FLAGS_ACTIVE;
    }
 
    return 0;
+}
+
+
+void fb_fillrect(const struct fb_fillrect *rect)
+{
+   if (!fb_current ||
+       !(fb_current->flags & FB_FLAGS_ACTIVE)) {
+      return;
+   }
+
+   cfb_fillrect(fb_current, rect);
+}
+
+
+void fb_imageblit(const struct fb_image *image)
+{
+   if (!fb_current ||
+       !(fb_current->flags & FB_FLAGS_ACTIVE)) {
+      return;
+   }
+
+   cfb_imageblit(fb_current, image);
 }
 
 __initcall(fb_init);

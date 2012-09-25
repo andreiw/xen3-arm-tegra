@@ -28,6 +28,7 @@
 #define HYPERVISOR_VIRT_START   0xFC000000
 #endif
 
+#define SPECIAL_VIRT_LAST_VALID 0xFFFFFFFF        
 #define SPECIAL_PAGE_DIR        0xFFFFC000
 #define SPECIAL_MAP1            0xFFFFB000
 #define SPECIAL_MAP0            0xFFFFA000

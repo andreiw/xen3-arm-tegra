@@ -24,7 +24,7 @@
 #include <xen/kernel.h>
 #include <xen/fb.h>
 #include <asm/bitops.h>
-#include "fb_draw.h"
+#include "fb_private.h"
 
 /*
  *  Aligned pattern fill using 32/64-bit memory accesses
@@ -304,23 +304,20 @@ void cfb_fillrect(struct fb_info *p, const struct fb_fillrect *rect)
    /* FIXME For now we support 1-32 bpp only */
    left = bits % bpp;
 
-   if (p->ops.sync)
-      p->ops.sync(p);
-
    if (!left) {
       void (*fill_op32)(struct fb_info *p,
                         unsigned long __iomem *dst, int dst_idx,
                         unsigned long pat, unsigned n, int bits) = NULL;
 
       switch (rect->rop) {
-      case ROP_XOR:
+      case FB_ROP_XOR:
          fill_op32 = bitfill_aligned_rev;
          break;
-      case ROP_COPY:
+      case FB_ROP_COPY:
          fill_op32 = bitfill_aligned;
          break;
       default:
-         printk("cfb_fillrect(): unknown rop, defaulting to ROP_COPY\n");
+         printk("cfb_fillrect(): unknown rop, defaulting to FB_ROP_COPY\n");
          fill_op32 = bitfill_aligned;
          break;
       }
@@ -338,14 +335,14 @@ void cfb_fillrect(struct fb_info *p, const struct fb_fillrect *rect)
       right = left;
       left = bpp - right;
       switch (rect->rop) {
-      case ROP_XOR:
+      case FB_ROP_XOR:
          fill_op = bitfill_unaligned_rev;
          break;
-      case ROP_COPY:
+      case FB_ROP_COPY:
          fill_op = bitfill_unaligned;
          break;
       default:
-         printk("cfb_fillrect(): unknown rop, defaulting to ROP_COPY\n");
+         printk("cfb_fillrect(): unknown rop, defaulting to FB_ROP_COPY\n");
          fill_op = bitfill_unaligned;
          break;
       }

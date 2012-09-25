@@ -229,6 +229,12 @@ mem_map_table:
         DIRECTMAP_VIRT_START) >> 20,
         PDE_SECTION_HV)
 
+        @ HOST1X
+        MAP_ENTRY(TEGRA_HOST1X_VIRT,
+        TEGRA_HOST1X_PHYS,
+        TEGRA_HOST1X_SIZE >> 20,
+        PDE_SECTION_IO)
+        
         @ CPU.
         MAP_ENTRY(TEGRA_CPU_VIRT,
         TEGRA_CPU_PHYS,
@@ -249,7 +255,6 @@ mem_map_table:
 
         @ The end.
         MAP_ENTRY(0,0,0,0)
-
 LC0:
         .word   LC0                     @ r1
         .word   text                    @ r2

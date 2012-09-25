@@ -28,6 +28,7 @@
 
 void tegra_fiqdb_register();
 void tegra_uart_init(int index, struct ns16550_defaults *defaults);
+void tegra_fb_init(void);
 
 static void tegra_platform_halt(int mode)
 {
@@ -56,6 +57,8 @@ static void tegra_platform_setup(void)
 	tegra_sys_clk_init();
 	tegra_irq_init();
 	tegra_timer_init();
+
+   tegra_fb_init();
 }
 
 DECLARE_PLATFORM_OP(platform_setup, tegra_platform_setup);

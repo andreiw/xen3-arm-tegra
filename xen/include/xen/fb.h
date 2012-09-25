@@ -33,12 +33,11 @@ struct fb_px {
 };
 
 struct fb_info;
-typedef void (*fb_ops_init)(struct fb_info *fb);
+typedef int (*fb_ops_init)(struct fb_info *fb);
 typedef void (*fb_ops_sync)(struct fb_info *fb);
 
 struct fb_ops {
-   fb_ops_init   init;
-   fb_ops_init   sync;
+   fb_ops_init init;
 };
 
 struct fb_info {
@@ -68,13 +67,33 @@ struct fb_fillrect {
    u32 width;
    u32 height;
    u32 color;
-#define ROP_COPY 0
-#define ROP_XOR  1
+#define FB_ROP_COPY 0
+#define FB_ROP_XOR  1
    unsigned rop;
 };
 
+struct fb_image {
+   u32 dx;       /* Where to place image */
+   u32 dy;
+   u32 width;    /* Size of image */
+   u32 height;
+   u32 fg_color; /* Only used when a mono bitmap */
+   u32 bg_color;
+   u8  depth;    /* Depth of the image */
+   void *data;   /* Pointer to image data */
+};
+
+struct fb_font {
+   u8 width;
+   u8 height;
+   u8 *data;
+};
+
+extern struct fb_font fb_console_font;
+
 void fb_register(struct fb_info *fb_info);
-void cfb_fillrect(struct fb_info *p, const struct fb_fillrect *rect);
+void fb_fillrect(const struct fb_fillrect *rect);
+void fb_imageblit(const struct fb_image *image);
 
 #endif
 

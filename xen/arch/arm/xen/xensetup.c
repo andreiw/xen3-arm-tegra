@@ -41,6 +41,8 @@
 #include <asm/irq.h>
 #include <xen/bv.h>
 
+#include <xen/fb.h>
+
 #ifdef CONFIG_GCOV_XEN
 #include <xen/gcov.h>
 #endif
@@ -241,11 +243,59 @@ static void shared_info_table_init(void)
 
 void xd_test(void *context)
 {
+   struct fb_fillrect rect;
+   struct fb_image image;
+   int color_index = current->domain->domain_id;
+
+   rect.dx = 0;
+   rect.dy = 0;
+   rect.width = 1280;
+   rect.height = 800;
+   rect.color = 0x22222222;
+   rect.rop = FB_ROP_COPY;
+   fb_fillrect(&rect);
+
    s_time_t st = NOW();
    while (1) {
       if (NOW() - st > SECONDS(current->domain->domain_id * 2)) {
          printk("Hello from a Xen domain %u!\n", current->domain->domain_id);
+         color_index = color_index % 3;
+         rect.dx = 200 * current->domain->domain_id;
+         rect.dy = 200 * current->domain->domain_id;
+         rect.width = 200;
+         rect.height = 200;
+         rect.color = (u32) 0x66 << (8 * color_index);
+         rect.rop = FB_ROP_COPY;
+         fb_fillrect(&rect);
+         image.dx = rect.dx + 50;
+         image.dy = rect.dy + 50;
+         image.width = fb_console_font.width;
+         image.height = fb_console_font.height;
+         image.fg_color = 0x99999999;
+         image.bg_color = rect.color;
+         image.depth = 1;
+         image.data = &fb_console_font.data['A' * 2 * 22];
+         fb_imageblit(&image);
+         image.dx += fb_console_font.width + 1;
+         image.data = &fb_console_font.data['R' * 2 * 22];
+         fb_imageblit(&image);
+         image.dx += fb_console_font.width + 1;
+         image.data = &fb_console_font.data['M' * 2 * 22];
+         fb_imageblit(&image);
+         image.dx += fb_console_font.width + 1;
+         image.data = &fb_console_font.data[' ' * 2 * 22];
+         fb_imageblit(&image);
+         image.dx += fb_console_font.width + 1;
+         image.data = &fb_console_font.data['X' * 2 * 22];
+         fb_imageblit(&image);
+         image.dx += fb_console_font.width + 1;
+         image.data = &fb_console_font.data['E' * 2 * 22];
+         fb_imageblit(&image);
+         image.dx += fb_console_font.width + 1;
+         image.data = &fb_console_font.data['N' * 2 * 22];
+         fb_imageblit(&image);
          st = NOW();
+         color_index++;
       }
       sched_yield();
    }
@@ -322,7 +372,7 @@ void start_xen(void *unused)
    idle_vcpu[0]->arch.guest_table = va_to_ma(&idle_pgd[0]);
 
    /* While we're not stable... */
-   debugger_trap_immediate();
+   /* debugger_trap_immediate(); */
 
 #if 0
    dom0 = domain_create(0, 0, 0);

@@ -1,8 +1,26 @@
-#ifndef FB_DRAW_H
-#define FB_DRAW_H
+/*
+ * fb_private.h
+ *
+ * Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
 
-#include <xen/kernel.h>
-#include <xen/fb.h>
+#ifndef XEN_FB_PRIVATE_H
+#define XEN_FB_PRIVATE_H
+
 #include <asm/io.h>
 
 #if BITS_PER_LONG == 32
@@ -88,10 +106,12 @@ static inline unsigned long rolx(unsigned long word, unsigned int shift, unsigne
    return (word << shift) | (word >> (x - shift));
 }
 
+void cfb_fillrect(struct fb_info *p, const struct fb_fillrect *rect);
+
+#endif
+
 /*
  * Local variables:
  * eval: (xen-c-mode)
  * End:
  */
-
-#endif /* FB_DRAW_H */
