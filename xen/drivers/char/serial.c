@@ -5,8 +5,9 @@
  * Copyright (c) 2003-2005, K A Fraser
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public version 2 of License as published by
- * the Free Software Foundation.
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 #include <xen/kernel.h>
@@ -53,6 +54,7 @@ void serial_rx_interrupt(struct serial_port *port,
    }
 }
 
+
 void serial_tx_interrupt(struct serial_port *port,
                          struct cpu_user_regs *regs)
 {
@@ -86,6 +88,7 @@ void serial_tx_interrupt(struct serial_port *port,
 
    spin_unlock_irqrestore(&port->tx_lock, flags);
 }
+
 
 static void __serial_putc(struct serial_port *port,
                           char c)
@@ -132,6 +135,7 @@ static void __serial_putc(struct serial_port *port,
    }
 }
 
+
 void serial_putc(struct serial_port *port, char c)
 {
    unsigned long flags;
@@ -147,24 +151,6 @@ void serial_putc(struct serial_port *port, char c)
    spin_unlock_irqrestore(&port->tx_lock, flags);
 }
 
-void serial_puts(struct serial_port *port,
-                 const char *s)
-{
-   unsigned long flags;
-   char c;
-
-   spin_lock_irqsave(&port->tx_lock, flags);
-
-   while ((c = *s++) != '\0') {
-      if (c == '\n' && port->flags & SERIAL_COOKED) {
-         __serial_putc(port, '\r');
-      }
-
-      __serial_putc(port, c);
-   }
-
-   spin_unlock_irqrestore(&port->tx_lock, flags);
-}
 
 char serial_getc(struct serial_port *port)
 {
@@ -193,8 +179,9 @@ char serial_getc(struct serial_port *port)
    return c & 0x7f;
 }
 
-void serial_con_set_rx_handler(struct serial_port *port,
-                               console_rx_handler handler)
+
+static void sercon_set_rx_handler(struct serial_port *port,
+                                  console_rx_handler handler)
 {
    unsigned long flags;
 
@@ -210,28 +197,36 @@ out:
    spin_unlock_irqrestore(&port->rx_lock, flags);
 }
 
-void serial_con_putc(struct console_info *con, char c)
+
+static void sercon_puts(struct console_info *con, const char *s)
 {
+   char c;
+   unsigned long flags;
    struct serial_port *port = con->private;
 
-   serial_putc(port, c);
+   spin_lock_irqsave(&port->tx_lock, flags);
+
+   while ((c = *s++) != '\0') {
+      if (c == '\n' && port->flags & SERIAL_COOKED) {
+         __serial_putc(port, '\r');
+      }
+
+      __serial_putc(port, c);
+   }
+
+   spin_unlock_irqrestore(&port->tx_lock, flags);
 }
 
-void serial_con_puts(struct console_info *con, const char *s)
-{
-   struct serial_port *port = con->private;
 
-   serial_puts(port, s);
-}
-
-bool serial_con_can_write(struct console_info *con)
+static bool sercon_can_write(struct console_info *con)
 {
    struct serial_port *port = con->private;
 
    return (SERIAL_TXBUFSZ - (port->txbufp - port->txbufc)) < (SERIAL_TXBUFSZ / 2) ? false : true;
 }
 
-void serial_con_start_sync(struct console_info *con)
+
+static void sercon_start_sync(struct console_info *con)
 {
    unsigned long flags;
    struct serial_port *port = con->private;
@@ -251,7 +246,8 @@ void serial_con_start_sync(struct console_info *con)
    spin_unlock_irqrestore(&port->tx_lock, flags);
 }
 
-void serial_con_end_sync(struct console_info *con)
+
+static void sercon_end_sync(struct console_info *con)
 {
    unsigned long flags;
    struct serial_port *port = con->private;
@@ -261,26 +257,28 @@ void serial_con_end_sync(struct console_info *con)
    spin_unlock_irqrestore(&port->tx_lock, flags);
 }
 
-void serial_con_force_unlock(struct console_info *con)
+
+static void sercon_force_unlock(struct console_info *con)
 {
    struct serial_port *port = con->private;
 
    port->rx_lock = SPIN_LOCK_UNLOCKED;
    port->tx_lock = SPIN_LOCK_UNLOCKED;
 
-   serial_con_start_sync(con);
+   sercon_start_sync(con);
 }
 
-static struct console_info serial_console = {
+
+static struct console_info sercon_info = {
    .name = "serial console",
-   .set_rx_handler = serial_con_set_rx_handler,
-   .putc = serial_con_putc,
-   .puts = serial_con_puts,
-   .can_write = serial_con_can_write,
-   .start_sync = serial_con_start_sync,
-   .end_sync = serial_con_end_sync,
-   .force_unlock = serial_con_force_unlock,
+   .set_rx_handler = sercon_set_rx_handler,
+   .puts = sercon_puts,
+   .can_write = sercon_can_write,
+   .start_sync = sercon_start_sync,
+   .end_sync = sercon_end_sync,
+   .force_unlock = sercon_force_unlock,
 };
+
 
 void serial_register_port(struct serial_port *port)
 {
@@ -292,9 +290,9 @@ void serial_register_port(struct serial_port *port)
    list_add(&port->head, &serial_list);
 
    if (port->flags & SERIAL_CONSOLE &&
-       serial_console.private == NULL) {
-      serial_console.private = port;
-      console_register(&serial_console);
+       sercon_info.private == NULL) {
+      sercon_info.private = port;
+      console_register(&sercon_info);
    }
    spin_unlock_irqrestore(&serial_lock, flags);
 }

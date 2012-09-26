@@ -76,9 +76,6 @@ void serial_register_port(struct serial_port *port);
 /* Transmit a single character via the specified COM port. */
 void serial_putc(struct serial_port *port, char c);
 
-/* Transmit a NULL-terminated string via the specified COM port. */
-void serial_puts(struct serial_port *port, const char *s);
-
 /*
  * An alternative to registering a character-receive hook. This function
  * will not return until a character is available. It can safely be

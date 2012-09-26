@@ -131,7 +131,9 @@ void console_start_sync(void)
 
    spin_lock_irqsave(&console_lock, flags);
    list_for_each_entry(con, &console_list, head) {
-      con->start_sync(con);
+      if (con->start_sync) {
+         con->start_sync(con);
+      }
    }
    spin_unlock_irqrestore(&console_lock, flags);
 }
@@ -147,7 +149,9 @@ void console_end_sync(void)
 
    spin_lock_irqsave(&console_lock, flags);
    list_for_each_entry(con, &console_list, head) {
-      con->end_sync(con);
+      if (con->end_sync) {
+         con->end_sync(con);
+      }
    }
    spin_unlock_irqrestore(&console_lock, flags);
 }
@@ -165,8 +169,12 @@ void console_force_unlock(void)
 
    spin_lock_irqsave(&console_lock, flags);
    list_for_each_entry(con, &console_list, head) {
-      con->force_unlock(con);
-      con->start_sync(con);
+      if (con->force_unlock) {
+         con->force_unlock(con);
+      }
+      if (con->start_sync) {
+         con->start_sync(con);
+      }
    }
    spin_unlock_irqrestore(&console_lock, flags);
 }

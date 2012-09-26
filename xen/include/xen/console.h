@@ -1,13 +1,12 @@
 /*
  * console.h - console handling.
  *
- * TODO: This needs to handle Dom0 I/O (read) as well.
- *
  * Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public version 2 of License as published by
- * the Free Software Foundation.
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 #ifndef XEN_CONSOLE_H
@@ -33,8 +32,6 @@ struct console_info;
 typedef void (*console_rx_handler)(char, struct cpu_user_regs *);
 typedef void (*console_ops_set_rx_handler)(struct console_info *con,
                                            console_rx_handler handler);
-typedef void (*console_ops_putc)(struct console_info *con,
-                                 char c);
 typedef void (*console_ops_puts)(struct console_info *con,
                                  const char *s);
 typedef bool (*console_ops_can_write)(struct console_info *con);
@@ -46,7 +43,6 @@ struct console_info {
    struct list_head           head;
    char                       *name;
    console_ops_set_rx_handler set_rx_handler;
-   console_ops_putc           putc;
    console_ops_puts           puts;
    console_ops_can_write      can_write;
    console_ops_start_sync     start_sync;
@@ -58,8 +54,6 @@ struct console_info {
 void console_register(struct console_info *con);
 
 long read_console_ring(GUEST_HANDLE(char), u32 *, int);
-
-void console_endboot(int disable_vga);
 
 void console_force_unlock(void);
 
