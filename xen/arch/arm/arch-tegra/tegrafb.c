@@ -92,9 +92,7 @@ static struct fb_info tegra_fb_info = {
 
 void tegra_fb_init(void)
 {
-   int i = 0;
    unsigned fb;
-   printk("FB init\n");
 
    tegra_fb.base = (void __iomem *) IO_TO_VIRT(TEGRA_DISPLAY_BASE);
 

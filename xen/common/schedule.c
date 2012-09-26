@@ -565,7 +565,6 @@ void __enter_scheduler(void)
 
     if ( unlikely(prev == next) )
     {
-       printk("Nothing to schedule to\n");
         spin_unlock_irq(&schedule_data[cpu].schedule_lock);
         return continue_running(prev);
     }
@@ -687,7 +686,7 @@ void __init scheduler_init(void)
         if ( strcmp(ops.opt_name, opt_sched) == 0 )
             break;
     }
-    
+
     if ( schedulers[i] == NULL )
         printk("Could not find scheduler: %s\n", opt_sched);
 

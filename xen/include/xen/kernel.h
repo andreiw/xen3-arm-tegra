@@ -104,8 +104,7 @@ void hex_dump_to_buffer(const void *buf, size_t len, int rowsize,
                         int groupsize, char *linebuf, size_t linebuflen,
                         bool ascii);
 
-#define printk(_f , _a...) printf( _f , ## _a )
-void printf(const char *format, ...);
+void printk(const char *format, ...);
 void panic(const char *format, ...);
 
 /* vsprintf.c */

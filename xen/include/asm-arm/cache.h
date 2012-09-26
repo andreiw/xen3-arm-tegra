@@ -22,6 +22,7 @@
 #define __ARM_CACHE_H__
 
 #include <xen/prefetch.h>
+#include <xen/kernel.h>
 
 #define CACHE_TYPE(x)			(((x) >> 25) & 15)
 #define CACHE_S(x)				((x) & (1 << 24))
@@ -39,13 +40,13 @@ static inline void dump_cache(const char *prefix, int cpu, unsigned int cache)
 {
 	unsigned int mult = 2 + (CACHE_M(cache) ? 1 : 0);
 
-	printk("CPU%u: %s: %d bytes, associativity %d, %d byte lines, %d sets\n",
-		cpu, prefix,
-		mult << (8 + CACHE_SIZE(cache)),
-		(mult << CACHE_ASSOC(cache)) >> 1,
-		8 << CACHE_LINE(cache),
-		1 << (6 + CACHE_SIZE(cache) - CACHE_ASSOC(cache) -
-		CACHE_LINE(cache)));
+	/* printk("CPU%u: %s: %d bytes, associativity %d, %d byte lines, %d sets\n", */
+        /*        cpu, prefix, */
+        /*        mult << (8 + CACHE_SIZE(cache)), */
+        /*        (mult << CACHE_ASSOC(cache)) >> 1, */
+        /*        8 << CACHE_LINE(cache), */
+        /*        1 << (6 + CACHE_SIZE(cache) - CACHE_ASSOC(cache) - */
+        /*              CACHE_LINE(cache))); */
 }
 
 #endif

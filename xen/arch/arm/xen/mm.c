@@ -43,7 +43,7 @@
 
 #ifdef VERBOSE
 # define MEM_LOG(_f,_a...)                           \
-	printf("DOM%u: (file=mm.c, line=%d)" _f "\n", current->domain->domain_id, __LINE__, ## _a)
+	printk("DOM%u: (file=mm.c, line=%d)" _f "\n", current->domain->domain_id, __LINE__, ## _a)
 #else
 # define MEM_LOG(_f,_a...)   ((void)0)
 #endif
@@ -285,7 +285,7 @@ int new_guest_ptbase(unsigned long ptr, int need_flush)
 
 	if ( unlikely(!mfn_valid(ptr >> PAGE_SHIFT)) )
 	{
-		printf("Access to invalid address :  %lx\n", ptr);
+		printk("Access to invalid address :  %lx\n", ptr);
 		domain_crash(d);
 
 		return 0;
@@ -747,7 +747,7 @@ static int update_va_mapping(struct vcpu *v, unsigned long va, pte_t new)
 #if 0
 	if( pte_val(*pte) != 0 )
 	{
-		printf("PTE has entry.\n");
+		printk("PTE has entry.\n");
 		return -1;
 	}
 #endif
@@ -769,7 +769,7 @@ static int create_grant_va_mapping(vaddr_t va, pte_t new, struct vcpu *v)
 	pte_t *ptr, old;
 	struct domain *d = v->domain;
 
-	printf("VA = 0x%x\n", va);
+	printk("VA = 0x%x\n", va);
 
 	ptr = get_pl1pte_from_virtaddr(v, va);
 
@@ -839,7 +839,7 @@ int create_grant_host_mapping(unsigned long addr, unsigned long frame, unsigned 
 	pte = MK_PTE(frame << PAGE_SHIFT, pte_flags);
 
     if ( flags & GNTMAP_contains_pte ) {
-		printf("GNTMAP_contains_pte\n");
+		printk("GNTMAP_contains_pte\n");
         return create_grant_pte_mapping(addr, pte, current);
 	}
 

@@ -198,7 +198,7 @@ unsigned long build_guest_tables(struct vcpu *v, struct domain_setup_info *dsi)
 	v->arch.guest_table  = mpt_base;
 	v->arch.guest_vtable = PGD_ALIGN(dsi->v_end);
 
-	printf("PT FRAMES = %d\n", TOTAL_GUEST_TABLES());
+	printk("PT FRAMES = %d\n", TOTAL_GUEST_TABLES());
 	return TOTAL_GUEST_TABLES();
 }
 
@@ -478,7 +478,7 @@ int construct_guest_dom(struct domain *d,
 
 	v = d->vcpu[0];
 
-	printf("Image Start = 0x%x\n", image_start);
+	printk("Image Start = 0x%x\n", image_start);
 
 	/* Guest partition should be aligned to 1MB boundary */
 	ASSERT((guest_size & 0xFFFFF) == 0);

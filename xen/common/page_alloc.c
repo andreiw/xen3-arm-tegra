@@ -782,7 +782,6 @@ void pages_u_free(struct page_info *pg, unsigned int order)
    }
 
    if (drop_dom_ref) {
-      printf("DROP DOMAIN\n");
       put_domain(d);
    }
 }
@@ -808,7 +807,6 @@ static void page_scrub_softirq(void)
 
    /* Aim to do 1ms of work (ten percent of a 10ms jiffy). */
    do {
-      printf("scrub\n");
       spin_lock(&page_scrub_lock);
 
       if (unlikely((ent = page_scrub_list.next) == &page_scrub_list)) {

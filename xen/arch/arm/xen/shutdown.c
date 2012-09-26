@@ -26,13 +26,13 @@
 
 void machine_halt(void)
 {
-	printf("machine_halt called: spinning....\n");
+	printk("machine_halt called: spinning....\n");
 	while(1);
 }
 
 void machine_restart(char * __unused)
 {
-	printf("machine_restart called: spinning....\n");
+	printk("machine_restart called: spinning....\n");
 	while(1);
 }
 

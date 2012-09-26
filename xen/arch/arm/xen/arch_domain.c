@@ -58,7 +58,7 @@ int arch_domain_create(struct domain *d)
       shared_info = pages_m_alloc1();
 
       if (shared_info == NULL) {
-         printf("Shared Info allocation failed\n");
+         printk("Shared Info allocation failed\n");
          return -ENOMEM;
       }
 
@@ -231,23 +231,23 @@ void trace_domheap_pages(const char *caption, struct domain *d, struct list_head
    struct page_info  *page;
    unsigned long     x, y;
 
-   printf("%s\n", caption);
+   printk("%s\n", caption);
 
    /* Use a recursive lock, as we may enter 'free_domheap_page'. */
    spin_lock_recursive(&d->page_alloc_lock);
 
-   printf("remaining domain pages = 0x%x\n", d->tot_pages);
+   printk("remaining domain pages = 0x%x\n", d->tot_pages);
 
    ent = list->next;
    while (ent != list) {
       page = list_entry(ent, struct page_info, list);
-      printf("page mfn = 0x%x, count = 0x%x, type =  0x%x\n", page_to_mfn(page), page->count_info, page->u.inuse.type_info); 
+      printk("page mfn = 0x%x, count = 0x%x, type =  0x%x\n", page_to_mfn(page), page->count_info, page->u.inuse.type_info); 
       ent = ent->next;
    }
 
    spin_unlock_recursive(&d->page_alloc_lock);
 
-   printf("page trace completed [%s]\n", caption);
+   printk("page trace completed [%s]\n", caption);
 }
 
 void domain_relinquish_resources(struct domain *d)

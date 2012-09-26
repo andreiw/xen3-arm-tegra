@@ -303,15 +303,10 @@ maxvcpu_out:
 			ret = -EINVAL;
 			if ( d != current->domain )
 			{
-				printf("DOMAIN REF COUNT = %d\n", d->refcnt.counter);
-
 				domain_kill(d);
 				ret = 0;
 			}
-
-			printf("DOMAIN REF COUNT = %d\n", d->refcnt.counter);
 			put_domain(d);
-			printf("DOMAIN REF COUNT = %d\n", d->refcnt.counter);
 		}
 	}
 	break;

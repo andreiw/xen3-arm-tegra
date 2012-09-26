@@ -27,7 +27,7 @@
 #include <asm/arch/hardware.h>
 
 void tegra_fiqdb_register();
-void tegra_uart_init(int index, struct ns16550_defaults *defaults);
+void tegra_uart_init(void);
 void tegra_fb_init(void);
 
 static void tegra_platform_halt(int mode)
@@ -38,7 +38,7 @@ DECLARE_PLATFORM_OP(platform_halt, tegra_platform_halt);
 
 static void tegra_memory_init(void)
 {
-	register_memory_bank(0x00000000, 1 * 1024 * 1024 * 1024);
+   register_memory_bank(0x00000000, 1 * 1024 * 1024 * 1024);
 }
 
 static void tegra_sys_clk_init(void)
@@ -48,15 +48,14 @@ static void tegra_sys_clk_init(void)
 static void tegra_platform_setup(void)
 {
 #ifdef CONFIG_TEGRA_FIQDB_SUPPORT
-	tegra_fiqdb_register();
+   tegra_fiqdb_register();
 #endif /* CONFIG_TEGRA_FIQDB_SUPPORT */
-	tegra_uart_init(0, NULL);
-	init_console();
+   tegra_uart_init();
 
-	tegra_memory_init();
-	tegra_sys_clk_init();
-	tegra_irq_init();
-	tegra_timer_init();
+   tegra_memory_init();
+   tegra_sys_clk_init();
+   tegra_irq_init();
+   tegra_timer_init();
 
    tegra_fb_init();
 }
@@ -65,11 +64,17 @@ DECLARE_PLATFORM_OP(platform_setup, tegra_platform_setup);
 
 static void tegra_platform_query(struct query_data *query)
 {
-	switch(query->type) {
-		case QUERY_MEMORY_DETAILS : break;
-		case QUERY_CPU_DETAILS : break;
-		default : break;
-	};
+   switch(query->type) {
+   case QUERY_MEMORY_DETAILS : break;
+   case QUERY_CPU_DETAILS : break;
+   default : break;
+   };
 }
 
 DECLARE_PLATFORM_OP(platform_query, tegra_platform_query);
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

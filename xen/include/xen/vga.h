@@ -13,11 +13,9 @@
 
 #ifdef CONFIG_VGA
 void vga_init(void);
-void vga_endboot(void);
 void vga_putchar(int c);
 #else
 #define vga_init()     ((void)0)
-#define vga_endboot()  ((void)0)
 #define vga_putchar(c) ((void)0)
 #endif
 

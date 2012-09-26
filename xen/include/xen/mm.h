@@ -69,13 +69,12 @@ unsigned long pages_u_avail(void);
 
 /* Automatic page scrubbing for dead domains. */
 extern struct list_head page_scrub_list;
-#define page_scrub_schedule_work()              \
-    do {                                        \
-        if ( !list_empty(&page_scrub_list) ) {   \
-			printf("page scrub\n");				\
-            raise_softirq(PAGE_SCRUB_SOFTIRQ);  \
-		}										\
-    } while ( 0 )
+#define page_scrub_schedule_work()                                      \
+  do {                                                                  \
+    if ( !list_empty(&page_scrub_list) ) {                              \
+      raise_softirq(PAGE_SCRUB_SOFTIRQ);                                \
+    }                                                                   \
+  } while ( 0 )
 
 #include <asm/mm.h>
 

@@ -1442,10 +1442,10 @@ static void sedf_dump_domain(struct vcpu *d)
     
 #ifdef SEDF_STATS
     if ( EDOM_INFO(d)->block_time_tot != 0 )
-        printf(" pen=%"PRIu64"%%", (EDOM_INFO(d)->penalty_time_tot * 100) /
+        printk(" pen=%"PRIu64"%%", (EDOM_INFO(d)->penalty_time_tot * 100) /
                EDOM_INFO(d)->block_time_tot);
     if ( EDOM_INFO(d)->block_tot != 0 )
-        printf("\n   blks=%u sh=%u (%u%%) (shc=%u (%u%%) shex=%i "\
+        printk("\n   blks=%u sh=%u (%u%%) (shc=%u (%u%%) shex=%i "\
                "shexsl=%i) l=%u (%u%%) avg: b=%"PRIu64" p=%"PRIu64"",
                EDOM_INFO(d)->block_tot, EDOM_INFO(d)->short_block_tot,
                (EDOM_INFO(d)->short_block_tot * 100) 
@@ -1458,7 +1458,7 @@ static void sedf_dump_domain(struct vcpu *d)
                (EDOM_INFO(d)->block_time_tot) / EDOM_INFO(d)->block_tot,
                (EDOM_INFO(d)->penalty_time_tot) / EDOM_INFO(d)->block_tot);
 #endif
-    printf("\n");
+    printk("\n");
 }
 
 

@@ -1,28 +1,75 @@
-/******************************************************************************
- * xen/console.h
- * 
- * Xen header file concerning console access.
+/*
+ * console.h - console handling.
+ *
+ * TODO: This needs to handle Dom0 I/O (read) as well.
+ *
+ * Copyright (C) 2012 Andrei Warkentin <andreiw@msalumni.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public version 2 of License as published by
+ * the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __CONSOLE_H__
-#define __CONSOLE_H__
+#ifndef XEN_CONSOLE_H
+#define XEN_CONSOLE_H
 
+#include <xen/list.h>
 #include <xen/spinlock.h>
 #include <xen/guest_access.h>
+#include <public/xen.h>
 
-extern spinlock_t console_lock;
+struct cpu_user_regs;
+struct console_info;
 
-void set_printk_prefix(const char *prefix);
+typedef void (*console_rx_handler)(char, struct cpu_user_regs *);
+typedef void (*console_ops_set_rx_handler)(struct console_info *con,
+                                           console_rx_handler handler);
+typedef void (*console_ops_putc)(struct console_info *con,
+                                 char c);
+typedef void (*console_ops_puts)(struct console_info *con,
+                                 const char *s);
+typedef bool (*console_ops_can_write)(struct console_info *con);
+typedef void (*console_ops_start_sync)(struct console_info *con);
+typedef void (*console_ops_end_sync)(struct console_info *con);
+typedef void (*console_ops_force_unlock)(struct console_info *con);
+
+struct console_info {
+   struct list_head           head;
+   char                       *name;
+   console_ops_set_rx_handler set_rx_handler;
+   console_ops_putc           putc;
+   console_ops_puts           puts;
+   console_ops_can_write      can_write;
+   console_ops_start_sync     start_sync;
+   console_ops_end_sync       end_sync;
+   console_ops_force_unlock   force_unlock;
+   void                      *private;
+};
+
+void console_register(struct console_info *con);
 
 long read_console_ring(GUEST_HANDLE(char), u32 *, int);
 
-void init_console(void);
 void console_endboot(int disable_vga);
 
 void console_force_unlock(void);
-void console_force_lock(void);
 
 void console_start_sync(void);
 void console_end_sync(void);
 
-#endif /* __CONSOLE_H__ */
+#endif /* XEN_CONSOLE_H */
+
+/*
+ * Local variables:
+ * eval: (xen-c-mode)
+ * End:
+ */

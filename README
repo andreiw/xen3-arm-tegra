@@ -33,6 +33,8 @@ The current TODO, in probable order:
 * Full preemption for xen domains.
 * Hypercall definitions.
 * Tickless operation.
+* Endboot callback list to cleanup devices before Dom0 boot.
+* Fix up the GDB bits.
 
 
 Differences

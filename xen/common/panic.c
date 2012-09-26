@@ -69,8 +69,8 @@ void panic(const char *fmt, ...)
    vsnprintf(buf, sizeof(buf), fmt, args);
    va_end(args);
 
-   /* Spit out multiline message in one go. */
-   console_start_sync();
+   /* Break locks and ensuring TX is synchronous. */
+   console_force_unlock();
    spin_lock_irqsave(&lock, flags);
 
    printk("\n********************************************\n");
