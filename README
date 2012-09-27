@@ -23,18 +23,21 @@ Status
 
 The current TODO, in probable order:
 
-* Finish framebuffer console.
-* Rewrite dom0 bring-up code and switching to VM and back.
-* Better crash debugger.
-* L2 cache integration.
-* Synchronizing hypervisor mappings across different address spaces.
-* Blocking synchronization primitives.
-* USB ACM gadget support.
-* Full preemption for xen domains.
-* Hypercall definitions.
-* Tickless operation.
-* Endboot callback list to cleanup devices before Dom0 boot.
-* Fix up the GDB bits.
+* (critical) fix broken DABT/PABT handlers
+* (critical) investigate DABT in __divdi3
+* (minor) Make FB and FB console optional through configuration options.
+* (minor) push more init code and 16bpp support into tegrafb.
+* (critical) Rewrite dom0 bring-up code and switching to VM and back.
+* (major) Better crash debugger.
+* (nice) L2 cache integration.
+* (major) Synchronizing hypervisor mappings across different address spaces.
+* (major) Blocking synchronization primitives.
+* (nice) USB ACM gadget support.
+* (major) Full preemption for xen domains.
+* (major) Hypercall definitions.
+* (major) Tickless operation.
+* (major) Endboot callback list to cleanup devices before Dom0 boot.
+* (nice) Fix up the GDB bits.
 
 
 Differences
