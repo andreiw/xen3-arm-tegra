@@ -106,8 +106,6 @@ static inline unsigned long rolx(unsigned long word, unsigned int shift, unsigne
    return (word << shift) | (word >> (x - shift));
 }
 
-void cfb_fillrect(struct fb_info *p, const struct fb_fillrect *rect);
-
 #endif
 
 /*

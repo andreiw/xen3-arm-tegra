@@ -17,7 +17,7 @@
  */
 
 #include <xen/kernel.h>
-#include <xen/fb.h>
+#include <xen/fbcon.h>
 
 #define FONTDATAMAX 11264
 
@@ -6169,7 +6169,7 @@ static const u8 fontdata_sun12x22[FONTDATAMAX] = {
 
 };
 
-struct fb_font fb_console_font = {
+struct fbcon_font fbcon_font = {
    .width   = 12,
    .height  = 22,
    .data = fontdata_sun12x22,

@@ -190,6 +190,8 @@ asmlinkage void do_prefetch_abort(u32 fsr, u32 far, struct cpu_context *regs)
 
 asmlinkage void do_data_abort(u32 fsr, u32 far, struct cpu_context *regs)
 {
+   show_registers(regs);
+
 	panic("Data abort %08x at 0x%x!\n", fsr, far);
 	while(1);
 }

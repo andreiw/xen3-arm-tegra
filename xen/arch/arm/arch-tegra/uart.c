@@ -29,7 +29,7 @@
 
 #define UART_SHIFT 2
 
-struct tegra_uart {
+static struct tegra_uart {
    void __iomem *base;
 } tegra_uart;
 

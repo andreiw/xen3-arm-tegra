@@ -20,10 +20,15 @@
 
 #include <xen/kernel.h>
 #include <xen/fb.h>
+#include <xen/fbcon.h>
 #include <asm/io.h>
 
 static struct fb_info *fb_current = NULL;
 
+/*
+ * Registers a framebuffer. This must be done during
+ * platform initialization time.
+ */
 void fb_register(struct fb_info *fb_info)
 {
    BUG_ON(fb_current != NULL);
@@ -32,48 +37,56 @@ void fb_register(struct fb_info *fb_info)
 }
 
 
+/*
+ * Initializes the framebuffer subsystem.
+ */
 static int fb_init(void)
 {
    if (!fb_current) {
-      printk("fb: no framebuffer support\n");
+      printk("fb: no platform framebuffer support\n");
       return 0;
    }
-
-   printk("fb: %s\n", fb_current->name);
-   if (fb_current->ops.init) {
-      if (!fb_current->ops.init(fb_current)) {
+   if (fb_current->ops.init == NULL ||
+       fb_current->ops.init(fb_current) == 0) {
          fb_current->flags |= FB_FLAGS_ACTIVE;
-      }
-   } else {
-      fb_current->flags |= FB_FLAGS_ACTIVE;
    }
 
+   printk("fb: %s, %s\n", fb_current->name,
+          fb_current->flags & FB_FLAGS_ACTIVE ?
+          "active" : "not-active");
+
+   if (fb_current->flags & FB_FLAGS_ACTIVE) {
+      fbcon_init(fb_current);
+   }
    return 0;
 }
 
-
-void fb_fillrect(const struct fb_fillrect *rect)
-{
-   if (!fb_current ||
-       !(fb_current->flags & FB_FLAGS_ACTIVE)) {
-      return;
-   }
-
-   cfb_fillrect(fb_current, rect);
-}
-
-
-void fb_imageblit(const struct fb_image *image)
-{
-   if (!fb_current ||
-       !(fb_current->flags & FB_FLAGS_ACTIVE)) {
-      return;
-   }
-
-   cfb_imageblit(fb_current, image);
-}
-
 __initcall(fb_init);
+
+
+/*
+ * All operations drawing to the framebuffer take a hw_color_t,
+ * while generic color defines are all 32bpp.
+ */
+hw_color_t fb_get_color(struct fb_info *fb_info, fb_color_t color)
+{
+   hw_color_t hw = 0;
+
+   /* Handle red. */
+   hw |= ((color & 0xFF) * ((1 << fb_info->red.length) - 1) / 0xFF) <<
+      fb_info->red.offset;
+   color >> 8;
+   hw |= ((color & 0xFF) * ((1 << fb_info->green.length) - 1) / 0xFF) <<
+      fb_info->green.offset;
+   color >> 8;
+   hw |= ((color & 0xFF) * ((1 << fb_info->blue.length) - 1) / 0xFF) <<
+      fb_info->blue.offset;
+   color >> 8;
+   hw |= ((color & 0xFF) * ((1 << fb_info->alpha.length) - 1) / 0xFF) <<
+      fb_info->alpha.offset;
+
+   return hw;
+}
 
 /*
  * Local variables:

@@ -22,13 +22,24 @@
 #define XEN_FB_H
 
 /*
+ * These are 32bpp color definitions that have to be converted
+ * to hardware color format before use from 0xAABBGGRR.
+ */
+#define FB_COLOR_BLACK      0x00000000
+#define FB_COLOR_DARK_GRAY  0x00222222
+#define FB_COLOR_LIGHT_GRAY 0x00999999
+#define FB_COLOR_WHITE      0x00FFFFFF
+typedef u32 fb_color_t;
+typedef u32 hw_color_t;
+
+/*
  * All offsets are from the right,  inside a "pixel" value, which is
  * exactly 'bpp' wide (means: you can use the offset as right argument
  * to <<). A pixel afterwards is a bit stream and is written to video
  * memory as that unmodified.
  */
 struct fb_px {
-   u32 offset; /* beginning of bitfield */
+   u32 offset;  /* beginning of bitfield */
    u32 length;  /* length of bitfield */
 };
 
@@ -62,38 +73,41 @@ struct fb_info {
 };
 
 struct fb_fillrect {
+   u32        dx;
+   u32        dy;
+   u32        width;
+   u32        height;
+   hw_color_t color;
+#define FB_ROP_COPY 0
+#define FB_ROP_XOR  1
+   u8         rop;
+};
+
+struct fb_image {
+   u32        dx;       /* Where to place image */
+   u32        dy;
+   u32        width;    /* Size of image */
+   u32        height;
+   hw_color_t fg_color; /* Only used when a mono bitmap */
+   hw_color_t bg_color;
+   u8         depth;    /* Depth of the image */
+   void       *data;    /* Pointer to image data */
+};
+
+struct fb_copyarea {
    u32 dx;
    u32 dy;
    u32 width;
    u32 height;
-   u32 color;
-#define FB_ROP_COPY 0
-#define FB_ROP_XOR  1
-   unsigned rop;
+   u32 sx;
+   u32 sy;
 };
-
-struct fb_image {
-   u32 dx;       /* Where to place image */
-   u32 dy;
-   u32 width;    /* Size of image */
-   u32 height;
-   u32 fg_color; /* Only used when a mono bitmap */
-   u32 bg_color;
-   u8  depth;    /* Depth of the image */
-   void *data;   /* Pointer to image data */
-};
-
-struct fb_font {
-   u8 width;
-   u8 height;
-   u8 *data;
-};
-
-extern struct fb_font fb_console_font;
 
 void fb_register(struct fb_info *fb_info);
-void fb_fillrect(const struct fb_fillrect *rect);
-void fb_imageblit(const struct fb_image *image);
+void fb_fillrect(struct fb_info *fb_info, const struct fb_fillrect *rect);
+void fb_imageblit(struct fb_info *fb_info, const struct fb_image *image);
+void fb_copyarea(struct fb_info *fb_info, const struct fb_copyarea *area);
+hw_color_t fb_get_color(struct fb_info *fb_info, fb_color_t color);
 
 #endif
 

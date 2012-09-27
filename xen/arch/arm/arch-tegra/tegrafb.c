@@ -58,6 +58,7 @@ int tegra_fb_ops_init(struct fb_info *fb_info)
 
    BUG_ON(pt_map(TEGRA_FB_VIRT, page_to_phys(fb), TEGRA_FB_SIZE, PTE_ENTRY_IO) != 0);
    fb_info->fbmem = (void __iomem *) TEGRA_FB_VIRT;
+   memset(fb_info->fbmem, 0, fb_info->fblen);
 
    /* Enable. */
    tegra_fb_write(tfb, (1 << 4), DC_CMD_DISPLAY_WINDOW_HEADER);

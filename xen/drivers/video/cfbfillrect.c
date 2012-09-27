@@ -29,7 +29,6 @@
 /*
  *  Aligned pattern fill using 32/64-bit memory accesses
  */
-
 static void
 bitfill_aligned(struct fb_info *p, unsigned long __iomem *dst, int dst_idx,
                 unsigned long pat, unsigned n, int bits)
@@ -87,7 +86,6 @@ bitfill_aligned(struct fb_info *p, unsigned long __iomem *dst, int dst_idx,
  *  Left/right are the appropriate shifts to convert to the pattern to be
  *  used for the next 32/64-bit word
  */
-
 static void
 bitfill_unaligned(struct fb_info *p, unsigned long __iomem *dst, int dst_idx,
                   unsigned long pat, int left, int right, unsigned n, int bits)
@@ -143,10 +141,10 @@ bitfill_unaligned(struct fb_info *p, unsigned long __iomem *dst, int dst_idx,
    }
 }
 
+
 /*
  *  Aligned pattern invert using 32/64-bit memory accesses
  */
-
 static void
 bitfill_aligned_rev(struct fb_info *p, unsigned long __iomem *dst,
                     int dst_idx, unsigned long pat, unsigned n, int bits)
@@ -218,7 +216,6 @@ bitfill_aligned_rev(struct fb_info *p, unsigned long __iomem *dst,
  *  Left/right are the appropriate shifts to convert to the pattern to be
  *  used for the next 32/64-bit word
  */
-
 static void
 bitfill_unaligned_rev(struct fb_info *p, unsigned long __iomem *dst,
                       int dst_idx, unsigned long pat, int left, int right,
@@ -284,7 +281,8 @@ bitfill_unaligned_rev(struct fb_info *p, unsigned long __iomem *dst,
    }
 }
 
-void cfb_fillrect(struct fb_info *p, const struct fb_fillrect *rect)
+
+void fb_fillrect(struct fb_info *p, const struct fb_fillrect *rect)
 {
    unsigned long pat, pat2, fg;
    unsigned long width = rect->width, height = rect->height;

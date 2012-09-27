@@ -37,7 +37,7 @@
 
 static LIST_HEAD(console_list);
 
-spinlock_t console_lock = SPIN_LOCK_UNLOCKED;
+static spinlock_t console_lock = SPIN_LOCK_UNLOCKED;
 
 static void console_puts(const char *str)
 {
@@ -167,7 +167,7 @@ void console_force_unlock(void)
    unsigned long flags;
    struct console_info *con;
 
-   spin_lock_irqsave(&console_lock, flags);
+   console_lock = SPIN_LOCK_UNLOCKED;
    list_for_each_entry(con, &console_list, head) {
       if (con->force_unlock) {
          con->force_unlock(con);
@@ -176,7 +176,6 @@ void console_force_unlock(void)
          con->start_sync(con);
       }
    }
-   spin_unlock_irqrestore(&console_lock, flags);
 }
 
 
